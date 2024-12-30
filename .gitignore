@@ -1,0 +1,28 @@
+/.idea
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
+# Node.js
+node_modules/
+dist/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Build output
+build/
+
+# Environment variables
+.env
+.env.local
+
+# OS files
+.DS_Store
