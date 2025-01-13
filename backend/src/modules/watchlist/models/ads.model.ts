@@ -26,7 +26,7 @@ export default class Ads extends Model<Ads> {
 	description: string;
 
 	@Column({
-		type: DataType.INTEGER.UNSIGNED,
+		type: DataType.INTEGER,
 	})
 	cost: number;
 

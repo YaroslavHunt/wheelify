@@ -1,9 +1,14 @@
+import { Dialect } from 'sequelize';
+import { Mode } from '../common/types';
+import { SequelizeModuleOptions } from '@nestjs/sequelize';
+
 export interface AppConfig {
-	nodeEnv: 'development' | 'production';
-	port: number;
+	mode: Mode;
+	port?: number;
 }
 
-export interface DatabaseConfig {
+export interface DatabaseConfig extends SequelizeModuleOptions {
+	dialect: Dialect;
 	host: string;
 	port: number;
 	username: string;

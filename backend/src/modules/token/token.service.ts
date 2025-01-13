@@ -10,7 +10,7 @@ export class TokenService {
 	) {
 	}
 
-	async generateJwtToken(user: Object) {
+	async generateJwtToken(user: Object): Promise<string> {
 		const payload = { user  };
 
 		return this.jwtService.sign(payload, {

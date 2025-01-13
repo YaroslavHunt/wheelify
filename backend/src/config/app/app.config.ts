@@ -1,7 +1,8 @@
 import { AppConfig } from '../config.types';
 import * as process from 'node:process';
+import { Mode } from '../../common/types';
 
 export default (): AppConfig => ({
-		nodeEnv: (process.env.NODE_ENV as 'development' | 'production') || 'development',
+		mode: (process.env.MODE as Mode) || 'development',
 		port: +process.env.APP_PORT || 3001,
 });
