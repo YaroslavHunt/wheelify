@@ -15,14 +15,12 @@ export default class User extends Model<User> {
 	id: number;
 
 	@Column({
-		field: 'username',
-		type: DataType.STRING(20),
+		type: DataType.STRING,
 		allowNull: false,
 	})
 	username: string;
 
 	@Column({
-		field: 'password',
 		type: DataType.STRING,
 		allowNull: false,
 	})

@@ -1,10 +1,12 @@
 import { Body, Controller, Delete, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { AdsService } from './ads.service';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateAdsResponse } from './response/create.ads.res';
 import { JwtAuthGuard } from '../../guards/jwt.guard';
 import { AdsDto } from './dto/ads.dto';
 
+
+@ApiTags('Advertisements')
 @Controller('advertisements')
 export class AdsController {
 	constructor(private readonly adsService: AdsService) {
