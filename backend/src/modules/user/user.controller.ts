@@ -5,6 +5,7 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update.user.dto';
 
 @ApiTags('Users')
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UserController {
 	constructor(private readonly userService: UserService) {
@@ -16,14 +17,12 @@ export class UserController {
 	}
 
 	@ApiResponse({ status: 202, type: UpdateUserDto })
-	@UseGuards(JwtAuthGuard)
 	@Patch()
 	updateUser(@Body() updateDto: UpdateUserDto, @Req() request): Promise<UpdateUserDto> {
 		const user: UpdateUserDto = request.user;
 		return this.userService.updateUser(user.email, updateDto);
 	}
 
-	@UseGuards(JwtAuthGuard)
 	@Delete()
 	deleteUser(@Req() request): Promise<boolean> {
 		const user = request.user;

@@ -1,9 +1,17 @@
 import { Dialect } from 'sequelize';
-import { Mode } from '../common/types';
 import { SequelizeModuleOptions } from '@nestjs/sequelize';
+import { Mode } from '../common/constants';
+
+export interface MainConfig {
+	app: AppConfig,
+	database: DatabaseConfig,
+	jwt: JwtConfig,
+	admin: AdministratorConfig
+}
+
 
 export interface AppConfig {
-	mode: Mode;
+	mode?: Mode;
 	port?: number;
 }
 
@@ -19,4 +27,10 @@ export interface DatabaseConfig extends SequelizeModuleOptions {
 export interface JwtConfig {
 	secret: string;
 	expire: string;
+}
+
+export interface AdministratorConfig {
+	username: string;
+	password: string;
+	email: string;
 }

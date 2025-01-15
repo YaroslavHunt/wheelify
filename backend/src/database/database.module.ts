@@ -3,6 +3,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { DynamicModule } from '@nestjs/common';
 import { Dialect } from 'sequelize';
 import { DatabaseConfig } from '../config/config.types';
+import { Mode } from '../common/constants';
 
 export const DatabaseModule: DynamicModule = SequelizeModule.forRootAsync({
 	imports: [ConfigModule],
@@ -29,8 +30,8 @@ export const DatabaseModule: DynamicModule = SequelizeModule.forRootAsync({
 			password,
 			database,
 			autoLoadModels: true,
-			synchronize: mode === 'development',
-			logging: mode === 'development' ? console.log : false,
+			synchronize: mode === Mode.DEV,
+			logging: mode === Mode.DEV ? console.log : false,
 		};
 	},
 });
