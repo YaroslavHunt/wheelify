@@ -41,6 +41,7 @@ export class UserService {
 				username: dto.username,
 				password: dto.password,
 				email: dto.email,
+				role: dto.role,
 			});
 			return dto;
 		} catch (e) {
