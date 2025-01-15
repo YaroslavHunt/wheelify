@@ -12,15 +12,15 @@ export class AuthController {
 
 	@ApiResponse({ status: 201, type: CreateUserDto })
 	@HttpCode(201)
-	@Post('register')
+	@Post('sign-up')
 	register(@Body() dto: CreateUserDto): Promise<CreateUserDto> {
-		return this.authService.registerUser(dto);
+		return this.authService.signUp(dto);
 	}
 
 	@ApiResponse({ status: 200, type: AuthUserResponse })
 	@HttpCode(200)
-	@Post('login')
+	@Post('sign-in')
 	login(@Body() dto: UserLoginDto): Promise<AuthUserResponse> {
-		return this.authService.loginUser(dto);
+		return this.authService.signIn(dto);
 	}
 }

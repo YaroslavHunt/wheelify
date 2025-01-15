@@ -10,6 +10,21 @@ export class UserService {
 	constructor(@Inject('USER_REPOSITORY') private readonly userRepository: typeof User) {
 	}
 
+	async publicUser(email: string): Promise<User> {
+		try {
+			return this.userRepository.findOne({
+				where: { email },
+				attributes: { exclude: ['password'] },
+				include: {
+					model: Ads,
+					required: false
+				}
+			});
+		} catch (e) {
+			throw new Error(e);
+		}
+	}
+
 	async hashPassword(password: string): Promise<string> {
 		try {
 			return bcrypt.hash(password, 10);
@@ -44,21 +59,6 @@ export class UserService {
 				role: dto.role,
 			});
 			return dto;
-		} catch (e) {
-			throw new Error(e);
-		}
-	}
-
-	async publicUser(email: string): Promise<User> {
-		try {
-			return this.userRepository.findOne({
-				where: { email },
-				attributes: { exclude: ['password'] },
-				include: {
-					model: Ads,
-					required: false
-				}
-			});
 		} catch (e) {
 			throw new Error(e);
 		}
