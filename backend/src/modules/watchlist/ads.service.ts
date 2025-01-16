@@ -6,8 +6,7 @@ import Ads from './models/ads.model';
 
 @Injectable()
 export class AdsService {
-	constructor(@Inject('ADS_REPOSITORY') readonly adsRepository: typeof Ads) {
-	}
+	constructor(@Inject('ADS_REPOSITORY') readonly adsRepository: typeof Ads) {}
 
 	async createAds(user: User, dto: AdsDto): Promise<CreateAdsResponse> {
 		try {
@@ -25,7 +24,9 @@ export class AdsService {
 
 	async updateAds(userId: number, adsId: number, dto: AdsDto): Promise<AdsDto> {
 		try {
-			await this.adsRepository.update(dto, { where: { user: userId, id: adsId } });
+			await this.adsRepository.update(dto, {
+				where: { user: userId, id: adsId },
+			});
 			return dto;
 		} catch (e) {
 			throw new Error(e);

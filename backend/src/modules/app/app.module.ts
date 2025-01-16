@@ -8,16 +8,16 @@ import configurations from '../../config';
 import { DatabaseModule } from '../../database/database.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [configurations],
-    }),
-    DatabaseModule,
-    AuthModule,
-    TokenModule,
-    UserModule,
-    AdsModule
-  ],
+	imports: [
+		ConfigModule.forRoot({
+			isGlobal: true,
+			load: [configurations],
+		}),
+		DatabaseModule,
+		AuthModule,
+		TokenModule,
+		UserModule,
+		AdsModule,
+	],
 })
 export class AppModule {}

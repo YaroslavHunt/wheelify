@@ -18,8 +18,10 @@ export const DatabaseModule: DynamicModule = SequelizeModule.forRootAsync({
 		const database = configService.get<string>('database.database');
 
 		if (!host || !port || !username || !password || !database) {
-			throw new Error('Missing database configuration values!' +
-				'\nCreate ".env" file with full env variables. (look at ".env-example") ');
+			throw new Error(
+				'Missing database configuration values!' +
+					'\nCreate ".env" file with full env variables. (look at ".env-example") ',
+			);
 		}
 
 		return {

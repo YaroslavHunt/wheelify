@@ -8,6 +8,6 @@ import Ads from './models/ads.model';
 @Module({
 	imports: [SequelizeModule.forFeature([Ads])],
 	controllers: [AdsController],
-	providers: [AdsService, ...adsProviders]
+	providers: [AdsService, ...adsProviders],
 })
 export class AdsModule {}

@@ -8,9 +8,7 @@ import * as process from 'node:process';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-	constructor(
-		private readonly userService: UserService,
-	) {
+	constructor(private readonly userService: UserService) {
 		super({
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 			ignoreExpiration: false,

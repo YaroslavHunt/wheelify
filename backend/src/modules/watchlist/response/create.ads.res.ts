@@ -4,13 +4,13 @@ import { ApiProperty } from '@nestjs/swagger';
 export class CreateAdsResponse {
 	@ApiProperty()
 	@IsNumber()
-	user: number
+	user: number;
 
 	@ApiProperty()
 	@IsString()
-	title: string
+	title: string;
 
 	@ApiProperty()
 	@IsString()
-	description: string
+	description: string;
 }

@@ -4,7 +4,6 @@ import jwtConfig from './token/jwt.config';
 import adminConfig from './admin/admin.config';
 import { MainConfig } from './config.types';
 
-
 export default (): MainConfig => ({
 	app: appConfig(),
 	database: dbConfig(),

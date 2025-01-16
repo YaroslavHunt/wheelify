@@ -1,4 +1,11 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, Length, MinLength } from 'class-validator';
+import {
+	IsEmail,
+	IsNotEmpty,
+	IsOptional,
+	IsString,
+	Length,
+	MinLength,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '../../../common/constants';
 
@@ -20,4 +27,3 @@ export class CreateUserDto {
 	@IsOptional()
 	role?: Role;
 }
-

@@ -7,8 +7,9 @@ import Ads from '../watchlist/models/ads.model';
 
 @Injectable()
 export class UserService {
-	constructor(@Inject('USER_REPOSITORY') private readonly userRepository: typeof User) {
-	}
+	constructor(
+		@Inject('USER_REPOSITORY') private readonly userRepository: typeof User,
+	) {}
 
 	async publicUser(email: string): Promise<User> {
 		try {
@@ -17,8 +18,8 @@ export class UserService {
 				attributes: { exclude: ['password'] },
 				include: {
 					model: Ads,
-					required: false
-				}
+					required: false,
+				},
 			});
 		} catch (e) {
 			throw new Error(e);
