@@ -9,6 +9,4 @@ export interface UserPayload {
 
 export interface JwtPayload extends Request{
 	user: UserPayload;
-	iat: number;
-	exp: number;
 }

@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AdsDto } from './dto/ads.dto';
 import { CreateAdsResponse } from './response/create.ads.res';
-import User from '../user/models/user.model';
-import Ads from './models/ads.model';
+import User from '../user/model/user.model';
+import Ads from './model/ads.model';
 
 @Injectable()
 export class AdsService {
@@ -10,7 +10,7 @@ export class AdsService {
 
 	async createAds(user: User, dto: AdsDto): Promise<CreateAdsResponse> {
 		try {
-			const advertisement = {
+			const advertisement: CreateAdsResponse = {
 				user: user.id,
 				title: dto.title,
 				description: dto.description,
@@ -22,7 +22,11 @@ export class AdsService {
 		}
 	}
 
-	async updateAds(userId: number, adsId: number, dto: AdsDto): Promise<AdsDto> {
+	async updateAds(
+		userId: number,
+		adsId: number,
+		dto: AdsDto
+	): Promise<AdsDto> {
 		try {
 			await this.adsRepository.update(dto, {
 				where: { user: userId, id: adsId },

@@ -5,7 +5,7 @@ import {
 	Model,
 	Table,
 } from 'sequelize-typescript';
-import User from '../../user/models/user.model';
+import User from '../../user/model/user.model';
 
 @Table({
 	tableName: 'advertisements',
