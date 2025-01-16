@@ -6,28 +6,28 @@ import { ConfigService } from '@nestjs/config';
 // import * as helmet from 'helmet';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+	const app = await NestFactory.create(AppModule);
 
-  const configService = app.get(ConfigService);
-  const port = configService.get<number>('app.port');
+	const configService = app.get(ConfigService);
+	const port = configService.get<number>('app.port');
 
-  // Security Middleware
-  // app.use(helmet());
-  // app.enableCors({ origin: ['http://localhost:3000'], credentials: true }); // TODO
+	// Security Middleware
+	// app.use(helmet());
+	// app.enableCors({ origin: ['http://localhost:3000'], credentials: true }); // TODO
 
-  // Logger
-  app.useLogger(new Logger());
+	// Logger
+	app.useLogger(new Logger());
 
-  // Global Validation
-  app.useGlobalPipes(new ValidationPipe());
+	// Global Validation
+	app.useGlobalPipes(new ValidationPipe());
 
-  // API Version Prefix
-  app.setGlobalPrefix('api/v1');
+	// API Version Prefix
+	app.setGlobalPrefix('api/v1');
 
-  // Swagger Setup
-  setupSwagger(app);
+	// Swagger Setup
+	setupSwagger(app);
 
-  // Start server
-  await app.listen(port);
+	// Start server
+	await app.listen(port);
 }
 bootstrap();

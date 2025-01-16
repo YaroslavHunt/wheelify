@@ -17,7 +17,9 @@ async function createAdmin(): Promise<void> {
 	const adminPassword = configService.get<string>('admin.password');
 
 	if (!adminEmail || !adminPassword) {
-		logger.error('Missing administrator email or password in configuration. (Look at .env-example)');
+		logger.error(
+			'Missing administrator email or password in configuration. (Look at .env-example)',
+		);
 		await app.close();
 		return;
 	}

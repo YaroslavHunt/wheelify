@@ -54,6 +54,12 @@ You can change this behavior by modifying the configuration in the `.env` file:
 
 Ensure that the environment variables are correctly set in your `.env` file.
 
+Install dependencies:
+
+```bash
+  npm install 
+```
+
 Start the backend:
 
 ```bash

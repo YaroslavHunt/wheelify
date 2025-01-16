@@ -8,7 +8,7 @@ async function createUsers(): Promise<void> {
 	const app = await NestFactory.createApplicationContext(AppModule);
 	const userService = app.get(UserService);
 
-	let users: Array<CreateUserDto> = [
+	const users: Array<CreateUserDto> = [
 		{
 			username: 'jane_martin',
 			email: 'jane.martin1@example.com',
@@ -69,8 +69,7 @@ async function createUsers(): Promise<void> {
 			password: 'ChrHar123',
 			role: 'user' as Role,
 		},
-	]
-
+	];
 
 	try {
 		for (const user of users) {
@@ -88,4 +87,3 @@ async function createUsers(): Promise<void> {
 (async (): Promise<void> => {
 	await createUsers();
 })();
-

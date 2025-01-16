@@ -2,15 +2,15 @@ import { IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateAdsResponse {
-	@ApiProperty()
+	@ApiProperty({name: 'user_id'})
 	@IsNumber()
-	user: number
+	user: number;
 
 	@ApiProperty()
 	@IsString()
-	title: string
+	title: string;
 
 	@ApiProperty()
 	@IsString()
-	description: string
+	description: string;
 }

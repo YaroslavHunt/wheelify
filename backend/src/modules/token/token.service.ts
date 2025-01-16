@@ -7,10 +7,9 @@ export class TokenService {
 	constructor(
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService,
-	) {
-	}
+	) {}
 
-	async generateJwtToken(user: Object): Promise<string> {
+	async generateJwtToken(user: object): Promise<string> {
 		const payload = { user };
 
 		return this.jwtService.signAsync(payload, {

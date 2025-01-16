@@ -1,4 +1,4 @@
-import Ads from './models/ads.model';
+import Ads from './model/ads.model';
 
 export const adsProviders = [
 	{

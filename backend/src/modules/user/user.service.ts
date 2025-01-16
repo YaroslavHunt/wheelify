@@ -2,13 +2,14 @@ import { Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
-import User from './models/user.model';
-import Ads from '../watchlist/models/ads.model';
+import User from './model/user.model';
+import Ads from '../advertisements/model/ads.model';
 
 @Injectable()
 export class UserService {
-	constructor(@Inject('USER_REPOSITORY') private readonly userRepository: typeof User) {
-	}
+	constructor(
+		@Inject('USER_REPOSITORY') private readonly userRepository: typeof User,
+	) {}
 
 	async publicUser(email: string): Promise<User> {
 		try {
@@ -17,8 +18,8 @@ export class UserService {
 				attributes: { exclude: ['password'] },
 				include: {
 					model: Ads,
-					required: false
-				}
+					required: false,
+				},
 			});
 		} catch (e) {
 			throw new Error(e);
