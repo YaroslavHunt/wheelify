@@ -4,11 +4,12 @@ import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
 import User from './model/user.model';
 import Ads from '../advertisements/model/ads.model';
+import { USER_REPOSITORY } from '../../common/constants';
 
 @Injectable()
 export class UserService {
 	constructor(
-		@Inject('USER_REPOSITORY') private readonly userRepository: typeof User,
+		@Inject(USER_REPOSITORY) private readonly userRepository: typeof User,
 	) {}
 
 	async publicUser(email: string): Promise<User> {

@@ -1,11 +1,2 @@
-export enum Role {
-	ADMIN = 'admin',
-	MODERATOR = 'moderator',
-	USER = 'user',
-}
-
-export enum Mode {
-	DEV = 'development',
-	PROD = 'production',
-	TEST = 'test',
-}
+export const ADS_REPOSITORY = 'ADS_REPOSITORY';
+export const USER_REPOSITORY = 'USER_REPOSITORY';

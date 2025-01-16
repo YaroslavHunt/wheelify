@@ -17,7 +17,7 @@ export default class Ads extends Model<Ads> {
 		autoIncrement: true,
 		primaryKey: true,
 	})
-	id: number;
+	id?: number;
 
 	@Column({
 		type: DataType.STRING(200),

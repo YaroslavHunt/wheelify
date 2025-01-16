@@ -1,6 +1,6 @@
 import { Dialect } from 'sequelize';
 import { SequelizeModuleOptions } from '@nestjs/sequelize';
-import { Mode } from '../common/constants';
+import { Mode } from '../common/enums';
 
 export interface MainConfig {
 	app: AppConfig;

@@ -3,10 +3,11 @@ import { AdsDto } from './dto/ads.dto';
 import { CreateAdsResponse } from './response/create.ads.res';
 import User from '../user/model/user.model';
 import Ads from './model/ads.model';
+import { ADS_REPOSITORY } from '../../common/constants';
 
 @Injectable()
 export class AdsService {
-	constructor(@Inject('ADS_REPOSITORY') readonly adsRepository: typeof Ads) {}
+	constructor(@Inject(ADS_REPOSITORY) readonly adsRepository: typeof Ads) {}
 
 	async createAds(user: User, dto: AdsDto): Promise<CreateAdsResponse> {
 		try {
@@ -14,6 +15,7 @@ export class AdsService {
 				user: user.id,
 				title: dto.title,
 				description: dto.description,
+				cost: dto.cost
 			};
 			await this.adsRepository.create(advertisement);
 			return advertisement;

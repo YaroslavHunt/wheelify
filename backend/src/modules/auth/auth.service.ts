@@ -5,7 +5,7 @@ import { TokenService } from '../token/token.service';
 import { CreateUserDto } from '../user/dto/create.user.dto';
 import { UserLoginDto } from './dto/user.login.dto';
 import { AuthUserResponse } from './response/user.response';
-import { Role } from 'src/common/constants';
+import { Role } from 'src/common/enums';
 
 @Injectable()
 export class AuthService {

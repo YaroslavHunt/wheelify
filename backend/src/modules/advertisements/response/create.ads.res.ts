@@ -13,4 +13,8 @@ export class CreateAdsResponse {
 	@ApiProperty()
 	@IsString()
 	description: string;
+
+	@ApiProperty()
+	@IsNumber()
+	cost: number;
 }
