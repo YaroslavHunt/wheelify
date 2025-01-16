@@ -7,7 +7,7 @@ export interface UserPayload {
 	updatedAt: string;
 }
 
-export interface JwtPayload {
+export interface JwtPayload extends Request{
 	user: UserPayload;
 	iat: number;
 	exp: number;

@@ -11,6 +11,7 @@ import { UserService } from './user.service';
 import { JwtAuthGuard } from '../../guards/jwt.guard';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update.user.dto';
+import { JwtPayload } from '../../strategy/types';
 
 @ApiTags('Users')
 @UseGuards(JwtAuthGuard)
@@ -27,14 +28,14 @@ export class UserController {
 	@Patch()
 	updateUser(
 		@Body() updateDto: UpdateUserDto,
-		@Req() request,
+		@Req() request: JwtPayload,
 	): Promise<UpdateUserDto> {
 		const user: UpdateUserDto = request.user;
 		return this.userService.updateUser(user.email, updateDto);
 	}
 
 	@Delete()
-	deleteUser(@Req() request): Promise<boolean> {
+	deleteUser(@Req() request: JwtPayload): Promise<boolean> {
 		const user = request.user;
 		return this.userService.deleteUser(user.email);
 	}
