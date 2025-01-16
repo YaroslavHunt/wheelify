@@ -1,5 +1,5 @@
 import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
-import Ads from '../../watchlist/models/ads.model';
+import Ads from '../../advertisements/models/ads.model';
 import { Role } from '../../../common/constants';
 
 @Table({

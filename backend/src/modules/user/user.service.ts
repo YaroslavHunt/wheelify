@@ -3,7 +3,7 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
 import User from './models/user.model';
-import Ads from '../watchlist/models/ads.model';
+import Ads from '../advertisements/models/ads.model';
 
 @Injectable()
 export class UserService {
