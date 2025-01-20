@@ -6,7 +6,7 @@ import { Role } from '../../common/constants';
 
 async function createUsers(): Promise<void> {
 	const app = await NestFactory.createApplicationContext(AppModule);
-	const userService = app.get(UserService);
+	const userService = app.get<UserService>(UserService);
 
 	const users: Array<CreateUserDto> = [
 		{

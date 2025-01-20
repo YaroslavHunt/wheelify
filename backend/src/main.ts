@@ -6,7 +6,6 @@ import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
-
 	const configService = app.get(ConfigService);
 	const port = configService.get<number>('app.port');
 	const domains = configService.get<string[]>('security.domains');
@@ -18,7 +17,7 @@ async function bootstrap() {
 	});
 
 	// Logger
-	app.useLogger(new Logger());
+	app.useLogger(new Logger('Bootstrap'));
 
 	// Global Validation
 	app.useGlobalPipes(new ValidationPipe());
@@ -32,4 +31,10 @@ async function bootstrap() {
 	// Start server
 	await app.listen(port);
 }
-bootstrap();
+
+bootstrap().then(() => {
+	Logger.log('Server is running...');
+}).catch((error: Error) => {
+	Logger.error('Error during bootstrap:', error);
+});
+

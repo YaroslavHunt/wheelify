@@ -43,5 +43,5 @@ export default class User extends Model<User> {
 		onDelete: 'CASCADE',
 		onUpdate: 'CASCADE',
 	})
-	watchlist: Ads[];
+	advertisements: Ads[];
 }

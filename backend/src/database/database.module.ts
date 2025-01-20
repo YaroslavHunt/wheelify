@@ -34,6 +34,8 @@ export const DatabaseModule: DynamicModule = SequelizeModule.forRootAsync({
 			autoLoadModels: true,
 			synchronize: mode === Mode.DEV,
 			logging: mode === Mode.DEV ? console.log : false,
+			timezone: '+00:00',
+			dialectOptions: { timezone: 'Etc/UTC' }
 		};
 	},
 });

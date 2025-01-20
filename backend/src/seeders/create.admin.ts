@@ -8,9 +8,9 @@ import { ConfigService } from '@nestjs/config';
 
 async function createAdmin(): Promise<void> {
 	const app = await NestFactory.createApplicationContext(AppModule);
-	const userService = app.get(UserService);
+	const userService = app.get<UserService>(UserService);
 	const logger = new Logger('Administrator');
-	const configService: ConfigService = app.get(ConfigService);
+	const configService = app.get<ConfigService>(ConfigService);
 
 	const adminUsername = configService.get<string>('admin.username');
 	const adminEmail = configService.get<string>('admin.email');
