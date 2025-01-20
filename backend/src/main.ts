@@ -3,17 +3,19 @@ import { AppModule } from './modules/app/app.module';
 import { setupSwagger } from './config/swagger';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-// import * as helmet from 'helmet';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
 
 	const configService = app.get(ConfigService);
 	const port = configService.get<number>('app.port');
+	const domains = configService.get<string[]>('security.domains');
 
 	// Security Middleware
-	// app.use(helmet());
-	// app.enableCors({ origin: ['http://localhost:3000'], credentials: true }); // TODO
+	app.enableCors({
+		origin: domains,
+		credentials: true
+	});
 
 	// Logger
 	app.useLogger(new Logger());

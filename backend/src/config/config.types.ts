@@ -7,6 +7,7 @@ export interface MainConfig {
 	database: DatabaseConfig;
 	jwt: JwtConfig;
 	admin: AdministratorConfig;
+	security: SecurityConfig;
 }
 
 export interface AppConfig {
@@ -32,4 +33,8 @@ export interface AdministratorConfig {
 	username: string;
 	password: string;
 	email: string;
+}
+
+export interface SecurityConfig {
+	domains: string[];
 }
