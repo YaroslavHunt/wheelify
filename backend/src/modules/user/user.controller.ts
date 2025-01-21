@@ -1,12 +1,4 @@
-import {
-	Body,
-	Controller,
-	Delete,
-	Get,
-	Patch,
-	Req,
-	UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, Patch, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../../guards/jwt.guard';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -19,19 +11,14 @@ import { JwtPayload } from '../../strategy/types';
 export class UserController {
 	constructor(private readonly userService: UserService) {}
 
-	@Get()
-	getUsers() {
-		return this.userService.getUsers();
-	}
-
 	@ApiResponse({ status: 202, type: UpdateUserDto })
+	@HttpCode(202)
 	@Patch()
 	updateUser(
 		@Body() updateDto: UpdateUserDto,
-		@Req() request: JwtPayload,
+		@Req() req: JwtPayload,
 	): Promise<UpdateUserDto> {
-		const user: UpdateUserDto = request.user;
-		return this.userService.updateUser(user.email, updateDto);
+		return this.userService.updateUser(req.user.email, updateDto);
 	}
 
 	@Delete()

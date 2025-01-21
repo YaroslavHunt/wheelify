@@ -4,7 +4,7 @@ import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
 import User from './model/user.model';
 import Ads from '../advertisements/model/ads.model';
-import { Transaction } from 'sequelize';
+import { Op, Transaction, WhereOptions } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { Role } from '../../common/constants';
 
@@ -35,23 +35,25 @@ export class UserService {
 
 	async hashPassword(password: string): Promise<string> {
 		try {
-			return bcrypt.hash(password, 10);
+			return bcrypt.hash(password, 12);
 		} catch (e) {
 			throw e;
 		}
 	}
 
-	async findUserByEmail(email: string): Promise<User> {
+	async findUserBy(
+		options: WhereOptions<User>,
+		t?: Transaction,
+	): Promise<User | null> {
 		try {
-			return this.userRepository.findOne({ where: { email } });
-		} catch (e) {
-			throw e;
-		}
-	}
+			const where: WhereOptions<User> = Object.keys(options).length > 1
+				? { [Op.or]: Object.entries(options).map(([key, value]) => ({ [key]: value })) }
+				: options;
 
-	async getUsers() {
-		try {
-			return null;
+			return await this.userRepository.findOne({
+				where,
+				transaction: t,
+			});
 		} catch (e) {
 			throw e;
 		}
@@ -60,9 +62,16 @@ export class UserService {
 	async createUser(dto: CreateUserDto): Promise<CreateUserDto> {
 		const t: Transaction = await this.sequelize.transaction();
 		try {
-			const existUser = await this.findUserByEmail(dto.email);
-			if (existUser) {
-				throw new BadRequestException('User with this email already exists');
+			const exist = await this.findUserBy({
+				email: dto.email,
+				username: dto.username
+			}, t);
+			if (exist) {
+				throw new BadRequestException(
+					exist.email === dto.email
+						? 'User with this email already exists'
+						: 'User with this username already exists',
+				);
 			}
 			if (dto.role === Role.ADMIN) {
 				this.logger.error(`Attempt to create admin user with email ${dto.email}`);
@@ -79,7 +88,7 @@ export class UserService {
 				{ transaction: t },
 			);
 			await t.commit();
-			this.logger.log(`Successful register user ${dto.username}, with email ${dto.email}`,);
+			this.logger.log(`Successful register user ${dto.username}, with email ${dto.email}`);
 			return dto;
 		} catch (e) {
 			await t.rollback();
@@ -89,10 +98,33 @@ export class UserService {
 	}
 
 	async updateUser(email: string, dto: UpdateUserDto): Promise<UpdateUserDto> {
+		const t = await this.sequelize.transaction();
 		try {
-			await this.userRepository.update(dto, { where: { email } });
-			return dto;
+			const user = await this.findUserBy({ email }, t);
+			const options: WhereOptions<User> = {};
+			if (dto.email) options.email = dto.email;
+			if (dto.username) options.username = dto.username;
+			const exist = await this.findUserBy(options, t);
+			if (exist) {
+				throw new BadRequestException(
+					exist.email === dto.email
+						? 'User with this email already exists'
+						: 'User with this username already exists',
+				);
+			}
+			if (dto.role === Role.ADMIN) {
+				this.logger.error(`Attempt to create admin user with email ${email}`);
+				throw new BadRequestException('Reserved value. Administrator already exists');
+			}
+			dto.role = dto.role || Role.USER;
+			dto.password = await this.hashPassword(dto.password);
+			await this.userRepository.update(dto, { where: { email }, transaction: t });
+			await t.commit();
+			this.logger.log(`Successful update user ${user.username} with id:${user.id}`);
+			return this.publicUser(dto.email ?? email);
 		} catch (e) {
+			await t.rollback();
+			this.logger.error(`Failed to update user: ${e.message}`, e.stack);
 			throw e;
 		}
 	}

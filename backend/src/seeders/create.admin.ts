@@ -25,7 +25,7 @@ async function createAdmin(): Promise<void> {
 	}
 
 	try {
-		const existingAdmin = await userService.findUserByEmail(adminEmail);
+		const existingAdmin = await userService.findUserBy({ email: adminEmail });
 		if (existingAdmin) {
 			logger.error('Administrator already exists. No action taken');
 		} else {

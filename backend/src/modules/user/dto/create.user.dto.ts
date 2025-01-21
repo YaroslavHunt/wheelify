@@ -12,16 +12,16 @@ import { Role } from '../../../common/constants';
 export class CreateUserDto {
 	@ApiProperty()
 	@IsNotEmpty()
-	@Length(3, 20, { message: 'Incorrect username length.' })
+	@Length(3, 20)
 	username: string;
 
 	@ApiProperty()
-	@IsEmail({}, { message: 'Invalid email format' })
+	@IsEmail()
 	email: string;
 
 	@ApiProperty()
 	@IsString()
-	@MinLength(8, { message: 'Password must be at least 8 characters long' })
+	@MinLength(8)
 	password: string;
 
 	@IsOptional()

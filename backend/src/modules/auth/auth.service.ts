@@ -24,21 +24,25 @@ export class AuthService {
 	}
 
 	async signIn(dto: UserLoginDto): Promise<AuthUserResponse> {
-		const existUser = await this.usersService.findUserByEmail(dto.email);
-		if (!existUser) {
-			throw new BadRequestException(
-				`User with email ${dto.email} does not exist`,
+		try {
+			const exist = await this.usersService.findUserBy({ email: dto.email });
+			if (!exist) {
+				throw new BadRequestException(
+					`User with email ${dto.email} does not exist`,
+				);
+			}
+			const validPassword = await bcrypt.compare(
+				dto.password,
+				exist.password,
 			);
+			if (!validPassword) {
+				throw new BadRequestException('Wrong password');
+			}
+			const user = await this.usersService.publicUser(dto.email);
+			const token = await this.tokenService.generateJwtToken(user);
+			return { user, token };
+		} catch (e) {
+			throw e;
 		}
-		const validPassword = await bcrypt.compare(
-			dto.password,
-			existUser.password,
-		);
-		if (!validPassword) {
-			throw new BadRequestException('Wrong password');
-		}
-		const user = await this.usersService.publicUser(dto.email);
-		const token = await this.tokenService.generateJwtToken(user);
-		return { user, token };
 	}
 }
