@@ -33,14 +33,6 @@ export class UserService {
 		}
 	}
 
-	async hashPassword(password: string): Promise<string> {
-		try {
-			return bcrypt.hash(password, 12);
-		} catch (e) {
-			throw e;
-		}
-	}
-
 	async findUserBy(
 		options: WhereOptions<User>,
 		t?: Transaction,
@@ -78,7 +70,7 @@ export class UserService {
 				throw new BadRequestException('Reserved value. Administrator already exists');
 			}
 			dto.role = dto.role || Role.USER;
-			dto.password = await this.hashPassword(dto.password);
+			dto.password = await bcrypt.hash(dto.password, 12);
 			await this.userRepository.create({
 					username: dto.username,
 					password: dto.password,
@@ -117,7 +109,7 @@ export class UserService {
 				throw new BadRequestException('Reserved value. Administrator already exists');
 			}
 			dto.role = dto.role || Role.USER;
-			dto.password = await this.hashPassword(dto.password);
+			dto.password = await bcrypt.hash(dto.password, 12);
 			await this.userRepository.update(dto, { where: { email }, transaction: t });
 			await t.commit();
 			this.logger.log(`Successful update user ${user.username} with id:${user.id}`);
