@@ -6,8 +6,10 @@ import { Role } from '../../../common/constants';
 	tableName: 'users',
 	timestamps: true,
 	indexes: [
-		{ unique: true, fields: ['id', 'email', 'username'], },
-		{ fields: ['role'], },
+		{ unique: true, fields: ['id'] },
+		{ unique: true, fields: ['email'] },
+		{ unique: true, fields: ['username'] },
+		{ fields: ['role'] },
 	],
 })
 export default class User extends Model<User> {

@@ -11,8 +11,10 @@ import User from '../../user/model/user.model';
 	tableName: 'advertisements',
 	timestamps: true,
 	indexes: [
-		{ unique: true, fields: ['id', 'user_id'] },
-		{ fields: ['title', 'description'] },
+		{ unique: true, fields: ['id'] },
+		{ unique: true, fields: ['user_id'] },
+		{ fields: ['title'] },
+		{ fields: ['description'] },
 	],
 })
 export default class Ads extends Model<Ads> {
