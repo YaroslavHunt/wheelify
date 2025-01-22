@@ -5,6 +5,7 @@ import { TokenService } from '../token/token.service';
 import { CreateUserDto } from '../user/dto/create.user.dto';
 import { UserLoginDto } from './dto/user.login.dto';
 import { AuthUserResponse } from './response/user.response';
+import { WinstonLoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
 	constructor(
 		private readonly usersService: UserService,
 		private readonly tokenService: TokenService,
+		private readonly logger: WinstonLoggerService,
 	) {
 	}
 

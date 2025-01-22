@@ -6,6 +6,7 @@ import { AdsModule } from '../advertisements/ads.module';
 import { ConfigModule } from '@nestjs/config';
 import configurations from '../../config';
 import { DatabaseModule } from '../../database/database.module';
+import { LoggerModule } from '../logger/logger.module';
 
 @Module({
 	imports: [
@@ -18,6 +19,7 @@ import { DatabaseModule } from '../../database/database.module';
 		TokenModule,
 		UserModule,
 		AdsModule,
+		LoggerModule,
 	],
 })
 export class AppModule {}
