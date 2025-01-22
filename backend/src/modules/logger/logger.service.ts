@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'path';
 import * as winston from 'winston';
 import * as winstonDailyRotateFile from 'winston-daily-rotate-file';
+import { Injectable } from '@nestjs/common';
 
 const logDirectory = path.join(__dirname, '../logs');
 
@@ -21,15 +22,16 @@ const myFormat = winston.format.printf((info) => {
 	return `[${info.timestamp}] [${info.label}] ${info.level}: ${info.message}`;
 });
 
+@Injectable()
 export class WinstonLoggerService {
 	private readonly logger: winston.Logger;
 
-	constructor() {
+	constructor(label: string = 'App') {
 		this.logger = winston.createLogger({
 			level: 'info',
 			format: winston.format.combine(
 				winston.format.splat(),
-				winston.format.label({ label: 'App' }),
+				winston.format.label({ label }),
 				winston.format.timestamp({ format: localTimestamp }),
 				winston.format.errors({ stack: true }),
 				myFormat,

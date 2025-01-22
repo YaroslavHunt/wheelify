@@ -15,12 +15,14 @@ export class AuthService {
 		private readonly tokenService: TokenService,
 		private readonly logger: WinstonLoggerService,
 	) {
+		this.logger = new WinstonLoggerService(AuthService.name);
 	}
 
 	async signUp(dto: CreateUserDto): Promise<CreateUserDto> {
 		try {
 			return await this.usersService.createUser(dto);
 		} catch (e) {
+			this.logger.error('Error during signUp', e.stack);
 			throw e;
 		}
 	}
@@ -29,9 +31,7 @@ export class AuthService {
 		try {
 			const exist = await this.usersService.findUserBy({ email: dto.email });
 			if (!exist) {
-				throw new BadRequestException(
-					`User with email ${dto.email} does not exist`,
-				);
+				throw new BadRequestException(`User with email ${dto.email} does not exist`);
 			}
 			const validPassword = await bcrypt.compare(
 				dto.password,
@@ -44,6 +44,7 @@ export class AuthService {
 			const token = await this.tokenService.generateJwtToken(user);
 			return { user, token };
 		} catch (e) {
+			this.logger.error('Error during signIn', e.stack);
 			throw e;
 		}
 	}

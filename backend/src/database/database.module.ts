@@ -4,6 +4,9 @@ import { DynamicModule } from '@nestjs/common';
 import { Dialect } from 'sequelize';
 import { DatabaseConfig } from '../config/config.types';
 import { Mode } from '../common/constants';
+import { WinstonLoggerService } from '../modules/logger/logger.service';
+
+const logger = new WinstonLoggerService('DATABASE');
 
 export const DatabaseModule: DynamicModule = SequelizeModule.forRootAsync({
 	imports: [ConfigModule],
@@ -18,10 +21,10 @@ export const DatabaseModule: DynamicModule = SequelizeModule.forRootAsync({
 		const database = configService.get<string>('database.database');
 
 		if (!host || !port || !username || !password || !database) {
-			throw new Error(
-				'Missing database configuration values!' +
-					'\nCreate ".env" file with full env variables. (look at ".env-example") ',
-			);
+			const message = 'Missing database configuration values!' +
+				'\nCreate ".env" file with full env variables. (look at ".env-example")';
+			logger.error(message);
+			throw new Error(message);
 		}
 
 		return {

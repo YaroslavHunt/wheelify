@@ -3,13 +3,13 @@ import { AppModule } from '../modules/app/app.module';
 import { UserService } from '../modules/user/user.service';
 import { CreateUserDto } from '../modules/user/dto/create.user.dto';
 import { Role } from '../common/constants';
-import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { WinstonLoggerService } from '../modules/logger/logger.service';
 
 async function createAdmin(): Promise<void> {
 	const app = await NestFactory.createApplicationContext(AppModule);
 	const userService = app.get<UserService>(UserService);
-	const logger = new Logger('Administrator');
+	const logger = new WinstonLoggerService('Administrator');
 	const configService = app.get<ConfigService>(ConfigService);
 
 	const adminUsername = configService.get<string>('admin.username');
@@ -17,9 +17,7 @@ async function createAdmin(): Promise<void> {
 	const adminPassword = configService.get<string>('admin.password');
 
 	if (!adminEmail || !adminPassword) {
-		logger.error(
-			'Missing administrator email or password in configuration. (Look at .env-example)',
-		);
+		logger.error('Missing administrator email or password in configuration. (Look at .env-example)');
 		await app.close();
 		return;
 	}
@@ -40,8 +38,7 @@ async function createAdmin(): Promise<void> {
 			logger.log('Administrator created successfully!');
 		}
 	} catch (e) {
-		logger.error('Error creating admin user:', e.message);
-		console.log(e);
+		logger.error(e.message, e.stack);
 	} finally {
 		await app.close();
 	}

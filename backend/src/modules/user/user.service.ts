@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
@@ -7,15 +7,17 @@ import Ads from '../advertisements/model/ads.model';
 import { Op, Transaction, WhereOptions } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { Role } from '../../common/constants';
+import { WinstonLoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class UserService {
-	private readonly logger = new Logger(UserService.name);
 
 	constructor(
 		@Inject('USER_REPOSITORY') private readonly userRepository: typeof User,
 		private readonly sequelize: Sequelize,
+		private readonly logger: WinstonLoggerService,
 	) {
+		this.logger = new WinstonLoggerService(UserService.name);
 	}
 
 	async publicUser(email: string): Promise<User> {
@@ -66,7 +68,7 @@ export class UserService {
 				);
 			}
 			if (dto.role === Role.ADMIN) {
-				this.logger.error(`Attempt to create admin user with email ${dto.email}`);
+				this.logger.warn(`Attempt to create admin user with email: ${dto.email}`);
 				throw new BadRequestException('Reserved value. Administrator already exists');
 			}
 			dto.role = dto.role || Role.USER;
