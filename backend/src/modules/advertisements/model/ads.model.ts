@@ -10,6 +10,10 @@ import User from '../../user/model/user.model';
 @Table({
 	tableName: 'advertisements',
 	timestamps: true,
+	indexes: [
+		{ unique: true, fields: ['id', 'user_id'] },
+		{ fields: ['title', 'description'] },
+	],
 })
 export default class Ads extends Model<Ads> {
 	@Column({
@@ -38,6 +42,7 @@ export default class Ads extends Model<Ads> {
 
 	@ForeignKey(() => User)
 	@Column({
+		field: 'user_id',
 		type: DataType.INTEGER,
 		allowNull: false,
 	})

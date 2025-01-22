@@ -5,6 +5,10 @@ import { Role } from '../../../common/constants';
 @Table({
 	tableName: 'users',
 	timestamps: true,
+	indexes: [
+		{ unique: true, fields: ['id', 'email', 'username'], },
+		{ fields: ['role'], },
+	],
 })
 export default class User extends Model<User> {
 	@Column({
