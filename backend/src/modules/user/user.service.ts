@@ -23,13 +23,13 @@ export class UserService {
 	async publicUser(email: string): Promise<User> {
 		try {
 			return this.userRepository.findOne({
-				where: { email },
-				attributes: { exclude: ['password'] },
-				include: {
-					model: Ads,
-					required: false,
-				},
-			});
+					where: { email },
+					attributes: { exclude: ['password'] },
+					include: {
+						model: Ads,
+						required: false,
+					},
+				});
 		} catch (e) {
 			throw e;
 		}
@@ -58,7 +58,7 @@ export class UserService {
 		try {
 			const exist = await this.findUserBy({
 				email: dto.email,
-				username: dto.username
+				username: dto.username,
 			}, t);
 			if (exist) {
 				throw new BadRequestException(
@@ -82,11 +82,10 @@ export class UserService {
 				{ transaction: t },
 			);
 			await t.commit();
-			this.logger.log(`Successful register user ${dto.username}, with email ${dto.email}`);
 			return dto;
 		} catch (e) {
 			await t.rollback();
-			this.logger.error(`Failed to register user: ${e.message}`, e.stack);
+			this.logger.error('Failed to register user');
 			throw e;
 		}
 	}
@@ -118,7 +117,7 @@ export class UserService {
 			return this.publicUser(dto.email ?? email);
 		} catch (e) {
 			await t.rollback();
-			this.logger.error(`Failed to update user: ${e.message}`, e.stack);
+			this.logger.error('Failed to update user');
 			throw e;
 		}
 	}

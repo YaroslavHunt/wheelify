@@ -57,23 +57,38 @@ export class WinstonLoggerService {
 		});
 	}
 
-	log(message: string, context?: string) {
+	log(message: string, context?: string) { //TODO
+		if (Array.isArray(message)) {
+			message = message.join('\n');
+		}
 		this.logger.info(message, { context });
 	}
 
 	error(message: string, trace?: string, context?: string) {
+		if (Array.isArray(message)) {
+			message = message.join('\n');
+		}
 		this.logger.error(message, { stack: trace, context });
 	}
 
 	warn(message: string, context?: string) {
+		if (Array.isArray(message)) {
+			message = message.join('\n');
+		}
 		this.logger.warn(message, { context });
 	}
 
 	debug(message: string, context?: string) {
+		if (Array.isArray(message)) {
+			message = message.join('\n');
+		}
 		this.logger.debug(message, { context });
 	}
 
 	verbose(message: string, context?: string) {
+		if (Array.isArray(message)) {
+			message = message.join('\n');
+		}
 		this.logger.verbose(message, { context });
 	}
 }

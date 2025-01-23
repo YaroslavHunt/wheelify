@@ -4,7 +4,7 @@ import { setupSwagger } from './config/swagger';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { WinstonLoggerService } from './modules/logger/logger.service';
-import { HttpExceptionFilter } from './filters/error/all.exceptions.filter';
+import { ErrExFilter } from './filters/error/all.err.filter';
 
 async function bootstrap() {
 	const app = await NestFactory.create<INestApplication<AppModule>>(AppModule);
@@ -12,6 +12,7 @@ async function bootstrap() {
 	const port = configService.get<number>('app.port');
 	const domains = configService.get<string[]>('security.domains');
 	const logger = app.get(WinstonLoggerService);
+	const httpAdapterHost = app.get<HttpAdapterHost>(HttpAdapterHost);
 
 	// Security Middleware
 	app.enableCors({
@@ -23,7 +24,7 @@ async function bootstrap() {
 	app.useLogger(logger);
 
 	// Filters
-	app.useGlobalFilters(new HttpExceptionFilter());
+	app.useGlobalFilters(new ErrExFilter(httpAdapterHost, logger));
 
 	// Pipes
 	app.useGlobalPipes(new ValidationPipe());
