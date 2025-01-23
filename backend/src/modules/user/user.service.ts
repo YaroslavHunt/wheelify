@@ -6,7 +6,7 @@ import User from './model/user.model';
 import Ads from '../advertisements/model/ads.model';
 import { Op, Transaction, WhereOptions } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
-import { Role } from '../../common/constants';
+import { Role } from '../../common/enums';
 import { WinstonLoggerService } from '../logger/logger.service';
 
 @Injectable()

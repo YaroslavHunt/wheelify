@@ -39,7 +39,7 @@ export class WinstonLoggerService {
 			transports: [
 				process.env.MODE === 'production'
 					? new winstonDailyRotateFile({
-						filename: path.join(logDirectory, 'errors-%DATE%.log'),
+						filename: path.join(logDirectory, 'error-%DATE%.log'),
 						datePattern: 'YYYY-MM-DD-HH',
 						zippedArchive: true,
 						format: winston.format.json(),

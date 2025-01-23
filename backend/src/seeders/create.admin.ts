@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../modules/app/app.module';
 import { UserService } from '../modules/user/user.service';
 import { CreateUserDto } from '../modules/user/dto/create.user.dto';
-import { Role } from '../common/constants';
+import { Role } from '../common/enums';
 import { ConfigService } from '@nestjs/config';
 import { WinstonLoggerService } from '../modules/logger/logger.service';
 

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsOptional, IsString, Length, MinLength } from 'class-validator';
-import { Role } from '../../../common/constants';
+import { Role } from '../../../common/enums';
 
 export class UpdateUserDto {
 	@ApiProperty()

@@ -3,7 +3,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { DynamicModule } from '@nestjs/common';
 import { Dialect } from 'sequelize';
 import { DatabaseConfig } from '../config/config.types';
-import { Mode } from '../common/constants';
+import { Mode } from '../common/enums';
 import { WinstonLoggerService } from '../modules/logger/logger.service';
 
 const logger = new WinstonLoggerService('DATABASE');
