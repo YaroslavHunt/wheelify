@@ -3,11 +3,13 @@ import * as path from 'path';
 import * as winston from 'winston';
 import * as winstonDailyRotateFile from 'winston-daily-rotate-file';
 import { Injectable } from '@nestjs/common';
+import { LogError } from './types/log.types';
 
-const logDirectory = path.join(__dirname, '../logs');
+const logDir = path.join('./logs');
 
-if (!fs.existsSync(logDirectory)) {
-	fs.mkdirSync(logDirectory, { recursive: true });
+
+if (!fs.existsSync(logDir)) {
+	fs.mkdirSync(logDir, { recursive: true });
 }
 
 const localTimestamp = () => {
@@ -39,8 +41,8 @@ export class WinstonLoggerService {
 			transports: [
 				process.env.MODE === 'production'
 					? new winstonDailyRotateFile({
-						filename: path.join(logDirectory, 'error-%DATE%.log'),
-						datePattern: 'YYYY-MM-DD-HH',
+						filename: path.join(logDir, 'error-%DATE%.log'),
+						datePattern: 'DD-MM-YYYY,HH:MM',
 						zippedArchive: true,
 						format: winston.format.json(),
 						handleExceptions: true,
@@ -57,38 +59,28 @@ export class WinstonLoggerService {
 		});
 	}
 
-	log(message: string, context?: string) { //TODO
-		if (Array.isArray(message)) {
-			message = message.join('\n');
-		}
+	log(message: string, context?: string) {
 		this.logger.info(message, { context });
 	}
 
-	error(message: string, trace?: string, context?: string) {
-		if (Array.isArray(message)) {
-			message = message.join('\n');
-		}
-		this.logger.error(message, { stack: trace, context });
+	error(message: string | string[] | object, context?: LogError) {
+		context = context || {} as LogError;
+		context.message = typeof message === 'object'
+			? JSON.stringify(message, null, 2)
+			: message;
+		this.logger.error(context);
 	}
 
+
 	warn(message: string, context?: string) {
-		if (Array.isArray(message)) {
-			message = message.join('\n');
-		}
 		this.logger.warn(message, { context });
 	}
 
 	debug(message: string, context?: string) {
-		if (Array.isArray(message)) {
-			message = message.join('\n');
-		}
 		this.logger.debug(message, { context });
 	}
 
 	verbose(message: string, context?: string) {
-		if (Array.isArray(message)) {
-			message = message.join('\n');
-		}
 		this.logger.verbose(message, { context });
 	}
 }

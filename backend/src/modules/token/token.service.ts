@@ -27,9 +27,7 @@ export class TokenService {
 				e = new Error(String(e));
 			}
 			this.logger.error(
-				`When try to generate JWT token for user with email : ${user.email}`,
-				e.stack,
-				TokenService.name);
+				`When try to generate JWT token for user with email : ${user.email}`);
 			throw e;
 		}
 	}

@@ -31,18 +31,29 @@ export class ErrExFilter implements ExceptionFilter {
 				? e.getStatus()
 				: HttpStatus.INTERNAL_SERVER_ERROR;
 
+		const message: string | string[] = this.extractMessage(e);
+
 		const responseBody = {
 			statusCode: status,
 			errorType: e instanceof Error ? e.name : 'Error',
 			timestamp: new Date().toISOString(),
 			method: httpAdapter.getRequestMethod(req),
 			path: httpAdapter.getRequestUrl(req),
-			message: e instanceof HttpException ? this.extractMessage(e) : e.message,
+			message,
 		};
 
 		this.logger.error(
-			`[${req.method}] ${req.url} - ${responseBody.message}` //TODO
+			{
+				method: req.method,
+				url: req.url,
+				hostname: httpAdapter.getRequestHostname(req),
+				statusCode: status,
+				errorType: e.name || 'Error',
+				message,
+				stack: e.stack,
+			}
 		);
+
 		res.status(status).json(responseBody);
 	}
 
@@ -53,7 +64,6 @@ export class ErrExFilter implements ExceptionFilter {
 				? (response as HttpExceptionBody).message || 'No message provided'
 				: (response as string);
 		}
-
 		return e instanceof Error ? e.message : 'An unknown error occurred';
 	}
 

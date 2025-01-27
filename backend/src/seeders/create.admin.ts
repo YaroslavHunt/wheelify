@@ -38,7 +38,7 @@ async function createAdmin(): Promise<void> {
 			logger.log('Administrator created successfully!');
 		}
 	} catch (e) {
-		logger.error(e.message, e.stack);
+		logger.error(e.message);
 	} finally {
 		await app.close();
 	}
