@@ -1,9 +1,8 @@
-export interface LogError {
-	method: string,
-	url: string,
-	hostname: string,
-	statusCode: number,
-	errorType: string,
-	message: string | string[] | object,
-	stack?: string,
+export interface LogError extends Error {
+	details?: {
+		method: string,
+		url: string,
+		hostname: string,
+		status: number,
+	};
 }

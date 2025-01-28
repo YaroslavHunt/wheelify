@@ -18,11 +18,16 @@ const localTimestamp = () => {
 };
 
 const myFormat = winston.format.printf((info) => {
-	if (info instanceof Error) {
-		return `[${info.timestamp}] [${info.label}] ${info.level}: ${info.message} ${info.stack}`;
+	if (info instanceof Error || info.stack) {
+		const details = info.details
+			? JSON.stringify(info.details, null, 2)
+			: 'No additional details';
+		return `[${info.timestamp}] [${info.label}] ${info.level}: ${info.message} \nDetails: ${details}\nStack: ${info.stack}`;
 	}
 	return `[${info.timestamp}] [${info.label}] ${info.level}: ${info.message}`;
 });
+
+
 
 @Injectable()
 export class WinstonLoggerService {
@@ -42,7 +47,7 @@ export class WinstonLoggerService {
 				process.env.MODE === 'production'
 					? new winstonDailyRotateFile({
 						filename: path.join(logDir, 'error-%DATE%.log'),
-						datePattern: 'DD-MM-YYYY,HH:MM',
+						datePattern: 'DD-MM-YYYY,HH',
 						zippedArchive: true,
 						format: winston.format.json(),
 						handleExceptions: true,
@@ -63,17 +68,29 @@ export class WinstonLoggerService {
 		this.logger.info(message, { context });
 	}
 
-	error(message: string | string[] | object, context?: LogError) {
-		context = context || {} as LogError;
-		context.message = typeof message === 'object'
-			? JSON.stringify(message, null, 2)
-			: message;
-		this.logger.error(context);
+	error(message: string, e?: LogError) {
+		if (!e) {
+			this.logger.error(message);
+			return;
+		}
+		this.logger.error({
+			message: message || e.message,
+			details: e.details || {},
+			stack: e.stack,
+		});
 	}
 
-
-	warn(message: string, context?: string) {
-		this.logger.warn(message, { context });
+	warn(message: string, e?: LogError) {
+		if (!e) {
+			this.logger.warn(message);
+			return;
+		} else {
+			this.logger.warn({
+				message: message || e.message,
+				details: e.details || {},
+				stack: e.stack,
+			});
+		}
 	}
 
 	debug(message: string, context?: string) {

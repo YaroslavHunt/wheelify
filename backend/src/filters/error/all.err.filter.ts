@@ -1,12 +1,4 @@
-import {
-	ArgumentsHost,
-	Catch,
-	ExceptionFilter,
-	HttpException,
-	HttpExceptionBody,
-	HttpExceptionBodyMessage,
-	HttpStatus,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { Request, Response } from 'express';
 import { WinstonLoggerService } from '../../modules/logger/logger.service';
@@ -31,40 +23,34 @@ export class ErrExFilter implements ExceptionFilter {
 				? e.getStatus()
 				: HttpStatus.INTERNAL_SERVER_ERROR;
 
-		const message: string | string[] = this.extractMessage(e);
+		const message: string = e.message;
+		const name: string = e.name;
+		const stack: string = e.stack;
 
 		const responseBody = {
-			statusCode: status,
-			errorType: e instanceof Error ? e.name : 'Error',
+			status,
+			name,
 			timestamp: new Date().toISOString(),
 			method: httpAdapter.getRequestMethod(req),
 			path: httpAdapter.getRequestUrl(req),
 			message,
 		};
 
-		this.logger.error(
-			{
+		const logDetails = {
+			name,
+			message,
+			stack,
+			details: {
 				method: req.method,
 				url: req.url,
 				hostname: httpAdapter.getRequestHostname(req),
-				statusCode: status,
-				errorType: e.name || 'Error',
-				message,
-				stack: e.stack,
-			}
-		);
+				status,
+			},
+		};
+
+		const logMethod = e instanceof HttpException ? 'warn' : 'error';
+		this.logger[logMethod](message, logDetails);
 
 		res.status(status).json(responseBody);
 	}
-
-	private extractMessage(e: unknown): HttpExceptionBodyMessage {
-		if (e instanceof HttpException) {
-			const response = e.getResponse();
-			return typeof response === 'object' && response !== null
-				? (response as HttpExceptionBody).message || 'No message provided'
-				: (response as string);
-		}
-		return e instanceof Error ? e.message : 'An unknown error occurred';
-	}
-
 }
