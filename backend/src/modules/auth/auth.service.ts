@@ -22,7 +22,6 @@ export class AuthService {
 		try {
 			return await this.usersService.createUser(dto);
 		} catch (e) {
-			this.logger.error('Error during signUp');
 			throw e;
 		}
 	}
@@ -44,7 +43,6 @@ export class AuthService {
 			const token = await this.tokenService.generateJwtToken(user);
 			return { user, token };
 		} catch (e) {
-			this.logger.error('Error during signIn');
 			throw e;
 		}
 	}

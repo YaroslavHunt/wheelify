@@ -17,7 +17,7 @@ async function bootstrap() {
 	// Security Middleware
 	app.enableCors({
 		origin: domains,
-		credentials: true
+		credentials: true,
 	});
 
 	// Logger

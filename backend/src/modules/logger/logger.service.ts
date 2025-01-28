@@ -4,6 +4,7 @@ import * as winston from 'winston';
 import * as winstonDailyRotateFile from 'winston-daily-rotate-file';
 import { Injectable } from '@nestjs/common';
 import { LogError } from './types/log.types';
+import { info } from 'winston';
 
 const logDir = path.join('./logs');
 
@@ -27,7 +28,16 @@ const myFormat = winston.format.printf((info) => {
 	return `[${info.timestamp}] [${info.label}] ${info.level}: ${info.message}`;
 });
 
-
+const jsonFormat = winston.format.printf(({ timestamp, label, level, message, stack, details }) => {
+	return JSON.stringify({
+		timestamp,
+		label,
+		level,
+		message,
+		stack: stack || undefined,
+		details: details || undefined,
+	}, null, 2);
+});
 
 @Injectable()
 export class WinstonLoggerService {
@@ -44,23 +54,46 @@ export class WinstonLoggerService {
 				myFormat,
 			),
 			transports: [
-				process.env.MODE === 'production'
-					? new winstonDailyRotateFile({
-						filename: path.join(logDir, 'error-%DATE%.log'),
-						datePattern: 'DD-MM-YYYY,HH',
-						zippedArchive: true,
-						format: winston.format.json(),
-						handleExceptions: true,
-					})
-					: new winston.transports.Console({
-						format: winston.format.combine(
-							winston.format.colorize(),
-							winston.format.timestamp({ format: localTimestamp }),
-							myFormat,
-						),
-						handleExceptions: true,
-					}),
-			],
+				new winstonDailyRotateFile({
+					filename: path.join(logDir, 'info', 'application-info-%DATE%.log'),
+					datePattern: 'YYYY-MM-DD',
+					zippedArchive: true,
+					maxFiles: '14d',
+					format: winston.format.combine(
+						winston.format((info) => (info.level === 'info' ? info : false))(),
+						jsonFormat
+					),
+				}),
+				new winstonDailyRotateFile({
+					filename: path.join(logDir, 'warn', 'application-warn-%DATE%.log'),
+					datePattern: 'YYYY-MM-DD',
+					zippedArchive: true,
+					maxFiles: '14d',
+					format: winston.format.combine(
+						winston.format((info) => (info.level === 'warn' ? info : false))(),
+						jsonFormat
+					),
+				}),
+				new winstonDailyRotateFile({
+					filename: path.join(logDir, 'error', 'application-error-%DATE%.log'),
+					datePattern: 'YYYY-MM-DD',
+					zippedArchive: true,
+					maxFiles: '14d',
+					format: winston.format.combine(
+						winston.format((info) => (info.level === 'error' ? info : false))(),
+						jsonFormat
+					),
+				}),
+				process.env.MODE !== 'production' &&
+				new winston.transports.Console({
+					format: winston.format.combine(
+						winston.format.colorize(),
+						winston.format.timestamp({ format: localTimestamp }),
+						myFormat
+					),
+					handleExceptions: true,
+				}),
+			].filter(Boolean),
 		});
 	}
 
