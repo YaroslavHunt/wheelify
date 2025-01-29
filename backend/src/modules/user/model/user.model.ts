@@ -1,6 +1,6 @@
 import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import Ads from '../../advertisements/model/ads.model';
-import { Role } from '../../../common/constants';
+import { Role } from '../../../common/enums';
 
 @Table({
 	tableName: 'users',

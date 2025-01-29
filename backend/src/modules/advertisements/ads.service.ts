@@ -3,10 +3,16 @@ import { AdsDto } from './dto/ads.dto';
 import { CreateAdsResponse } from './response/create.ads.res';
 import User from '../user/model/user.model';
 import Ads from './model/ads.model';
+import { WinstonLoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class AdsService {
-	constructor(@Inject('ADS_REPOSITORY') readonly adsRepository: typeof Ads) {}
+	constructor(
+		@Inject('ADS_REPOSITORY') readonly adsRepository: typeof Ads,
+		private readonly logger: WinstonLoggerService,
+	) {
+		this.logger = new WinstonLoggerService(AdsService.name);
+	}
 
 	async createAds(user: User, dto: AdsDto): Promise<CreateAdsResponse> {
 		try {
@@ -25,7 +31,7 @@ export class AdsService {
 	async updateAds(
 		userId: number,
 		adsId: number,
-		dto: AdsDto
+		dto: AdsDto,
 	): Promise<AdsDto> {
 		try {
 			await this.adsRepository.update(dto, {

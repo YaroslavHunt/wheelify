@@ -1,47 +1,49 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../modules/app/app.module';
-import { UserService } from '../modules/user/user.service';
-import { CreateUserDto } from '../modules/user/dto/create.user.dto';
-import { Role } from '../common/constants';
-import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { WinstonLoggerService } from '../modules/logger/logger.service';
+import { Sequelize } from 'sequelize-typescript';
+import * as bcrypt from 'bcrypt';
+import { Role } from '../common/enums';
+import User from '../modules/user/model/user.model';
 
 async function createAdmin(): Promise<void> {
 	const app = await NestFactory.createApplicationContext(AppModule);
-	const userService = app.get<UserService>(UserService);
-	const logger = new Logger('Administrator');
+	const logger = new WinstonLoggerService('Administrator');
 	const configService = app.get<ConfigService>(ConfigService);
+	const sequelize = app.get<Sequelize>(Sequelize);
+	const userRepository = sequelize.getRepository(User);
 
 	const adminUsername = configService.get<string>('admin.username');
 	const adminEmail = configService.get<string>('admin.email');
 	const adminPassword = configService.get<string>('admin.password');
 
 	if (!adminEmail || !adminPassword) {
-		logger.error(
-			'Missing administrator email or password in configuration. (Look at .env-example)',
-		);
+		logger.warn('Missing administrator email or password in configuration. (Look at .env-example)');
 		await app.close();
 		return;
 	}
 
 	try {
-		const existingAdmin = await userService.findUserBy({ email: adminEmail });
+		const existingAdmin = await userRepository.findOne({ where: { email: adminEmail } });
 		if (existingAdmin) {
-			logger.error('Administrator already exists. No action taken');
+			logger.warn('Administrator already exists. No action taken');
 		} else {
-			const adminDto: CreateUserDto = {
-				username: adminUsername,
-				email: adminEmail,
-				password: adminPassword,
-				role: Role.ADMIN,
-			};
+			const hashedPassword = await bcrypt.hash(adminPassword, 12);
 
-			await userService.createUser(adminDto);
+			await sequelize.transaction(async (t) => {
+				await userRepository.create({
+					username: adminUsername,
+					email: adminEmail,
+					password: hashedPassword,
+					role: Role.ADMIN,
+				}, { transaction: t });
+			});
+
 			logger.log('Administrator created successfully!');
 		}
 	} catch (e) {
-		logger.error('Error creating admin user:', e.message);
-		console.log(e);
+		logger.error(e.message);
 	} finally {
 		await app.close();
 	}
