@@ -1,89 +1,28 @@
-import * as fs from 'node:fs';
-import * as path from 'path';
 import * as winston from 'winston';
-import * as winstonDailyRotateFile from 'winston-daily-rotate-file';
+import { info } from 'winston';
 import { Injectable } from '@nestjs/common';
 import { LogError } from './types/log.types';
-import { info } from 'winston';
-
-const logDir = path.join('./logs');
-
-
-if (!fs.existsSync(logDir)) {
-	fs.mkdirSync(logDir, { recursive: true });
-}
-
-const localTimestamp = () => {
-	const date = new Date();
-	return date.toLocaleString();
-};
-
-const myFormat = winston.format.printf((info) => {
-	if (info instanceof Error || info.stack) {
-		const details = info.details
-			? JSON.stringify(info.details, null, 2)
-			: 'No additional details';
-		return `[${info.timestamp}] [${info.label}] ${info.level}: ${info.message} \nDetails: ${details}\nStack: ${info.stack}`;
-	}
-	return `[${info.timestamp}] [${info.label}] ${info.level}: ${info.message}`;
-});
-
-const jsonFormat = winston.format.printf(({ timestamp, label, level, message, stack, details }) => {
-	return JSON.stringify({
-		timestamp,
-		label,
-		level,
-		message,
-		stack: stack || undefined,
-		details: details || undefined,
-	}, null, 2);
-});
+import { createDailyRotateFileTransport, myFormat } from './utils/logger.utils';
+import { localTimestamp, logDir } from './const/logger.const';
 
 @Injectable()
 export class WinstonLoggerService {
 	private readonly logger: winston.Logger;
 
-	constructor(label: string = 'App') {
+	constructor(label?: string) {
 		this.logger = winston.createLogger({
 			level: 'info',
 			format: winston.format.combine(
 				winston.format.splat(),
-				winston.format.label({ label }),
+				winston.format.label({ label: label || 'App' }),
 				winston.format.timestamp({ format: localTimestamp }),
 				winston.format.errors({ stack: true }),
 				myFormat,
 			),
 			transports: [
-				new winstonDailyRotateFile({
-					filename: path.join(logDir, 'info', 'application-info-%DATE%.log'),
-					datePattern: 'YYYY-MM-DD',
-					zippedArchive: true,
-					maxFiles: '14d',
-					format: winston.format.combine(
-						winston.format((info) => (info.level === 'info' ? info : false))(),
-						jsonFormat
-					),
-				}),
-				new winstonDailyRotateFile({
-					filename: path.join(logDir, 'warn', 'application-warn-%DATE%.log'),
-					datePattern: 'YYYY-MM-DD',
-					zippedArchive: true,
-					maxFiles: '14d',
-					format: winston.format.combine(
-						winston.format((info) => (info.level === 'warn' ? info : false))(),
-						jsonFormat
-					),
-				}),
-				new winstonDailyRotateFile({
-					filename: path.join(logDir, 'error', 'application-error-%DATE%.log'),
-					datePattern: 'YYYY-MM-DD',
-					zippedArchive: true,
-					maxFiles: '14d',
-					format: winston.format.combine(
-						winston.format((info) => (info.level === 'error' ? info : false))(),
-						jsonFormat
-					),
-				}),
+				createDailyRotateFileTransport('info', logDir),
+				createDailyRotateFileTransport('warn', logDir),
+				createDailyRotateFileTransport('error', logDir),
 				process.env.MODE !== 'production' &&
 				new winston.transports.Console({
 					format: winston.format.combine(
@@ -94,7 +33,7 @@ export class WinstonLoggerService {
 					handleExceptions: true,
 				}),
 			].filter(Boolean),
-		});
+		})
 	}
 
 	log(message: string, context?: string) {

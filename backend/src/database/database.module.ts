@@ -6,7 +6,7 @@ import { DatabaseConfig } from '../config/config.types';
 import { Mode } from '../common/enums';
 import { WinstonLoggerService } from '../modules/logger/logger.service';
 
-const logger = new WinstonLoggerService('DATABASE');
+const logger = new WinstonLoggerService('Database');
 
 export const DatabaseModule: DynamicModule = SequelizeModule.forRootAsync({
 	imports: [ConfigModule],

@@ -9,7 +9,7 @@ import { WinstonLoggerService } from '../logger/logger.service';
 export class AdsService {
 	constructor(
 		@Inject('ADS_REPOSITORY') readonly adsRepository: typeof Ads,
-		private readonly logger: WinstonLoggerService, //TODO logs
+		private readonly logger: WinstonLoggerService,
 	) {
 		this.logger = new WinstonLoggerService(AdsService.name);
 	}
