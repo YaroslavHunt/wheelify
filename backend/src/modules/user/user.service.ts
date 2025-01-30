@@ -7,6 +7,8 @@ import Ads from '../advertisements/model/ads.model';
 import { Op, Transaction, WhereOptions } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { Role } from '../../common/enums';
+import { UserPayload } from '../../strategy/types';
+import { ChangePasswordDto } from './dto/change.password.dto';
 
 @Injectable()
 export class UserService {
@@ -32,7 +34,7 @@ export class UserService {
 		}
 	}
 
-	async checkUser(
+	async checkUserDoesNotExist(
 		user: Partial<User>,
 		t?: Transaction,
 	): Promise<void> {
@@ -49,49 +51,49 @@ export class UserService {
 		}
 	}
 
-	async checkPassword(
-		password: string,
+	async checkUserExists(
 		user: Partial<User>,
-		): Promise<void> {
+		t?: Transaction,
+	): Promise<void> {
+		const where: WhereOptions<User> = {};
+		if (user.email) where.email = user.email;
+		if (user.username) where.username = user.username;
+		const exist = await this.findUserBy(where, t);
+		if (!exist) {
+			throw new NotFoundException('User not found');
+		}
+	}
+
+	async checkPassword(
+		entryPassword: string,
+		userPassword: string,
+		t?: Transaction,
+	): Promise<void> {
 		const validPassword = await bcrypt.compare(
-			password,
-			user.password,
+			entryPassword,
+			userPassword,
 		);
 		if (!validPassword) {
 			throw new BadRequestException('Wrong password');
 		}
 	}
 
-	// private async changePassword(
-	// 	password: string,
-	// 	t?: Transaction,
-	// ): Promise<boolean> {
-	//
-	// } //TODO
-
 	async findUserBy(
 		options: WhereOptions<User>,
 		t?: Transaction,
 	): Promise<User> {
-			const where: WhereOptions<User> = Object.keys(options).length > 1
-				? { [Op.or]: Object.entries(options).map(([key, value]) => ({ [key]: value })) }
-				: options;
-			const user = await this.userRepository.findOne({
-				where,
-				transaction: t,
-			});
-			if (!user) {
-				throw new NotFoundException('User not found');
-			}
-			return user;
+		const where: WhereOptions<User> = Object.keys(options).length > 1
+			? { [Op.or]: Object.entries(options).map(([key, value]) => ({ [key]: value })) }
+			: options;
+		return await this.userRepository.findOne({ where, transaction: t });
 	}
 
-	async createUser(dto: CreateUserDto): Promise<CreateUserDto> {
+	async createUser(dto: CreateUserDto): Promise<CreateUserDto> { //TODO logs
 		const t: Transaction = await this.sequelize.transaction();
 		try {
-			await this.checkUser(dto, t);
+			await this.checkUserDoesNotExist(dto, t);
 			dto.password = await bcrypt.hash(dto.password, 12);
-			await this.userRepository.create(
+			const res = await this.userRepository.create(
 				{
 					username: dto.username,
 					password: dto.password,
@@ -101,7 +103,7 @@ export class UserService {
 				{ transaction: t },
 			);
 			await t.commit();
-			return dto;
+			return res;
 		} catch (e) {
 			await t.rollback();
 			throw e;
@@ -111,15 +113,38 @@ export class UserService {
 	async updateUser(email: string, dto: UpdateUserDto): Promise<UpdateUserDto> {
 		const t = await this.sequelize.transaction();
 		try {
-			if (dto.email || dto.username) {
-				await this.checkUser(dto, t);
-			}
-			const target: UpdateUserDto = Object.fromEntries(
-				Object.entries(dto).filter(([_, value]) => value !== undefined)
+			const allowedFields = ['username', 'email'];
+			const filteredReq: UpdateUserDto = Object.fromEntries(
+				Object.entries(dto).filter(([key, value]) => allowedFields.includes(key) && value !== undefined),
 			);
-			await this.userRepository.update(target, { where: { email }, transaction: t});
+			if (filteredReq.email || filteredReq.username) {
+				await this.checkUserDoesNotExist(filteredReq, t);
+			}
+			await this.userRepository.update(filteredReq, { where: { email }, transaction: t });
 			await t.commit();
 			return this.publicUser(email);
+		} catch (e) {
+			await t.rollback();
+			throw e;
+		}
+	}
+
+	async changePassword(user: UserPayload, dto: ChangePasswordDto): Promise<boolean> {
+		const t = await this.sequelize.transaction();
+		try {
+			const target = await this.findUserBy({ id: user.id, email: user.email }, t);
+			const allowedFields = ['currentPassword', 'newPassword'];
+			const filteredReq = Object.fromEntries(
+				Object.entries(dto).filter(([key, value]) => allowedFields.includes(key) && value !== undefined),
+			);
+			await this.checkPassword(filteredReq.currentPassword, target.password, t);
+			const hashedPassword = await bcrypt.hash(target.password, 12);
+			await this.userRepository.update(
+				{ password: hashedPassword },
+				{ where: { id: target.id }, transaction: t }
+			);
+			await t.commit();
+			return true;
 		} catch (e) {
 			await t.rollback();
 			throw e;

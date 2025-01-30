@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '../../guards/jwt.guard';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update.user.dto';
 import { JwtPayload } from '../../strategy/types';
+import { ChangePasswordDto } from './dto/change.password.dto';
 
 @ApiTags('Users')
 @UseGuards(JwtAuthGuard)
@@ -15,15 +16,26 @@ export class UserController {
 	@HttpCode(202)
 	@Patch()
 	updateUser(
-		@Body() updateDto: UpdateUserDto,
+		@Body() dto: UpdateUserDto,
 		@Req() req: JwtPayload,
 	): Promise<UpdateUserDto> {
-		return this.userService.updateUser(req.user.email, updateDto);
+		return this.userService.updateUser(req.user.email, dto);
+	}
+
+	@ApiResponse({ status: 202, type: UpdateUserDto })
+	@HttpCode(202)
+	@Patch()
+	changePassword(
+		@Body() dto: ChangePasswordDto,
+		@Req() req: JwtPayload,
+	): Promise<boolean> {
+		const user = req.user;
+		return this.userService.changePassword(user, dto)
 	}
 
 	@Delete()
-	deleteUser(@Req() request: JwtPayload): Promise<boolean> {
-		const user = request.user;
+	deleteUser(@Req() req: JwtPayload): Promise<boolean> {
+		const user = req.user;
 		return this.userService.deleteUser(user.email);
 	}
 }

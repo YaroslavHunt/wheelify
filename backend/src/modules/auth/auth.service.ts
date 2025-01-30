@@ -24,8 +24,9 @@ export class AuthService {
 
 	async signIn(dto: UserLoginDto): Promise<AuthUserResponse> {
 		try {
+			await this.usersService.checkUserExists(dto)
 			const user = await this.usersService.findUserBy({ email: dto.email });
-			await this.usersService.checkPassword(dto.password, user);
+			await this.usersService.checkPassword(dto.password, user.password);
 			const res = await this.usersService.publicUser(dto.email);
 			const token = await this.tokenService.generateJwtToken(res);
 			return { user: res, token };
