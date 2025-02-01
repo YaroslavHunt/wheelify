@@ -2,6 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from
 import { HttpAdapterHost } from '@nestjs/core';
 import { Request, Response } from 'express';
 import { WinstonLoggerService } from '../../modules/logger/logger.service';
+import { LogError } from '../../modules/logger/types/log.types';
 
 @Catch()
 export class ErrExFilter implements ExceptionFilter {
@@ -36,7 +37,7 @@ export class ErrExFilter implements ExceptionFilter {
 			message,
 		};
 
-		const logDetails = {
+		const logDetails: LogError = {
 			name,
 			message,
 			stack,

@@ -1,97 +1,32 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
 import User from './model/user.model';
-import Ads from '../advertisements/model/ads.model';
-import { Op, Transaction, WhereOptions } from 'sequelize';
+import { Transaction } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { Role } from '../../common/enums';
 import { UserPayload } from '../../strategy/types';
 import { ChangePasswordDto } from './dto/change.password.dto';
+import { UserValidationService } from './user.validation.service';
+import { WinstonLoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class UserService {
 
 	constructor(
 		@Inject('USER_REPOSITORY') private readonly userRepository: typeof User,
+		private readonly userValidService: UserValidationService,
 		private readonly sequelize: Sequelize,
+		private readonly logger: WinstonLoggerService,
 	) {
+		this.logger.setLabel(UserService.name);
 	}
 
-	async publicUser(email: string): Promise<User> {
-		try {
-			return this.userRepository.findOne({
-				where: { email },
-				attributes: { exclude: ['password'] },
-				include: {
-					model: Ads,
-					required: false,
-				},
-			});
-		} catch (e) {
-			throw e;
-		}
-	}
-
-	async checkUserDoesNotExist(
-		user: Partial<User>,
-		t?: Transaction,
-	): Promise<void> {
-		const where: WhereOptions<User> = {};
-		if (user.email) where.email = user.email;
-		if (user.username) where.username = user.username;
-		const exist = await this.findUserBy(where, t);
-		if (exist) {
-			throw new BadRequestException(
-				exist.email === user.email
-					? 'User with this email already exists'
-					: 'User with this username already exists',
-			);
-		}
-	}
-
-	async checkUserExists(
-		user: Partial<User>,
-		t?: Transaction,
-	): Promise<void> {
-		const where: WhereOptions<User> = {};
-		if (user.email) where.email = user.email;
-		if (user.username) where.username = user.username;
-		const exist = await this.findUserBy(where, t);
-		if (!exist) {
-			throw new NotFoundException('User not found');
-		}
-	}
-
-	async checkPassword(
-		entryPassword: string,
-		userPassword: string,
-		t?: Transaction,
-	): Promise<void> {
-		const validPassword = await bcrypt.compare(
-			entryPassword,
-			userPassword,
-		);
-		if (!validPassword) {
-			throw new BadRequestException('Wrong password');
-		}
-	}
-
-	async findUserBy(
-		options: WhereOptions<User>,
-		t?: Transaction,
-	): Promise<User> {
-		const where: WhereOptions<User> = Object.keys(options).length > 1
-			? { [Op.or]: Object.entries(options).map(([key, value]) => ({ [key]: value })) }
-			: options;
-		return await this.userRepository.findOne({ where, transaction: t });
-	}
-
-	async createUser(dto: CreateUserDto): Promise<CreateUserDto> { //TODO logs
+	async createUser(dto: CreateUserDto): Promise<CreateUserDto> {
 		const t: Transaction = await this.sequelize.transaction();
 		try {
-			await this.checkUserDoesNotExist(dto, t);
+			await this.userValidService.checkUserDoesNotExist(dto, t);
 			dto.password = await bcrypt.hash(dto.password, 12);
 			const res = await this.userRepository.create(
 				{
@@ -103,6 +38,7 @@ export class UserService {
 				{ transaction: t },
 			);
 			await t.commit();
+			this.logger.log('Successfully create new user');
 			return res;
 		} catch (e) {
 			await t.rollback();
@@ -118,11 +54,11 @@ export class UserService {
 				Object.entries(dto).filter(([key, value]) => allowedFields.includes(key) && value !== undefined),
 			);
 			if (filteredReq.email || filteredReq.username) {
-				await this.checkUserDoesNotExist(filteredReq, t);
+				await this.userValidService.checkUserDoesNotExist(filteredReq, t);
 			}
 			await this.userRepository.update(filteredReq, { where: { email }, transaction: t });
 			await t.commit();
-			return this.publicUser(email);
+			return this.userValidService.publicUser(email);
 		} catch (e) {
 			await t.rollback();
 			throw e;
@@ -132,12 +68,12 @@ export class UserService {
 	async changePassword(user: UserPayload, dto: ChangePasswordDto): Promise<boolean> {
 		const t = await this.sequelize.transaction();
 		try {
-			const target = await this.findUserBy({ id: user.id, email: user.email }, t);
+			const target = await this.userValidService.findUserBy({ id: user.id, email: user.email }, t);
 			const allowedFields = ['currentPassword', 'newPassword'];
 			const filteredReq = Object.fromEntries(
 				Object.entries(dto).filter(([key, value]) => allowedFields.includes(key) && value !== undefined),
 			);
-			await this.checkPassword(filteredReq.currentPassword, target.password, t);
+			await this.userValidService.checkPassword(filteredReq.currentPassword, target.password);
 			const hashedPassword = await bcrypt.hash(target.password, 12);
 			await this.userRepository.update(
 				{ password: hashedPassword },
@@ -154,6 +90,7 @@ export class UserService {
 	async deleteUser(email: string): Promise<boolean> {
 		try {
 			await this.userRepository.destroy({ where: { email } });
+			this.logger.log('User deleted');
 			return true;
 		} catch (e) {
 			throw e;

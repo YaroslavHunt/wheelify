@@ -2,10 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../../modules/app/app.module';
 import { UserService } from '../../modules/user/user.service';
 import { CreateUserDto } from '../../modules/user/dto/create.user.dto';
+import { WinstonLoggerService } from '../../modules/logger/logger.service';
 
 async function createUsers(): Promise<void> {
 	const app = await NestFactory.createApplicationContext(AppModule);
 	const userService = app.get<UserService>(UserService);
+	const logger = app.get<WinstonLoggerService>(WinstonLoggerService);
+	logger.setLabel('Seed: Create Users');
 
 	const users: Array<CreateUserDto> = [
 		{
@@ -62,12 +65,12 @@ async function createUsers(): Promise<void> {
 
 	try {
 		for (const user of users) {
-			console.log(`Creating user: ${user.username}`);
+			logger.log(`Creating user: ${user.username}`);
 			await userService.createUser(user);
 		}
-		console.log('Users created successfully.');
+		logger.log('Users created successfully.');
 	} catch (e) {
-		console.error('Error while creating users:', e);
+		logger.error('Error while creating users:', e);
 	}
 
 	await app.close();

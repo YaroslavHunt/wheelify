@@ -38,8 +38,7 @@ async function bootstrap() {
 }
 
 bootstrap().catch((e: Error) => {
-	const logger = new WinstonLoggerService();
-	logger.error(e.message);
+	console.log(e.message);
 });
 
 
