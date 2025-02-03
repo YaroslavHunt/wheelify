@@ -1,72 +1,74 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../../modules/app/app.module';
-import { UserService } from '../../modules/user/user.service';
-import { CreateUserDto } from '../../modules/user/dto/create.user.dto';
+import { AppModule } from '../../app/app.module';
+import { CreateUserDto } from '../../modules/auth/dto/create.user.dto';
 import { WinstonLoggerService } from '../../modules/logger/logger.service';
+import User from '../../modules/user/model/user.model';
+import { Sequelize } from 'sequelize-typescript';
 
 async function createUsers(): Promise<void> {
 	const app = await NestFactory.createApplicationContext(AppModule);
-	const userService = app.get<UserService>(UserService);
+	const sequelize = app.get<Sequelize>(Sequelize);
+	const userRepository = sequelize.getRepository(User);
 	const logger = app.get<WinstonLoggerService>(WinstonLoggerService);
 	logger.setLabel('Seed: Create Users');
 
 	const users: Array<CreateUserDto> = [
 		{
-			username: 'jane_martin',
+			username: 'Jane',
 			email: 'jane.martin1@example.com',
-			password: 'JanMar123',
+			password: 'qwerty123',
 		},
 		{
-			username: 'laura_johnson',
-			email: 'laura.johnson2@example.com',
-			password: 'LauJoh123',
+			username: 'Laura',
+			email: 'laura@example.com',
+			password: 'qwerty123',
 		},
 		{
-			username: 'jane_johnson',
-			email: 'jane.johnson3@example.com',
-			password: 'JanJoh123',
+			username: 'April',
+			email: 'april.johnson3@example.com',
+			password: 'qwerty123',
 		},
 		{
-			username: 'daniel_anderson',
-			email: 'daniel.anderson4@example.com',
-			password: 'DanAnd123',
+			username: 'Daniel',
+			email: 'danny@example.com',
+			password: 'qwerty123',
 		},
 		{
-			username: 'laura_martin',
-			email: 'laura.martin5@example.com',
-			password: 'LauMar123',
+			username: 'Josh',
+			email: 'joshy.coppola@example.com',
+			password: 'qwerty123',
 		},
 		{
-			username: 'jane_martin',
-			email: 'jane.martin6@example.com',
-			password: 'JanMar123',
+			username: 'Dilan',
+			email: 'dilan@example.com',
+			password: 'qwerty123',
 		},
 		{
-			username: 'emma_johnson',
+			username: 'Emma',
 			email: 'emma.johnson7@example.com',
-			password: 'EmmJoh123',
+			password: 'qwerty123',
 		},
 		{
-			username: 'john_smith',
+			username: 'John',
 			email: 'john.smith8@example.com',
-			password: 'JohSmi123',
+			password: 'qwerty123',
 		},
 		{
-			username: 'jane_jackson',
-			email: 'jane.jackson9@example.com',
-			password: 'JanJac123',
+			username: 'Bob',
+			email: 'bobby@example.com',
+			password: 'qwerty123',
 		},
 		{
-			username: 'chris_harris',
+			username: 'Chris',
 			email: 'chris.harris10@example.com',
-			password: 'ChrHar123',
+			password: 'qwerty123',
 		},
 	];
 
 	try {
 		for (const user of users) {
+			await userRepository.create(user);
 			logger.log(`Creating user: ${user.username}`);
-			await userService.createUser(user);
 		}
 		logger.log('Users created successfully.');
 	} catch (e) {

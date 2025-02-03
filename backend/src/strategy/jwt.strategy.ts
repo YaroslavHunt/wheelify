@@ -5,12 +5,12 @@ import User from '../modules/user/model/user.model';
 import { JwtPayload } from './types';
 import { ConfigService } from '@nestjs/config';
 import { WinstonLoggerService } from '../modules/logger/logger.service';
-import { UserValidationService } from '../modules/user/user.validation.service';
+import { UserValidService } from '../modules/user/user.validation.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor(
-		private readonly userValidService: UserValidationService,
+		private readonly userValidService: UserValidService,
 		private readonly configService: ConfigService,
 		private readonly logger: WinstonLoggerService,
 	) {
@@ -23,11 +23,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 		this.logger.log('JWT strategy initialized');
 	}
 
-	async validate(payload: JwtPayload): Promise<User> {   // TODO
+	async validate(payload: JwtPayload): Promise<User> {
 		this.logger.debug(`Validating JWT payload: ${JSON.stringify(payload)}`);
-		const user = await this.userValidService.findUserBy({ email: payload.user.email });
+		const user = await this.userValidService.findUserBy({ id: payload.user.id, email: payload.user.email });
 		if (!user) {
-			this.logger.warn(`Unauthorized attempt with email: ${payload.user.email}`);
 			throw new UnauthorizedException('Invalid token: user not found');
 		}
 		return user;

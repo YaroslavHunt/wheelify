@@ -1,5 +1,5 @@
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
-import { AppModule } from './modules/app/app.module';
+import { AppModule } from './app/app.module';
 import { setupSwagger } from './config/swagger';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -27,7 +27,11 @@ async function bootstrap() {
 	app.useGlobalFilters(new ErrExFilter(httpAdapterHost, logger));
 
 	// Pipes
-	app.useGlobalPipes(new ValidationPipe());
+	app.useGlobalPipes(new ValidationPipe({
+		whitelist: true,
+		forbidNonWhitelisted: true,
+		transform: true
+	}));
 
 	// API
 	app.setGlobalPrefix('api/v1');

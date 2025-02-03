@@ -46,6 +46,12 @@ export default class User extends Model<User> {
 	})
 	role: Role;
 
+	@Column({
+		type: DataType.BOOLEAN,
+		defaultValue: true,
+	})
+	isActive: boolean;
+
 	@HasMany(() => Ads, {
 		onDelete: 'CASCADE',
 		onUpdate: 'CASCADE',

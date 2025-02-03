@@ -1,14 +1,15 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import User from './model/user.model';
 import Ads from '../advertisements/model/ads.model';
 import { Op, Transaction, WhereOptions } from 'sequelize';
 import * as bcrypt from 'bcrypt';
+import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
-export class UserValidationService {
+export class UserValidService {
 
 	constructor(
-		@Inject('USER_REPOSITORY') private readonly userRepository: typeof User,
+		@InjectModel(User) private readonly userRepository: typeof User,
 	) {
 	}
 
@@ -25,6 +26,16 @@ export class UserValidationService {
 		} catch (e) {
 			throw e;
 		}
+	}
+
+	async findUserBy(
+		options: WhereOptions<User>,
+		t?: Transaction,
+	): Promise<User> {
+		const where: WhereOptions<User> = Object.keys(options).length > 1
+			? { [Op.or]: Object.entries(options).map(([key, value]) => ({ [key]: value })) }
+			: options;
+		return await this.userRepository.findOne({ where, transaction: t });
 	}
 
 	async checkUserDoesNotExist(
@@ -70,13 +81,4 @@ export class UserValidationService {
 		}
 	}
 
-	async findUserBy(
-		options: WhereOptions<User>,
-		t?: Transaction,
-	): Promise<User> {
-		const where: WhereOptions<User> = Object.keys(options).length > 1
-			? { [Op.or]: Object.entries(options).map(([key, value]) => ({ [key]: value })) }
-			: options;
-		return await this.userRepository.findOne({ where, transaction: t });
-	}
 }

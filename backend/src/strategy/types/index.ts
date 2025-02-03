@@ -1,8 +1,10 @@
+import { Role } from '../../common/enums';
+
 export interface UserPayload {
 	id: number;
 	username: string;
 	email: string;
-	role: string;
+	role: Role;
 	createdAt: string;
 	updatedAt: string;
 }

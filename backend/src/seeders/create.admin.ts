@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../modules/app/app.module';
+import { AppModule } from '../app/app.module';
 import { ConfigService } from '@nestjs/config';
 import { WinstonLoggerService } from '../modules/logger/logger.service';
 import { Sequelize } from 'sequelize-typescript';

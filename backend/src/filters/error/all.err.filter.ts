@@ -24,7 +24,12 @@ export class ErrExFilter implements ExceptionFilter {
 				? e.getStatus()
 				: HttpStatus.INTERNAL_SERVER_ERROR;
 
-		const message: string = e.message;
+		let message: string = e.message;
+		if (e instanceof HttpException) {
+			const response = e.getResponse();
+			message = (response as any).message || message;
+		}
+
 		const name: string = e.name;
 		const stack: string = e.stack;
 
@@ -39,7 +44,7 @@ export class ErrExFilter implements ExceptionFilter {
 
 		const logDetails: LogError = {
 			name,
-			message,
+			message: Array.isArray(message) ? message.join(',\n') : message,
 			stack,
 			details: {
 				method: req.method,
