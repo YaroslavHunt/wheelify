@@ -38,7 +38,7 @@ export class UserService {
 
 	async changePassword(user: UserPayload, dto: ChangePasswordDto): Promise<boolean> {
 		return this.transaction.run(async (t) => {
-			const target = await this.userValidService.findUserBy({ email: user.email }, t);
+			const target = await this.userRepository.findOne({ where: { email: user.email }, transaction: t});
 			const allowedFields = ['currentPassword', 'newPassword'];
 			const filteredReq = Object.fromEntries(
 				Object.entries(dto).filter(([key, value]) => allowedFields.includes(key) && value !== undefined));

@@ -13,26 +13,11 @@ export class UserValidService {
 	) {
 	}
 
-	async publicUser(email: string): Promise<User> {
-		try {
-			return this.userRepository.findOne({
-				where: { email },
-				attributes: { exclude: ['password'] },
-				include: {
-					model: Ads,
-					required: false,
-				},
-			});
-		} catch (e) {
-			throw e;
-		}
-	}
-
-	async findUserBy(
+	private async findUserByConditions(
 		options: WhereOptions<User>,
 		t?: Transaction,
 	): Promise<User> {
-		const where: WhereOptions<User> = Object.keys(options).length > 1
+		const where = Object.keys(options).length > 1
 			? { [Op.or]: Object.entries(options).map(([key, value]) => ({ [key]: value })) }
 			: options;
 		return await this.userRepository.findOne({ where, transaction: t });
@@ -45,7 +30,7 @@ export class UserValidService {
 		const where: WhereOptions<User> = {};
 		if (user.email) where.email = user.email;
 		if (user.username) where.username = user.username;
-		const exist = await this.findUserBy(where, t);
+		const exist = await this.findUserByConditions(where, t);
 		if (exist) {
 			throw new BadRequestException(
 				exist.email === user.email
@@ -62,7 +47,7 @@ export class UserValidService {
 		const where: WhereOptions<User> = {};
 		if (user.email) where.email = user.email;
 		if (user.username) where.username = user.username;
-		const exist = await this.findUserBy(where, t);
+		const exist = await this.findUserByConditions(where, t);
 		if (!exist) {
 			throw new NotFoundException('User not found');
 		}
@@ -78,6 +63,21 @@ export class UserValidService {
 		);
 		if (!validPassword) {
 			throw new BadRequestException('Wrong password');
+		}
+	}
+
+	async publicUser(email: string): Promise<User> {
+		try {
+			return this.userRepository.findOne({
+				where: { email },
+				attributes: { exclude: ['password'] },
+				include: {
+					model: Ads,
+					required: false,
+				},
+			});
+		} catch (e) {
+			throw e;
 		}
 	}
 

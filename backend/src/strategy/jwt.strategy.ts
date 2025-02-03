@@ -6,11 +6,12 @@ import { JwtPayload } from './types';
 import { ConfigService } from '@nestjs/config';
 import { WinstonLoggerService } from '../modules/logger/logger.service';
 import { UserValidService } from '../modules/user/user.validation.service';
+import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor(
-		private readonly userValidService: UserValidService,
+		@InjectModel(User) private readonly userRepository: typeof User,
 		private readonly configService: ConfigService,
 		private readonly logger: WinstonLoggerService,
 	) {
@@ -25,7 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
 	async validate(payload: JwtPayload): Promise<User> {
 		this.logger.debug(`Validating JWT payload: ${JSON.stringify(payload)}`);
-		const user = await this.userValidService.findUserBy({ id: payload.user.id, email: payload.user.email });
+		const user = await this.userRepository.findOne({ where : { id: payload.user.id }});
 		if (!user) {
 			throw new UnauthorizedException('Invalid token: user not found');
 		}

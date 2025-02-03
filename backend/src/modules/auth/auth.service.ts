@@ -45,7 +45,7 @@ export class AuthService {
 	async logIn(dto: UserLoginDto): Promise<AuthUserResponse> {
 		try {
 			await this.userValidService.checkUserExists(dto);
-			const user = await this.userValidService.findUserBy({ email: dto.email });
+			const user = await this.userRepository.findOne({ where:{ email: dto.email }});
 			await this.userValidService.checkPassword(dto.password, user.password);
 			const res = await this.userValidService.publicUser(dto.email);
 			const token = await this.tokenService.generateJwtToken(res);

@@ -6,7 +6,7 @@ import { UpdateUserDto } from './dto/update.user.dto';
 import { JwtPayload } from '../../strategy/types';
 import { ChangePasswordDto } from './dto/change.password.dto';
 
-@ApiTags('User Cabinet')
+@ApiTags('User')
 @UseGuards(JwtAuthGuard)
 @Controller('cabinet')
 export class UserController {
