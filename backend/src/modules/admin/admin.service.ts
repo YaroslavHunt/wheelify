@@ -3,6 +3,8 @@ import User from '../user/model/user.model';
 import { WinstonLoggerService } from '../logger/logger.service';
 import { InjectModel } from '@nestjs/sequelize';
 import { TransactionHelper } from '../../common/transaction.helper';
+import { PaginationResponseDto } from './dto/pagination.users.dto';
+import { Op, WhereOptions } from 'sequelize';
 
 @Injectable()
 export class AdminService {
@@ -14,11 +16,21 @@ export class AdminService {
 		this.logger.setLabel(AdminService.name);
 	}
 
-	getAllUsers(): Promise<User[]> {
-		return this.userRepository.findAll();
+	async getUsersList({ search, page, limit }: {
+		search?: string,
+		page: number,
+		limit: number
+	}): Promise<PaginationResponseDto> {
+		const where: WhereOptions<User> = search
+			? { username: { [Op.iLike]: `%${search}%` } }
+			: {};
+		const { rows: users, count: total } = await this.userRepository.findAndCountAll({
+			where,
+			limit,
+			offset: (page - 1) * limit,
+		});
+		return new PaginationResponseDto(users, total, page, limit);
 	}
-
-	//TODO pagination
 
 	findUserById(id: string): Promise<User> {
 		return this.transaction.run(async (t) => {

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { TokenService } from '../token/token.service';
-import { CreateUserDto } from './dto/create.user.dto';
-import { UserLoginDto } from './dto/user.login.dto';
-import { AuthUserResponse } from './response/user.response';
+import { CreateUserDto } from '../user/dto/create.user.dto';
+import { UserLoginDto } from '../user/dto/user.login.dto';
+import { AuthUserResponse } from '../user/dto/user.dto';
 import { UserValidService } from '../user/user.validation.service';
 import { WinstonLoggerService } from '../logger/logger.service';
 import User from '../user/model/user.model';

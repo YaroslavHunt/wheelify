@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../../app/app.module';
-import { CreateUserDto } from '../../modules/auth/dto/create.user.dto';
+import { CreateUserDto } from '../../modules/user/dto/create.user.dto';
 import { WinstonLoggerService } from '../../modules/logger/logger.service';
 import User from '../../modules/user/model/user.model';
 import { Sequelize } from 'sequelize-typescript';

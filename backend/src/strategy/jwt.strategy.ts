@@ -5,7 +5,6 @@ import User from '../modules/user/model/user.model';
 import { JwtPayload } from './types';
 import { ConfigService } from '@nestjs/config';
 import { WinstonLoggerService } from '../modules/logger/logger.service';
-import { UserValidService } from '../modules/user/user.validation.service';
 import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()

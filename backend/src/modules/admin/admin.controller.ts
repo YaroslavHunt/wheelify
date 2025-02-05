@@ -6,6 +6,7 @@ import { RolesGuard } from '../../guards/roles.guard';
 import { Roles } from '../../decorators/roles.decorator';
 import { Role } from '../../common/enums';
 import { AdminService } from './admin.service';
+import { PaginationResponseDto } from './dto/pagination.users.dto';
 
 @ApiTags('Administrator')
 @Roles(Role.ADMIN, Role.MODERATOR)
@@ -15,12 +16,22 @@ export class AdminController {
 	constructor(private readonly adminService: AdminService) {
 	}
 
-	@ApiResponse({ status: 200, type: [User] })
-	@HttpCode(200)
+	@ApiResponse({ status: 200, type: PaginationResponseDto })
 	@Get('users-list')
-	getAllUsers(): Promise<User[]> {
-		return this.adminService.getAllUsers();
+	async getUsersList(
+		@Query('search') search?: string,
+		@Query('page') page: string = '1',
+		@Query('limit') limit: string = '10',
+	): Promise<PaginationResponseDto> {
+		const pageNum = Number(page);
+		const limitNum = Number(limit);
+		if (isNaN(pageNum) || isNaN(limitNum) || pageNum <= 0 || limitNum <= 0) {
+			throw new Error('Invalid query values. Page and limit must be numbers greater than 0');
+		}
+		return this.adminService.getUsersList({ search, page: pageNum, limit: limitNum });
 	}
+
+
 
 	@ApiResponse({ status: 200, type: User })
 	@HttpCode(200)
