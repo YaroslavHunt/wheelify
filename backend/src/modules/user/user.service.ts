@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { UpdateUserDto } from './dto/update.user.dto';
+import { UpdateUserReq } from './dto/req/update.user.req';
 import User from './model/user.model';
 import { UserPayload } from '../../strategy/types';
-import { ChangePasswordDto } from './dto/change.password.dto';
+import { ChangePasswordReq } from './dto/req/change.password.req';
 import { UserValidService } from './user.validation.service';
 import { WinstonLoggerService } from '../logger/logger.service';
 import { InjectModel } from '@nestjs/sequelize';
-import { TransactionHelper } from '../../common/transaction.helper';
+import { TransactionHelper } from '../../database/sequelize/transaction.helper';
+import { UserRes } from './dto/res/user.res';
+import { plainToInstance } from 'class-transformer';
+import { UpdateUserRes } from './dto/res/update.user.res';
 
 @Injectable()
 export class UserService {
@@ -21,24 +24,38 @@ export class UserService {
 		this.logger.setLabel(UserService.name);
 	}
 
-	async updateUser(email: string, dto: UpdateUserDto): Promise<UpdateUserDto> {
+	async updateUser(email: string, dto: UpdateUserReq): Promise<UpdateUserRes> {
 		return this.transaction.run(async (t) => {
+			const target = await this.userRepository.findOne({ where: { email }, transaction: t });
 			const allowedFields = ['username', 'email'];
-			const filteredReq: UpdateUserDto = Object.fromEntries(
+			const filteredReq: UpdateUserReq = Object.fromEntries(
 				Object.entries(dto).filter(([key, value]) => allowedFields.includes(key) && value !== undefined),
 			);
-			if (filteredReq.email || filteredReq.username) {
-				await this.userValidService.checkUserDoesNotExist(filteredReq, t);
+			await this.userValidService.checkUserDoesNotExist(filteredReq, t);
+			await this.userRepository.update(dto, { where: { email }, transaction: t });
+			const updatedUser = await this.userRepository.findOne({
+				where: { email: filteredReq.email ?? email },
+				transaction: t,
+			});
+			const changes: string[] = [];
+			if (filteredReq.email) {
+				changes.push(`email: ${email} → ${filteredReq.email}`);
 			}
-			this.logger.log(`User with email: ${email} change username to: ${dto.username} email to: ${dto.email}`);
-			await this.userRepository.update(filteredReq, { where: { email }, transaction: t });
-			return this.userValidService.publicUser(email);
+			if (filteredReq.username) {
+				changes.push(`username: ${target.username} → ${filteredReq.username}`);
+			}
+			if (changes.length > 0) {
+				this.logger.log(`User updated (${changes.join(', ')})`);
+			}
+			const data = plainToInstance(UserRes, updatedUser.get({ plain: true }));
+			const previousData = plainToInstance(UserRes, target.get({ plain: true }));
+			return { data, previousData };
 		});
 	}
 
-	async changePassword(user: UserPayload, dto: ChangePasswordDto): Promise<boolean> {
+	async changePassword(user: UserPayload, dto: ChangePasswordReq): Promise<boolean> {
 		return this.transaction.run(async (t) => {
-			const target = await this.userRepository.findOne({ where: { email: user.email }, transaction: t});
+			const target = await this.userRepository.findOne({ where: { email: user.email }, transaction: t });
 			const allowedFields = ['currentPassword', 'newPassword'];
 			const filteredReq = Object.fromEntries(
 				Object.entries(dto).filter(([key, value]) => allowedFields.includes(key) && value !== undefined));

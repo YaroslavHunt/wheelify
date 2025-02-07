@@ -2,22 +2,24 @@ import { Body, Controller, HttpCode, Patch, Req, UseGuards } from '@nestjs/commo
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../../guards/jwt.guard';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UpdateUserDto } from './dto/update.user.dto';
+import { UpdateUserReq } from './dto/req/update.user.req';
 import { JwtPayload } from '../../strategy/types';
-import { ChangePasswordDto } from './dto/change.password.dto';
+import { ChangePasswordReq } from './dto/req/change.password.req';
+import { UserRes } from './dto/res/user.res';
+import { UpdateUserRes } from './dto/res/update.user.res';
 
 @ApiTags('User')
 @UseGuards(JwtAuthGuard)
 @Controller('cabinet')
 export class UserController {
 	constructor(private readonly userService: UserService) {}
-	@ApiResponse({ status: 202, type: UpdateUserDto })
+	@ApiResponse({ status: 202, type: UserRes })
 	@HttpCode(202)
 	@Patch('edit')
 	updateUser(
-		@Body() dto: UpdateUserDto,
+		@Body() dto: UpdateUserReq,
 		@Req() req: JwtPayload,
-	): Promise<UpdateUserDto> {
+	): Promise<UpdateUserRes> {
 		const user = req.user;
 		return this.userService.updateUser(user.email, dto);
 	}
@@ -26,7 +28,7 @@ export class UserController {
 	@HttpCode(202)
 	@Patch('change-password')
 	changePassword(
-		@Body() dto: ChangePasswordDto,
+		@Body() dto: ChangePasswordReq,
 		@Req() req: JwtPayload,
 	): Promise<boolean> {
 		const user = req.user;
@@ -36,7 +38,9 @@ export class UserController {
 	@ApiResponse({ status: 202, type: Boolean })
 	@HttpCode(202)
 	@Patch('deactivate')
-	deactivateUser(@Req() req: JwtPayload): Promise<boolean> {
+	deactivateUser(
+		@Req() req: JwtPayload
+	): Promise<boolean> {
 		const user = req.user;
 		return this.userService.deactivateUser(user.email);
 	}

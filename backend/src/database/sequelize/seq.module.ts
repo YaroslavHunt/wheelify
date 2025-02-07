@@ -6,4 +6,4 @@ import { TransactionHelper } from './transaction.helper';
 	providers: [TransactionHelper],
 	exports: [TransactionHelper],
 })
-export class CommonModule {}
+export class SeqModule {}

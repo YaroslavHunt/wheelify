@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import User from '../user/model/user.model';
 import { WinstonLoggerService } from '../logger/logger.service';
 import { InjectModel } from '@nestjs/sequelize';
-import { TransactionHelper } from '../../common/transaction.helper';
-import { PaginationResponseDto } from './dto/pagination.users.dto';
+import { TransactionHelper } from '../../database/sequelize/transaction.helper';
+import { PaginationUsersRes } from './dto/res/pagination.users.res';
 import { Op, WhereOptions } from 'sequelize';
+import { UserRes } from '../user/dto/res/user.res';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class AdminService {
@@ -20,27 +22,32 @@ export class AdminService {
 		search?: string,
 		page: number,
 		limit: number
-	}): Promise<PaginationResponseDto> {
-		const where: WhereOptions<User> = search
-			? { username: { [Op.iLike]: `%${search}%` } }
-			: {};
+	}): Promise<PaginationUsersRes> {
+		const where: WhereOptions<User> = search ? {
+			[Op.or]: [
+				{ username: { [Op.iLike]: `%${search}%` } },
+				{ email: { [Op.iLike]: `%${search}%` } },
+			]
+		} : {};
 		const { rows: users, count: total } = await this.userRepository.findAndCountAll({
 			where,
 			limit,
 			offset: (page - 1) * limit,
 		});
-		return new PaginationResponseDto(users, total, page, limit);
+		const usersRes = users.map(user => plainToInstance(UserRes, user));
+		return new PaginationUsersRes(usersRes, total, page, limit);
 	}
 
-	findUserById(id: string): Promise<User> {
+	findUserById(id: number): Promise<UserRes> {
 		return this.transaction.run(async (t) => {
-			return this.userRepository.findOne({ where: { id }, transaction: t });
+			const user = await this.userRepository.findOne({ where: { id }, transaction: t });
+			return plainToInstance(UserRes, user);
 		});
 	}
 
-	//TODO
-	changeUserStatus(id: string): Promise<boolean> {
+	changeUserStatus(id: number): Promise<boolean> {
 		return this.transaction.run(async (t) => {
+			const target = await this.userRepository.findOne({ where: { id }, transaction: t });
 			return true;
 		});
 	}

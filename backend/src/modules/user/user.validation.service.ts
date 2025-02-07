@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import User from './model/user.model';
-import Ads from '../advertisements/model/ads.model';
 import { Op, Transaction, WhereOptions } from 'sequelize';
 import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/sequelize';
@@ -65,20 +64,4 @@ export class UserValidService {
 			throw new BadRequestException('Wrong password');
 		}
 	}
-
-	async publicUser(email: string): Promise<User> {
-		try {
-			return this.userRepository.findOne({
-				where: { email },
-				attributes: { exclude: ['password'] },
-				include: {
-					model: Ads,
-					required: false,
-				},
-			});
-		} catch (e) {
-			throw e;
-		}
-	}
-
 }

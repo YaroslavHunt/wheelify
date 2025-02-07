@@ -1,72 +1,26 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../../app/app.module';
-import { CreateUserDto } from '../../modules/user/dto/create.user.dto';
 import { WinstonLoggerService } from '../../modules/logger/logger.service';
 import User from '../../modules/user/model/user.model';
 import { Sequelize } from 'sequelize-typescript';
+import * as faker from 'faker';
+import * as bcrypt from 'bcrypt';
+import { CreateUserReq } from '../../modules/user/dto/req/create.user.req';
 
-async function createUsers(): Promise<void> {
+async function createUsers(userCount: number): Promise<void> {
 	const app = await NestFactory.createApplicationContext(AppModule);
 	const sequelize = app.get<Sequelize>(Sequelize);
 	const userRepository = sequelize.getRepository(User);
 	const logger = app.get<WinstonLoggerService>(WinstonLoggerService);
-	logger.setLabel('Seed: Create Users');
-
-	const users: Array<CreateUserDto> = [
-		{
-			username: 'Jane',
-			email: 'jane.martin1@example.com',
-			password: 'qwerty123',
-		},
-		{
-			username: 'Laura',
-			email: 'laura@example.com',
-			password: 'qwerty123',
-		},
-		{
-			username: 'April',
-			email: 'april.johnson3@example.com',
-			password: 'qwerty123',
-		},
-		{
-			username: 'Daniel',
-			email: 'danny@example.com',
-			password: 'qwerty123',
-		},
-		{
-			username: 'Josh',
-			email: 'joshy.coppola@example.com',
-			password: 'qwerty123',
-		},
-		{
-			username: 'Dilan',
-			email: 'dilan@example.com',
-			password: 'qwerty123',
-		},
-		{
-			username: 'Emma',
-			email: 'emma.johnson7@example.com',
-			password: 'qwerty123',
-		},
-		{
-			username: 'John',
-			email: 'john.smith8@example.com',
-			password: 'qwerty123',
-		},
-		{
-			username: 'Bob',
-			email: 'bobby@example.com',
-			password: 'qwerty123',
-		},
-		{
-			username: 'Chris',
-			email: 'chris.harris10@example.com',
-			password: 'qwerty123',
-		},
-	];
+	logger.setLabel('Seed:Create Users');
 
 	try {
-		for (const user of users) {
+		for (let i = 0; i < userCount; i++) {
+			const user: CreateUserReq = {
+				username: faker.name.firstName(),
+				email: faker.internet.email(),
+				password: await bcrypt.hash('qwerty123', 12),
+			};
 			await userRepository.create(user);
 			logger.log(`Creating user: ${user.username}`);
 		}
@@ -74,10 +28,10 @@ async function createUsers(): Promise<void> {
 	} catch (e) {
 		logger.error('Error while creating users:', e);
 	}
-
 	await app.close();
 }
 
 (async (): Promise<void> => {
-	await createUsers();
+	const userCount = process.argv[2] ? parseInt(process.argv[2], 10) : 10;
+	await createUsers(userCount);
 })();

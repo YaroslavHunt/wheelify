@@ -1,25 +1,26 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiResponse } from '@nestjs/swagger';
-import { CreateUserDto } from '../user/dto/create.user.dto';
-import { AuthUserResponse } from '../user/dto/user.dto';
-import { UserLoginDto } from '../user/dto/user.login.dto';
+import { CreateUserReq } from '../user/dto/req/create.user.req';
+import { UserRes } from '../user/dto/res/user.res';
+import { UserLoginReq } from '../user/dto/req/user.login.req';
+import { AuthRes } from '../user/dto/res/auth.res';
 
 @Controller('auth')
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
-	@ApiResponse({ status: 201, type: CreateUserDto })
+	@ApiResponse({ status: 201, type: CreateUserReq })
 	@HttpCode(201)
 	@Post('sign-up')
-	register(@Body() dto: CreateUserDto): Promise<CreateUserDto> {
+	register(@Body() dto: CreateUserReq): Promise<UserRes> {
 		return this.authService.registerUser(dto);
 	}
 
-	@ApiResponse({ status: 200, type: AuthUserResponse })
+	@ApiResponse({ status: 200, type: AuthRes })
 	@HttpCode(200)
 	@Post('sign-in')
-	login(@Body() dto: UserLoginDto): Promise<AuthUserResponse> {
+	login(@Body() dto: UserLoginReq): Promise<AuthRes> {
 		return this.authService.logIn(dto);
 	}
 }

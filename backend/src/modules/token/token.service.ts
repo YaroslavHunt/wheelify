@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UserLoginDto } from '../user/dto/user.login.dto';
 
 @Injectable()
 export class TokenService {
@@ -11,7 +10,7 @@ export class TokenService {
 	) {
 	}
 
-	async generateJwtToken(user: UserLoginDto): Promise<string> {
+	async generateJwtToken(user: object): Promise<string> {
 		try {
 			const payload = { user };
 			return this.jwtService.signAsync(payload, {

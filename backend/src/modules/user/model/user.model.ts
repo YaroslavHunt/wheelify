@@ -1,6 +1,7 @@
 import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import Ads from '../../advertisements/model/ads.model';
 import { Role } from '../../../common/enums';
+import { CreationOptional, InferAttributes, InferCreationAttributes, UUIDV4 } from 'sequelize';
 
 @Table({
 	tableName: 'users',
@@ -12,13 +13,16 @@ import { Role } from '../../../common/enums';
 		{ fields: ['role'] },
 	],
 })
-export default class User extends Model<User> {
+export default class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+	declare createdAt: CreationOptional<Date>;
+	declare updatedAt: CreationOptional<Date>;
+
 	@Column({
-		type: DataType.INTEGER,
-		autoIncrement: true,
+		type: DataType.UUID,
+		defaultValue: UUIDV4,
 		primaryKey: true,
 	})
-	id: number;
+	id: string;
 
 	@Column({
 		type: DataType.STRING,

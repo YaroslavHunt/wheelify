@@ -8,7 +8,7 @@ import configurations from '../config';
 import { DatabaseModule } from '../database/database.module';
 import { LoggerModule } from '../modules/logger/logger.module';
 import { AdminModule } from '../modules/admin/admin.module';
-import { CommonModule } from '../common/common.module';
+import { SeqModule } from '../database/sequelize/seq.module';
 
 @Module({
 	imports: [
@@ -23,7 +23,7 @@ import { CommonModule } from '../common/common.module';
 		UserModule,
 		AdsModule,
 		LoggerModule,
-		CommonModule,
+		SeqModule,
 	],
 })
 export class AppModule {}
