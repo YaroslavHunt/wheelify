@@ -2,15 +2,15 @@ import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserReq } from './dto/req/update.user.req';
 import User from './model/user.model';
-import { UserPayload } from '../../strategy/types';
 import { ChangePasswordReq } from './dto/req/change.password.req';
 import { UserValidService } from './user.validation.service';
 import { WinstonLoggerService } from '../logger/logger.service';
 import { InjectModel } from '@nestjs/sequelize';
 import { TransactionHelper } from '../../database/sequelize/transaction.helper';
 import { UserRes } from './dto/res/user.res';
-import { plainToInstance } from 'class-transformer';
 import { UpdateUserRes } from './dto/res/update.user.res';
+import { JwtPayload } from '../../strategy/types';
+import { toDTO } from '../../common/utils/mapper';
 
 @Injectable()
 export class UserService {
@@ -38,22 +38,16 @@ export class UserService {
 				transaction: t,
 			});
 			const changes: string[] = [];
-			if (filteredReq.email) {
-				changes.push(`email: ${email} → ${filteredReq.email}`);
-			}
-			if (filteredReq.username) {
-				changes.push(`username: ${target.username} → ${filteredReq.username}`);
-			}
-			if (changes.length > 0) {
-				this.logger.log(`User updated (${changes.join(', ')})`);
-			}
-			const data = plainToInstance(UserRes, updatedUser.get({ plain: true }));
-			const previousData = plainToInstance(UserRes, target.get({ plain: true }));
+			if (filteredReq.email) changes.push(`email: ${email} → ${filteredReq.email}`);
+			if (filteredReq.username) changes.push(`username: ${target.username} → ${filteredReq.username}`);
+			if (changes.length > 0) this.logger.log(`User updated (${changes.join(', ')})`);
+			const data = toDTO(UserRes, updatedUser);
+			const previousData = toDTO(UserRes, target);
 			return { data, previousData };
 		});
 	}
 
-	async changePassword(user: UserPayload, dto: ChangePasswordReq): Promise<boolean> {
+	async changePassword(user: JwtPayload, dto: ChangePasswordReq): Promise<boolean> {
 		return this.transaction.run(async (t) => {
 			const target = await this.userRepository.findOne({ where: { email: user.email }, transaction: t });
 			const allowedFields = ['currentPassword', 'newPassword'];

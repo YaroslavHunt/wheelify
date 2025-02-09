@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { JwtAuthGuard } from '../../guards/jwt.guard';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateUserReq } from './dto/req/update.user.req';
-import { JwtPayload } from '../../strategy/types';
+import { AuthRequest } from '../../strategy/types';
 import { ChangePasswordReq } from './dto/req/change.password.req';
 import { UserRes } from './dto/res/user.res';
 import { UpdateUserRes } from './dto/res/update.user.res';
@@ -18,7 +18,7 @@ export class UserController {
 	@Patch('edit')
 	updateUser(
 		@Body() dto: UpdateUserReq,
-		@Req() req: JwtPayload,
+		@Req() req: AuthRequest,
 	): Promise<UpdateUserRes> {
 		const user = req.user;
 		return this.userService.updateUser(user.email, dto);
@@ -29,7 +29,7 @@ export class UserController {
 	@Patch('change-password')
 	changePassword(
 		@Body() dto: ChangePasswordReq,
-		@Req() req: JwtPayload,
+		@Req() req: AuthRequest,
 	): Promise<boolean> {
 		const user = req.user;
 		return this.userService.changePassword(user, dto)
@@ -39,7 +39,7 @@ export class UserController {
 	@HttpCode(202)
 	@Patch('deactivate')
 	deactivateUser(
-		@Req() req: JwtPayload
+		@Req() req: AuthRequest
 	): Promise<boolean> {
 		const user = req.user;
 		return this.userService.deactivateUser(user.email);

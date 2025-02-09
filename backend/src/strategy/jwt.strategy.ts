@@ -6,6 +6,8 @@ import { JwtPayload } from './types';
 import { ConfigService } from '@nestjs/config';
 import { WinstonLoggerService } from '../modules/logger/logger.service';
 import { InjectModel } from '@nestjs/sequelize';
+import { UserRes } from '../modules/user/dto/res/user.res';
+import { toDTO } from '../common/utils/mapper';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -23,12 +25,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 		this.logger.log('JWT strategy initialized');
 	}
 
-	async validate(payload: JwtPayload): Promise<User> {
+	async validate(payload: JwtPayload): Promise<UserRes> {
 		this.logger.debug(`Validating JWT payload: ${JSON.stringify(payload)}`);
-		const user = await this.userRepository.findOne({ where : { id: payload.user.id }});
+		const user = await this.userRepository.findOne({ where : { id: payload.id }});
 		if (!user) {
 			throw new UnauthorizedException('Invalid token: user not found');
 		}
-		return user;
+		return toDTO(UserRes, user); //TODO refresh access
 	}
 }

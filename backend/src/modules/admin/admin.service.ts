@@ -6,7 +6,7 @@ import { TransactionHelper } from '../../database/sequelize/transaction.helper';
 import { PaginationUsersRes } from './dto/res/pagination.users.res';
 import { Op, WhereOptions } from 'sequelize';
 import { UserRes } from '../user/dto/res/user.res';
-import { plainToInstance } from 'class-transformer';
+import { toDTO } from '../../common/utils/mapper';
 
 @Injectable()
 export class AdminService {
@@ -34,14 +34,14 @@ export class AdminService {
 			limit,
 			offset: (page - 1) * limit,
 		});
-		const usersRes = users.map(user => plainToInstance(UserRes, user));
+		const usersRes = users.map(user => toDTO(UserRes, user));
 		return new PaginationUsersRes(usersRes, total, page, limit);
 	}
 
 	findUserById(id: number): Promise<UserRes> {
 		return this.transaction.run(async (t) => {
 			const user = await this.userRepository.findOne({ where: { id }, transaction: t });
-			return plainToInstance(UserRes, user);
+			return toDTO(UserRes, user);
 		});
 	}
 

@@ -10,8 +10,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import { TransactionHelper } from '../../database/sequelize/transaction.helper';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../../common/enums';
-import { plainToInstance } from 'class-transformer';
-import { AuthRes } from '../user/dto/res/auth.res';
+import { AuthResponse } from '../user/dto/res/auth.res';
+import { toDTO } from '../../common/utils/mapper';
 
 @Injectable()
 export class AuthService {
@@ -40,16 +40,16 @@ export class AuthService {
 				{ transaction: t },
 			);
 			this.logger.log('Successfully create new user');
-			return plainToInstance(UserRes, user.get({ plain: true }));
+			return toDTO(UserRes, user);
 		});
 	}
 
-	async logIn(dto: UserLoginReq): Promise<AuthRes> {
+	async logIn(dto: UserLoginReq): Promise<AuthResponse> {
 		try {
 			await this.userValidService.checkUserExists(dto);
 			const user = await this.userRepository.findOne({ where:{ email: dto.email }});
 			await this.userValidService.checkPassword(dto.password, user.password);
-			const res = plainToInstance(UserRes, user.get({ plain: true }));
+			const res = toDTO(UserRes, user);
 			const token = await this.tokenService.generateJwtToken(res);
 			return { user: res, token };
 		} catch (e) {
