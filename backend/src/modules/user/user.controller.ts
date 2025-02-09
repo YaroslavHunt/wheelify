@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Patch, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Patch, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../../guards/jwt.guard';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -13,6 +13,7 @@ import { UpdateUserRes } from './dto/res/update.user.res';
 @Controller('cabinet')
 export class UserController {
 	constructor(private readonly userService: UserService) {}
+
 	@ApiResponse({ status: 202, type: UserRes })
 	@HttpCode(202)
 	@Patch('edit')

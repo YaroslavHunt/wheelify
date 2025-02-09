@@ -5,10 +5,11 @@ import { TokenModule } from '../modules/token/token.module';
 import { AdsModule } from '../modules/advertisements/ads.module';
 import { ConfigModule } from '@nestjs/config';
 import configurations from '../config';
-import { DatabaseModule } from '../database/database.module';
+import { IDatabaseModule } from '../database/database.module';
 import { LoggerModule } from '../modules/logger/logger.module';
 import { AdminModule } from '../modules/admin/admin.module';
-import { SeqModule } from '../database/sequelize/seq.module';
+import { ISequelizeModule } from '../database/sequelize/sequelize.module';
+import { IRedisModule } from '../redis/redis.module';
 
 @Module({
 	imports: [
@@ -16,14 +17,15 @@ import { SeqModule } from '../database/sequelize/seq.module';
 			isGlobal: true,
 			load: [configurations],
 		}),
-		DatabaseModule,
+		IRedisModule,
+		IDatabaseModule,
 		AuthModule,
 		TokenModule,
 		AdminModule,
 		UserModule,
 		AdsModule,
 		LoggerModule,
-		SeqModule,
+		ISequelizeModule,
 	],
 })
 export class AppModule {}

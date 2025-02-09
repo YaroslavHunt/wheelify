@@ -11,12 +11,15 @@ import { UserRes } from './dto/res/user.res';
 import { UpdateUserRes } from './dto/res/update.user.res';
 import { JwtPayload } from '../../strategy/types';
 import { toDTO } from '../../common/utils/mapper';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Redis } from 'ioredis';
 
 @Injectable()
 export class UserService {
 
 	constructor(
 		@InjectModel(User) private readonly userRepository: typeof User,
+		@InjectRedis() private readonly redis: Redis, //TODO cache
 		private readonly userValidService: UserValidService,
 		private readonly transaction: TransactionHelper,
 		private readonly logger: WinstonLoggerService,

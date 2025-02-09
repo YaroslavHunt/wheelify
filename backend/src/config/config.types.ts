@@ -3,6 +3,7 @@ import { SequelizeModuleOptions } from '@nestjs/sequelize';
 import { Mode } from '../common/enums';
 
 export interface MainConfig {
+	redis: RedisConfig;
 	app: AppConfig;
 	database: DatabaseConfig;
 	jwt: JwtConfig;
@@ -33,6 +34,10 @@ export interface AdministratorConfig {
 	username: string;
 	password: string;
 	email: string;
+}
+
+export interface RedisConfig {
+	url: string
 }
 
 export interface SecurityConfig {
