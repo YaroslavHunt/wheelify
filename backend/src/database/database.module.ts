@@ -6,12 +6,11 @@ import { DatabaseConfig } from '../config/config.types';
 import { Mode } from '../common/enums';
 import { WinstonLoggerService } from '../modules/logger/logger.service';
 
-const logger = new WinstonLoggerService('Database');
-
 export const DatabaseModule: DynamicModule = SequelizeModule.forRootAsync({
 	imports: [ConfigModule],
-	inject: [ConfigService],
-	useFactory: (configService: ConfigService): DatabaseConfig => {
+	inject: [ConfigService, WinstonLoggerService],
+	useFactory: (configService: ConfigService,  logger: WinstonLoggerService): DatabaseConfig => {
+		logger.setLabel('Database');
 		const mode = configService.get<string>('app.mode');
 		const dialect = configService.get<Dialect>('database.dialect');
 		const host = configService.get<string>('database.host');
@@ -36,7 +35,7 @@ export const DatabaseModule: DynamicModule = SequelizeModule.forRootAsync({
 			database,
 			autoLoadModels: true,
 			synchronize: mode === Mode.DEV,
-			logging: mode === Mode.DEV ? console.log : false,
+			logging: mode === Mode.DEV ? (msg) => logger.log(msg) : false,
 			timezone: '+00:00',
 			dialectOptions: { timezone: 'Etc/UTC' }
 		};

@@ -6,6 +6,7 @@ import {
 	Table,
 } from 'sequelize-typescript';
 import User from '../../user/model/user.model';
+import { CreationOptional, InferAttributes, InferCreationAttributes, UUIDV4 } from 'sequelize';
 
 @Table({
 	tableName: 'advertisements',
@@ -17,13 +18,16 @@ import User from '../../user/model/user.model';
 		{ fields: ['description'] },
 	],
 })
-export default class Ads extends Model<Ads> {
+export default class Ads extends Model<InferAttributes<Ads>, InferCreationAttributes<Ads>> {
+	declare createdAt: CreationOptional<Date>;
+	declare updatedAt: CreationOptional<Date>;
+
 	@Column({
-		type: DataType.INTEGER,
-		autoIncrement: true,
+		type: DataType.UUID,
+		defaultValue: UUIDV4,
 		primaryKey: true,
 	})
-	id: number;
+	id: string;
 
 	@Column({
 		type: DataType.STRING(200),
@@ -45,8 +49,8 @@ export default class Ads extends Model<Ads> {
 	@ForeignKey(() => User)
 	@Column({
 		field: 'user_id',
-		type: DataType.INTEGER,
+		type: DataType.UUID,
 		allowNull: false,
 	})
-	user: number;
+	user: string;
 }

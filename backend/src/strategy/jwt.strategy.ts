@@ -3,14 +3,16 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import User from '../modules/user/model/user.model';
 import { JwtPayload } from './types';
-import { UserService } from 'src/modules/user/user.service';
 import { ConfigService } from '@nestjs/config';
 import { WinstonLoggerService } from '../modules/logger/logger.service';
+import { InjectModel } from '@nestjs/sequelize';
+import { UserRes } from '../modules/user/dto/res/user.res';
+import { toDTO } from '../common/utils/mapper';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor(
-		private readonly userService: UserService,
+		@InjectModel(User) private readonly userRepository: typeof User,
 		private readonly configService: ConfigService,
 		private readonly logger: WinstonLoggerService,
 	) {
@@ -19,18 +21,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 			ignoreExpiration: false,
 			secretOrKey: configService.get<string>('jwt.secret'),
 		});
-		this.logger = new WinstonLoggerService(JwtStrategy.name);
+		this.logger.setLabel(JwtStrategy.name)
 		this.logger.log('JWT strategy initialized');
 	}
 
-	async validate(payload: JwtPayload): Promise<User> {   // TODO
+	async validate(payload: JwtPayload): Promise<UserRes> {
 		this.logger.debug(`Validating JWT payload: ${JSON.stringify(payload)}`);
-		const user = await this.userService.findUserBy({ email: payload.user.email });
+		const user = await this.userRepository.findOne({ where : { id: payload.id }});
 		if (!user) {
-			this.logger.warn(`Unauthorized attempt with email: ${payload.user.email}`);
 			throw new UnauthorizedException('Invalid token: user not found');
 		}
-		this.logger.log(`JWT validated for user: ${payload.user.username}, with email: ${payload.user.email}`);
-		return user;
+		return toDTO(UserRes, user); //TODO refresh access
 	}
 }

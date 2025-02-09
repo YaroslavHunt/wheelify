@@ -1,20 +1,31 @@
 import * as winston from 'winston';
-import { info } from 'winston';
 import { Injectable } from '@nestjs/common';
 import { LogError } from './types/log.types';
 import { createDailyRotateFileTransport, myFormat } from './utils/logger.utils';
 import { localTimestamp, logDir } from './const/logger.const';
+import * as fs from 'fs';
 
 @Injectable()
 export class WinstonLoggerService {
-	private readonly logger: winston.Logger;
+	private logger: winston.Logger;
+	private label = 'App';
 
-	constructor(label?: string) {
+	constructor() {
+		this.createLogDir();
+		this.initLogger();
+	}
+
+	setLabel(label: string) {
+		this.label = label;
+		this.initLogger();
+	}
+
+	private initLogger() {
 		this.logger = winston.createLogger({
 			level: 'info',
 			format: winston.format.combine(
 				winston.format.splat(),
-				winston.format.label({ label: label || 'App' }),
+				winston.format.label({ label: this.label }),
 				winston.format.timestamp({ format: localTimestamp }),
 				winston.format.errors({ stack: true }),
 				myFormat,
@@ -28,48 +39,39 @@ export class WinstonLoggerService {
 					format: winston.format.combine(
 						winston.format.colorize(),
 						winston.format.timestamp({ format: localTimestamp }),
-						myFormat
+						myFormat,
 					),
 					handleExceptions: true,
 				}),
 			].filter(Boolean),
-		})
-	}
-
-	log(message: string, context?: string) {
-		this.logger.info(message, { context });
-	}
-
-	error(message: string, e?: LogError) {
-		if (!e) {
-			this.logger.error(message);
-			return;
-		}
-		this.logger.error({
-			message: message || e.message,
-			details: e.details || {},
-			stack: e.stack,
 		});
 	}
 
-	warn(message: string, e?: LogError) {
-		if (!e) {
-			this.logger.warn(message);
-			return;
-		} else {
-			this.logger.warn({
-				message: message || e.message,
-				details: e.details || {},
-				stack: e.stack,
-			});
+	private createLogDir() {
+		try {
+			if (!fs.existsSync(logDir)) {
+				fs.mkdirSync(logDir, { recursive: true });
+			}
+		} catch (e) {
+			console.error('Error creating log directory:', e);
 		}
 	}
 
-	debug(message: string, context?: string) {
-		this.logger.debug(message, { context });
+	log(message: string) {
+		this.logger.info(message, { label: this.label });
 	}
 
-	verbose(message: string, context?: string) {
-		this.logger.verbose(message, { context });
+	error(message: string, e?: LogError) {
+		const logDetails: LogError = e || { message };
+		this.logger.error(message, { label: this.label, ...logDetails });
+	}
+
+	warn(message: string, e?: LogError) {
+		const logDetails: LogError = e || { message };
+		this.logger.warn(message, { label: this.label, ...logDetails });
+	}
+
+	debug(message: string) {
+		this.logger.debug(message, { label: this.label });
 	}
 }

@@ -1,137 +1,76 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from './dto/create.user.dto';
-import { UpdateUserDto } from './dto/update.user.dto';
+import { UpdateUserReq } from './dto/req/update.user.req';
 import User from './model/user.model';
-import Ads from '../advertisements/model/ads.model';
-import { Op, Transaction, WhereOptions } from 'sequelize';
-import { Sequelize } from 'sequelize-typescript';
-import { Role } from '../../common/enums';
+import { ChangePasswordReq } from './dto/req/change.password.req';
+import { UserValidService } from './user.validation.service';
+import { WinstonLoggerService } from '../logger/logger.service';
+import { InjectModel } from '@nestjs/sequelize';
+import { TransactionHelper } from '../../database/sequelize/transaction.helper';
+import { UserRes } from './dto/res/user.res';
+import { UpdateUserRes } from './dto/res/update.user.res';
+import { JwtPayload } from '../../strategy/types';
+import { toDTO } from '../../common/utils/mapper';
 
 @Injectable()
 export class UserService {
 
 	constructor(
-		@Inject('USER_REPOSITORY') private readonly userRepository: typeof User,
-		private readonly sequelize: Sequelize,
+		@InjectModel(User) private readonly userRepository: typeof User,
+		private readonly userValidService: UserValidService,
+		private readonly transaction: TransactionHelper,
+		private readonly logger: WinstonLoggerService,
 	) {
+		this.logger.setLabel(UserService.name);
 	}
 
-	async publicUser(email: string): Promise<User> {
-		try {
-			return this.userRepository.findOne({
-				where: { email },
-				attributes: { exclude: ['password'] },
-				include: {
-					model: Ads,
-					required: false,
-				},
-			});
-		} catch (e) {
-			throw e;
-		}
-	}
-
-	async checkUser(
-		user: Partial<User>,
-		t?: Transaction,
-	): Promise<void> {
-		const where: WhereOptions<User> = {};
-		if (user.email) where.email = user.email;
-		if (user.username) where.username = user.username;
-		const exist = await this.findUserBy(where, t);
-		if (exist) {
-			throw new BadRequestException(
-				exist.email === user.email
-					? 'User with this email already exists'
-					: 'User with this username already exists',
+	async updateUser(email: string, dto: UpdateUserReq): Promise<UpdateUserRes> {
+		return this.transaction.run(async (t) => {
+			const target = await this.userRepository.findOne({ where: { email }, transaction: t });
+			const allowedFields = ['username', 'email'];
+			const filteredReq: UpdateUserReq = Object.fromEntries(
+				Object.entries(dto).filter(([key, value]) => allowedFields.includes(key) && value !== undefined),
 			);
-		}
-	}
-
-	async checkPassword(
-		password: string,
-		user: Partial<User>,
-		): Promise<void> {
-		const validPassword = await bcrypt.compare(
-			password,
-			user.password,
-		);
-		if (!validPassword) {
-			throw new BadRequestException('Wrong password');
-		}
-	}
-
-	// private async changePassword(
-	// 	password: string,
-	// 	t?: Transaction,
-	// ): Promise<boolean> {
-	//
-	// } //TODO
-
-	async findUserBy(
-		options: WhereOptions<User>,
-		t?: Transaction,
-	): Promise<User> {
-			const where: WhereOptions<User> = Object.keys(options).length > 1
-				? { [Op.or]: Object.entries(options).map(([key, value]) => ({ [key]: value })) }
-				: options;
-			const user = await this.userRepository.findOne({
-				where,
+			await this.userValidService.checkUserDoesNotExist(filteredReq, t);
+			await this.userRepository.update(dto, { where: { email }, transaction: t });
+			const updatedUser = await this.userRepository.findOne({
+				where: { email: filteredReq.email ?? email },
 				transaction: t,
 			});
-			if (!user) {
-				throw new NotFoundException('User not found');
-			}
-			return user;
+			const changes: string[] = [];
+			if (filteredReq.email) changes.push(`email: ${email} → ${filteredReq.email}`);
+			if (filteredReq.username) changes.push(`username: ${target.username} → ${filteredReq.username}`);
+			if (changes.length > 0) this.logger.log(`User updated (${changes.join(', ')})`);
+			const data = toDTO(UserRes, updatedUser);
+			const previousData = toDTO(UserRes, target);
+			return { data, previousData };
+		});
 	}
 
-	async createUser(dto: CreateUserDto): Promise<CreateUserDto> {
-		const t: Transaction = await this.sequelize.transaction();
-		try {
-			await this.checkUser(dto, t);
-			dto.password = await bcrypt.hash(dto.password, 12);
-			await this.userRepository.create(
-				{
-					username: dto.username,
-					password: dto.password,
-					email: dto.email,
-					role: Role.USER,
-				},
-				{ transaction: t },
+	async changePassword(user: JwtPayload, dto: ChangePasswordReq): Promise<boolean> {
+		return this.transaction.run(async (t) => {
+			const target = await this.userRepository.findOne({ where: { email: user.email }, transaction: t });
+			const allowedFields = ['currentPassword', 'newPassword'];
+			const filteredReq = Object.fromEntries(
+				Object.entries(dto).filter(([key, value]) => allowedFields.includes(key) && value !== undefined));
+			await this.userValidService.checkPassword(filteredReq.currentPassword, target.password);
+			const hashedPassword = await bcrypt.hash(filteredReq.newPassword, 12);
+			await this.userRepository.update(
+				{ password: hashedPassword },
+				{ where: { id: target.id }, transaction: t },
 			);
-			await t.commit();
-			return dto;
-		} catch (e) {
-			await t.rollback();
-			throw e;
-		}
-	}
-
-	async updateUser(email: string, dto: UpdateUserDto): Promise<UpdateUserDto> {
-		const t = await this.sequelize.transaction();
-		try {
-			if (dto.email || dto.username) {
-				await this.checkUser(dto, t);
-			}
-			const target: UpdateUserDto = Object.fromEntries(
-				Object.entries(dto).filter(([_, value]) => value !== undefined)
-			);
-			await this.userRepository.update(target, { where: { email }, transaction: t});
-			await t.commit();
-			return this.publicUser(email);
-		} catch (e) {
-			await t.rollback();
-			throw e;
-		}
-	}
-
-	async deleteUser(email: string): Promise<boolean> {
-		try {
-			await this.userRepository.destroy({ where: { email } });
 			return true;
-		} catch (e) {
-			throw e;
-		}
+		});
+	}
+
+	async deactivateUser(email: string): Promise<boolean> {
+		return this.transaction.run(async (t) => {
+			await this.userRepository.update(
+				{ isActive: false },
+				{ where: { email }, transaction: t },
+			);
+			this.logger.log(`User with email: ${email} - deactivated`);
+			return true;
+		});
 	}
 }

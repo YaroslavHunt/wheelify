@@ -1,29 +1,47 @@
-import { Body, Controller, Delete, HttpCode, Patch, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, Patch, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../../guards/jwt.guard';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UpdateUserDto } from './dto/update.user.dto';
-import { JwtPayload } from '../../strategy/types';
+import { UpdateUserReq } from './dto/req/update.user.req';
+import { AuthRequest } from '../../strategy/types';
+import { ChangePasswordReq } from './dto/req/change.password.req';
+import { UserRes } from './dto/res/user.res';
+import { UpdateUserRes } from './dto/res/update.user.res';
 
-@ApiTags('Users')
+@ApiTags('User')
 @UseGuards(JwtAuthGuard)
-@Controller('users')
+@Controller('cabinet')
 export class UserController {
 	constructor(private readonly userService: UserService) {}
-
-	@ApiResponse({ status: 202, type: UpdateUserDto })
+	@ApiResponse({ status: 202, type: UserRes })
 	@HttpCode(202)
-	@Patch()
+	@Patch('edit')
 	updateUser(
-		@Body() updateDto: UpdateUserDto,
-		@Req() req: JwtPayload,
-	): Promise<UpdateUserDto> {
-		return this.userService.updateUser(req.user.email, updateDto);
+		@Body() dto: UpdateUserReq,
+		@Req() req: AuthRequest,
+	): Promise<UpdateUserRes> {
+		const user = req.user;
+		return this.userService.updateUser(user.email, dto);
 	}
 
-	@Delete()
-	deleteUser(@Req() request: JwtPayload): Promise<boolean> {
-		const user = request.user;
-		return this.userService.deleteUser(user.email);
+	@ApiResponse({ status: 202, type: Boolean })
+	@HttpCode(202)
+	@Patch('change-password')
+	changePassword(
+		@Body() dto: ChangePasswordReq,
+		@Req() req: AuthRequest,
+	): Promise<boolean> {
+		const user = req.user;
+		return this.userService.changePassword(user, dto)
+	}
+
+	@ApiResponse({ status: 202, type: Boolean })
+	@HttpCode(202)
+	@Patch('deactivate')
+	deactivateUser(
+		@Req() req: AuthRequest
+	): Promise<boolean> {
+		const user = req.user;
+		return this.userService.deactivateUser(user.email);
 	}
 }

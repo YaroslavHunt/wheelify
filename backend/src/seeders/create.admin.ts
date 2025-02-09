@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../modules/app/app.module';
+import { AppModule } from '../app/app.module';
 import { ConfigService } from '@nestjs/config';
 import { WinstonLoggerService } from '../modules/logger/logger.service';
 import { Sequelize } from 'sequelize-typescript';
@@ -9,10 +9,11 @@ import User from '../modules/user/model/user.model';
 
 async function createAdmin(): Promise<void> {
 	const app = await NestFactory.createApplicationContext(AppModule);
-	const logger = new WinstonLoggerService('Administrator');
 	const configService = app.get<ConfigService>(ConfigService);
 	const sequelize = app.get<Sequelize>(Sequelize);
 	const userRepository = sequelize.getRepository(User);
+	const logger = app.get<WinstonLoggerService>(WinstonLoggerService);
+	logger.setLabel('Administrator');
 
 	const adminUsername = configService.get<string>('admin.username');
 	const adminEmail = configService.get<string>('admin.email');

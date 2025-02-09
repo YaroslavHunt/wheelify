@@ -4,9 +4,11 @@ import { AuthService } from './auth.service';
 import { UserModule } from '../user/user.module';
 import { TokenModule } from '../token/token.module';
 import { JwtStrategy } from '../../strategy/jwt.strategy';
+import { SequelizeModule } from '@nestjs/sequelize';
+import User from '../user/model/user.model';
 
 @Module({
-	imports: [UserModule, TokenModule],
+	imports: [UserModule, TokenModule, SequelizeModule.forFeature([User])],
 	controllers: [AuthController],
 	providers: [AuthService, JwtStrategy],
 })

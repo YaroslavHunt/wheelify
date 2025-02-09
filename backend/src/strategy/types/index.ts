@@ -1,12 +1,13 @@
-export interface UserPayload {
-	id: number;
-	username: string;
-	email: string;
-	role: string;
-	createdAt: string;
-	updatedAt: string;
+import { Role } from '../../common/enums';
+
+export interface JwtPayload {
+	id: string,
+	username: string,
+	email: string,
+	role: Role,
+	isActive: boolean
 }
 
-export interface JwtPayload extends Request{
-	user: UserPayload;
+export interface AuthRequest extends Request{
+	user: JwtPayload;
 }

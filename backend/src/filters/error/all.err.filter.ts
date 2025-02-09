@@ -2,6 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from
 import { HttpAdapterHost } from '@nestjs/core';
 import { Request, Response } from 'express';
 import { WinstonLoggerService } from '../../modules/logger/logger.service';
+import { LogError } from '../../modules/logger/types/log.types';
 
 @Catch()
 export class ErrExFilter implements ExceptionFilter {
@@ -23,7 +24,12 @@ export class ErrExFilter implements ExceptionFilter {
 				? e.getStatus()
 				: HttpStatus.INTERNAL_SERVER_ERROR;
 
-		const message: string = e.message;
+		let message: string = e.message;
+		if (e instanceof HttpException) {
+			const response = e.getResponse();
+			message = (response as any).message || message;
+		}
+
 		const name: string = e.name;
 		const stack: string = e.stack;
 
@@ -36,9 +42,9 @@ export class ErrExFilter implements ExceptionFilter {
 			message,
 		};
 
-		const logDetails = {
+		const logDetails: LogError = {
 			name,
-			message,
+			message: Array.isArray(message) ? message.join(',\n') : message,
 			stack,
 			details: {
 				method: req.method,
