@@ -3,7 +3,7 @@ import { AdsDto } from './dto/ads.dto';
 import { CreateAdsResponse } from './response/create.ads.res';
 import User from '../user/model/user.model';
 import Ads from './model/ads.model';
-import { WinstonLoggerService } from '../logger/logger.service';
+import { WinstonLoggerService } from '../../logger/logger.service';
 import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()

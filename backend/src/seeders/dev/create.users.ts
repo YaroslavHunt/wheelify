@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../../app/app.module';
-import { WinstonLoggerService } from '../../modules/logger/logger.service';
+import { WinstonLoggerService } from '../../logger/logger.service';
 import User from '../../modules/user/model/user.model';
 import { Sequelize } from 'sequelize-typescript';
 import * as faker from 'faker';

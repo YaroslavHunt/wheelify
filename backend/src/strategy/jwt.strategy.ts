@@ -4,7 +4,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import User from '../modules/user/model/user.model';
 import { JwtPayload } from './types';
 import { ConfigService } from '@nestjs/config';
-import { WinstonLoggerService } from '../modules/logger/logger.service';
+import { WinstonLoggerService } from '../logger/logger.service';
 import { InjectModel } from '@nestjs/sequelize';
 import { UserRes } from '../modules/user/dto/res/user.res';
 import { toDTO } from '../common/utils/mapper';

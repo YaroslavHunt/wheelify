@@ -4,7 +4,7 @@ import { UpdateUserReq } from './dto/req/update.user.req';
 import User from './model/user.model';
 import { ChangePasswordReq } from './dto/req/change.password.req';
 import { UserValidService } from './user.validation.service';
-import { WinstonLoggerService } from '../logger/logger.service';
+import { WinstonLoggerService } from '../../logger/logger.service';
 import { InjectModel } from '@nestjs/sequelize';
 import { TransactionHelper } from '../../database/sequelize/transaction.helper';
 import { UserRes } from './dto/res/user.res';

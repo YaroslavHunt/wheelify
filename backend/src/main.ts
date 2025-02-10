@@ -3,7 +3,7 @@ import { AppModule } from './app/app.module';
 import { setupSwagger } from './config/swagger';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { WinstonLoggerService } from './modules/logger/logger.service';
+import { WinstonLoggerService } from './logger/logger.service';
 import { ErrExFilter } from './filters/error/all.err.filter';
 
 async function bootstrap() {
@@ -11,7 +11,6 @@ async function bootstrap() {
 	const configService = app.get(ConfigService);
 	const port = configService.get<number>('app.port');
 	const domains = configService.get<string[]>('security.domains');
-	const logger = app.get(WinstonLoggerService);
 	const httpAdapterHost = app.get<HttpAdapterHost>(HttpAdapterHost);
 
 	// Security Middleware
@@ -21,10 +20,10 @@ async function bootstrap() {
 	});
 
 	// Logger
-	app.useLogger(logger);
+	app.useLogger(new WinstonLoggerService());
 
 	// Filters
-	app.useGlobalFilters(new ErrExFilter(httpAdapterHost, logger));
+	app.useGlobalFilters(new ErrExFilter(httpAdapterHost, new WinstonLoggerService()));
 
 	// Pipes
 	app.useGlobalPipes(new ValidationPipe({

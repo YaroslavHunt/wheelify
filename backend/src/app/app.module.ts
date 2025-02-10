@@ -6,7 +6,7 @@ import { AdsModule } from '../modules/advertisements/ads.module';
 import { ConfigModule } from '@nestjs/config';
 import configurations from '../config';
 import { IDatabaseModule } from '../database/database.module';
-import { LoggerModule } from '../modules/logger/logger.module';
+import { LoggerModule } from '../logger/logger.module';
 import { AdminModule } from '../modules/admin/admin.module';
 import { ISequelizeModule } from '../database/sequelize/sequelize.module';
 import { IRedisModule } from '../redis/redis.module';

@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../app/app.module';
 import { ConfigService } from '@nestjs/config';
-import { WinstonLoggerService } from '../modules/logger/logger.service';
+import { WinstonLoggerService } from '../logger/logger.service';
 import { Sequelize } from 'sequelize-typescript';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../common/enums';

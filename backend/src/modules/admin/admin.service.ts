@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import User from '../user/model/user.model';
-import { WinstonLoggerService } from '../logger/logger.service';
+import { WinstonLoggerService } from '../../logger/logger.service';
 import { InjectModel } from '@nestjs/sequelize';
 import { TransactionHelper } from '../../database/sequelize/transaction.helper';
 import { PaginationUsersRes } from './dto/res/pagination.users.res';

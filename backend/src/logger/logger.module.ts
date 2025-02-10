@@ -7,4 +7,3 @@ import { WinstonLoggerService } from './logger.service';
 	exports: [WinstonLoggerService],
 })
 export class LoggerModule {}
-//TODO logs

@@ -1,10 +1,10 @@
-import appConfig from './app/app.config';
-import dbConfig from './database/db.config';
-import jwtConfig from './token/jwt.config';
-import adminConfig from './admin/admin.config';
+import appConfig from './configs/app.config';
+import dbConfig from './configs/db.config';
+import jwtConfig from './configs/jwt.config';
+import adminConfig from './configs/admin.config';
 import { MainConfig } from './config.types';
-import securityConfig from './security/security.config';
-import redisConfig from './redis/redis.config';
+import securityConfig from './configs/security.config';
+import redisConfig from './configs/redis.config';
 
 export default (): MainConfig => ({
 	redis: redisConfig(),

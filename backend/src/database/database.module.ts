@@ -3,14 +3,14 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { Dialect } from 'sequelize';
 import { DatabaseConfig } from '../config/config.types';
 import { Mode } from '../common/enums';
-import { WinstonLoggerService } from '../modules/logger/logger.service';
+import { WinstonLoggerService } from '../logger/logger.service';
 import { Sequelize } from 'sequelize-typescript';
 
 export const IDatabaseModule = SequelizeModule.forRootAsync({
 	imports: [ConfigModule],
 	inject: [ConfigService, WinstonLoggerService],
 	useFactory: async (configService: ConfigService,  logger: WinstonLoggerService): Promise<DatabaseConfig> => {
-		logger.setLabel('Database');
+		logger.setLabel('DATABASE');
 		const mode = configService.get<string>('app.mode');
 
 		const config: DatabaseConfig = {
