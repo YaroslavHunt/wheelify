@@ -1,27 +1,28 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { UserRes } from '../../../user/dto/res/user.res';
-import { IsNumber } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger'
+import { IsNumber } from 'class-validator'
+
+import { RegisterUserResDTO } from '../../../auth/dto/res/register-user-res.dto'
 
 export class PaginationUsersRes {
-	constructor(users: UserRes[], total: number, page: number, limit: number) {
-		this.users = users;
-		this.total = total;
-		this.page = page;
-		this.limit = limit;
+	constructor(users: RegisterUserResDTO[], total: number, page: number, limit: number) {
+		this.users = users
+		this.total = total
+		this.page = page
+		this.limit = limit
 	}
 
-	@ApiProperty({ type: [UserRes] })
-	users: UserRes[];
+	@ApiProperty({ type: [RegisterUserResDTO] })
+	users: RegisterUserResDTO[]
 
 	@ApiProperty()
 	@IsNumber()
-	total: number;
+	total: number
 
 	@ApiProperty()
 	@IsNumber()
-	page: number;
+	page: number
 
 	@ApiProperty()
 	@IsNumber()
-	limit: number;
+	limit: number
 }

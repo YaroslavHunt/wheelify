@@ -1,31 +1,33 @@
-import { Module } from '@nestjs/common';
-import { UserModule } from '../modules/user/user.module';
-import { AuthModule } from '../modules/auth/auth.module';
-import { TokenModule } from '../modules/token/token.module';
-import { AdsModule } from '../modules/advertisements/ads.module';
-import { ConfigModule } from '@nestjs/config';
-import configurations from '../config';
-import { IDatabaseModule } from '../database/database.module';
-import { LoggerModule } from '../logger/logger.module';
-import { AdminModule } from '../modules/admin/admin.module';
-import { ISequelizeModule } from '../database/sequelize/sequelize.module';
-import { IRedisModule } from '../redis/redis.module';
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+
+import { AdsModule } from '@/modules/advertisements/ads.module'
+import { AuthModule } from '@/modules/auth/auth.module'
+import { TokenModule } from '@/modules/token/token.module'
+
+import configurations from '../config'
+import { LoggerModule } from '@/logger/logger.module'
+import { AdminModule } from '@/modules/admin/admin.module'
+import { UserModule } from '@/modules/user/user.module'
+import { StorageModule } from '@/storage/storage.module'
+import { DatabaseModule } from '@/database/database.module'
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
+			cache: true,
 			isGlobal: true,
-			load: [configurations],
+			load: [configurations]
 		}),
-		IRedisModule,
-		IDatabaseModule,
-		AuthModule,
+		LoggerModule,
+		DatabaseModule,
+		StorageModule,
+
 		TokenModule,
-		AdminModule,
+		AuthModule,
 		UserModule,
 		AdsModule,
-		LoggerModule,
-		ISequelizeModule,
-	],
+		AdminModule,
+	]
 })
 export class AppModule {}

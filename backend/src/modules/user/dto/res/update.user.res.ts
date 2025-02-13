@@ -1,12 +1,11 @@
-import { UserRes } from './user.res';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger'
+
+import { RegisterUserResDTO } from '../../../auth/dto/res/register-user-res.dto'
 
 export class UpdateUserRes {
-	@ApiProperty({ type: () => UserRes })
-	data: UserRes;
+	@ApiProperty({ type: () => RegisterUserResDTO })
+	data: RegisterUserResDTO
 
-	@ApiProperty({ type: () => UserRes })
-	previousData: UserRes;
+	@ApiProperty({ type: () => RegisterUserResDTO })
+	previousData: RegisterUserResDTO
 }
-
-

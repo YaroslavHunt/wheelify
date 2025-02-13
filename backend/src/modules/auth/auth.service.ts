@@ -1,59 +1,82 @@
-import { Injectable } from '@nestjs/common';
-import { TokenService } from '../token/token.service';
-import { CreateUserReq } from '../user/dto/req/create.user.req';
-import { UserLoginReq } from '../user/dto/req/user.login.req';
-import { UserRes } from '../user/dto/res/user.res';
-import { UserValidService } from '../user/user.validation.service';
-import { WinstonLoggerService } from '../../logger/logger.service';
-import User from '../user/model/user.model';
-import { InjectModel } from '@nestjs/sequelize';
-import { TransactionHelper } from '../../database/sequelize/transaction.helper';
-import * as bcrypt from 'bcrypt';
-import { Role } from '../../common/enums';
-import { AuthResponse } from '../user/dto/res/auth.res';
-import { toDTO } from '../../common/utils/mapper';
+import { Injectable, InternalServerErrorException } from '@nestjs/common'
+import { InjectModel } from '@nestjs/sequelize'
+import { toDTO } from '@/database/sequelize/utils/mapper.util'
+import { WinstonLoggerService } from '@/logger/logger.service'
+import { TokenService } from '../token/token.service'
+import { UserLoginReqDTO } from './dto/req/user-login-req.dto'
+import { AuthResponse } from './dto/res/auth-res'
+import { RegisterUserResDTO } from './dto/res/register-user-res.dto'
+import User from '../user/model/user.model'
+import { UserValidService } from '../user/user.validation.service'
+import { UserService } from '../user/user.service'
+import { RegisterUserReqDTO } from '@/modules/auth/dto/req/register-user-req.dto'
+import { AuthMethod } from '@/libs/common/enums'
+import { StorageService } from '@/storage/storage.service'
+import { Request, Response } from 'express'
 
 @Injectable()
 export class AuthService {
-
 	constructor(
 		@InjectModel(User) private readonly userRepository: typeof User,
+		private readonly userService: UserService,
 		private readonly userValidService: UserValidService,
 		private readonly tokenService: TokenService,
-		private readonly transaction: TransactionHelper,
 		private readonly logger: WinstonLoggerService,
+		private readonly storage: StorageService
 	) {
-		this.logger.setLabel(AuthService.name);
+		this.logger.setLabel(AuthService.name)
 	}
 
-	async registerUser(dto: CreateUserReq): Promise<UserRes> {
-		return this.transaction.run(async (t) => {
-			await this.userValidService.checkUserDoesNotExist(dto, t);
-			dto.password = await bcrypt.hash(dto.password, 12);
-			const user = await this.userRepository.create(
-				{
-					username: dto.username,
-					password: dto.password,
-					email: dto.email,
-					role: Role.USER,
-				},
-				{ transaction: t },
-			);
-			this.logger.log('Successfully create new user');
-			return toDTO(UserRes, user);
-		});
+	public async register(req: Request, data: RegisterUserReqDTO): Promise<RegisterUserResDTO> {
+		// return this.transaction.run(async t => {
+			await this.userValidService.checkUserDoesNotExist(data) // t
+			const newUser = await this.userService.create(
+				data.username,
+				data.password,
+				data.email,
+				false,
+				AuthMethod.CREDENTIAL
+			)
+			const dto = toDTO(RegisterUserResDTO, newUser)
+			await this.saveSession(req, newUser)
+			return dto;
+		// })
 	}
 
-	async logIn(dto: UserLoginReq): Promise<AuthResponse> {
+	async login(data: UserLoginReqDTO): Promise<AuthResponse> {
 		try {
-			await this.userValidService.checkUserExists(dto);
-			const user = await this.userRepository.findOne({ where:{ email: dto.email }});
-			await this.userValidService.checkPassword(dto.password, user.password);
-			const res = toDTO(UserRes, user);
-			const token = await this.tokenService.generateJwtToken(res);
-			return { user: res, token };
+			await this.userValidService.checkUserExists(data)
+			const user = await this.userService.findByEmail(data.email)
+			await this.userValidService.checkPassword(
+				data.password,
+				user.password
+			)
+			const res = new AuthResponse()
+			res.user = toDTO(RegisterUserResDTO, user)
+			res.token = await this.tokenService.generateJwtToken(res.user)
+			return res
 		} catch (e) {
-			throw e;
+			throw e
 		}
 	}
+
+	public async logout(req: Request, res: Response): Promise<void> {
+	}
+
+	private async saveSession(req: Request, user: RegisterUserResDTO) {
+		return new Promise((resolve, reject) => {
+			req.session.userId = user.id
+			req.session.save(err => {
+				if (err) {
+					return reject(new InternalServerErrorException(
+						'The session could not be preserved. ' +
+						'Check the session parameters correctly'))
+				}
+			})
+
+			resolve({ user })
+		})
+	}
+
+
 }

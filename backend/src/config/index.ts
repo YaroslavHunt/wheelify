@@ -1,16 +1,20 @@
-import appConfig from './configs/app.config';
-import dbConfig from './configs/db.config';
-import jwtConfig from './configs/jwt.config';
-import adminConfig from './configs/admin.config';
-import { MainConfig } from './config.types';
-import securityConfig from './configs/security.config';
-import redisConfig from './configs/redis.config';
+import { Configurations } from './types'
+import adminConfig from '@/config/configurations/admin.config'
+import appConfig from '@/config/configurations/app.config'
+import sequelizeConfig from '@/config/configurations/sequelize.config'
+import jwtConfig from '@/config/configurations/jwt.config'
+import redisConfig from '@/config/configurations/redis.config'
+import securityConfig from '@/config/configurations/security.config'
+import sessionConfig from '@/config/configurations/session.config'
+import awsConfig from '@/config/configurations/aws.config'
 
-export default (): MainConfig => ({
-	redis: redisConfig(),
-	app: appConfig(),
-	database: dbConfig(),
-	jwt: jwtConfig(),
+export default (): Configurations => ({
 	admin: adminConfig(),
+	app: appConfig(),
+	aws: awsConfig(),
+	jwt: jwtConfig(),
+	redis: redisConfig(),
 	security: securityConfig(),
-});
+	sequelize: sequelizeConfig(),
+	session: sessionConfig(),
+})
