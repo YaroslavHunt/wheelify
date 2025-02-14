@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { GetObjectCommand, PutObjectCommand, S3 } from '@aws-sdk/client-s3'
 import { WinstonLoggerService } from '@/logger/logger.service'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { AwsEnv } from '@/config/enums'
 
 @Injectable()
 export class StorageService {
@@ -14,14 +15,14 @@ export class StorageService {
 		private readonly config: ConfigService,
 		private readonly logger: WinstonLoggerService
 	) {
-		this.logger.setLabel(StorageService.name)
-		this.region = this.config.get('aws.region')
-		this.bucket = this.config.get('aws.bucket')
+		// this.logger.setLabel(StorageService.name)
+		this.region = this.config.get(AwsEnv.REGION)
+		this.bucket = this.config.get(AwsEnv.BUCKET)
 		this.s3 = new S3({
 			region: this.region,
 			credentials: {
-				accessKeyId: this.config.get('aws.key'),
-				secretAccessKey: this.config.get('aws.secret')
+				accessKeyId: this.config.get(AwsEnv.KEY),
+				secretAccessKey: this.config.get(AwsEnv.SECRET)
 			}
 		})
 
@@ -40,7 +41,7 @@ export class StorageService {
 			this.logger.error('Upload file failed', e)
 			throw new InternalServerErrorException('Upload file failed')
 		}
-	}
+	} //TODO
 
 	async loadFile(fileName: string) {
 		const command = new GetObjectCommand({
@@ -59,12 +60,12 @@ export class StorageService {
 			this.logger.error('Upload file failed', e);
 			throw new InternalServerErrorException('Load file failed');
 		}
-	}
+	} //TODO
 
-	async getFileUrl(fileName: string): Promise<string> {
+	async getFileUrl(fileName: string): Promise<string | null> {
 		try {
 			if (this.isPublicBucket()) {
-				return `https://${this.bucket}.s3.${this.region}.amazonaws.com/${fileName}`;
+				return `https://${this.bucket}.s3.${this.region}.amazonaws.com/${fileName}` || null;
 			}
 
 			const command = new GetObjectCommand({
@@ -72,7 +73,7 @@ export class StorageService {
 				Key: fileName,
 			});
 
-			return await getSignedUrl(this.s3, command, { expiresIn: 3600 });
+			return await getSignedUrl(this.s3, command, { expiresIn: 3600 }) || null;
 		} catch (e) {
 			this.logger.error('Failed to generate file URL', e);
 			throw new InternalServerErrorException('Failed to generate file URL');
@@ -80,7 +81,7 @@ export class StorageService {
 	}
 
 	private isPublicBucket(): boolean {
-		return this.config.get<boolean>('aws.publicBucket') ?? false;
+		return this.config.get<boolean>(AwsEnv.IS_PUBLIC_BUCKET) ?? false;
 	}
 
 

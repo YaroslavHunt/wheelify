@@ -7,40 +7,49 @@ import { UserLoginReqDTO } from './dto/req/user-login-req.dto'
 import { AuthResponse } from './dto/res/auth-res'
 import { RegisterUserResDTO } from './dto/res/register-user-res.dto'
 import User from '../user/model/user.model'
-import { UserValidService } from '../user/user.validation.service'
+import { UserValidService } from '../user/user-validation.service'
 import { UserService } from '../user/user.service'
 import { RegisterUserReqDTO } from '@/modules/auth/dto/req/register-user-req.dto'
 import { AuthMethod } from '@/libs/common/enums'
 import { StorageService } from '@/storage/storage.service'
 import { Request, Response } from 'express'
+import { Sequelize } from 'sequelize-typescript'
 
 @Injectable()
 export class AuthService {
 	constructor(
 		@InjectModel(User) private readonly userRepository: typeof User,
+		private readonly sequelize: Sequelize,
+		private readonly logger: WinstonLoggerService,
+		private readonly storage: StorageService,
 		private readonly userService: UserService,
 		private readonly userValidService: UserValidService,
-		private readonly tokenService: TokenService,
-		private readonly logger: WinstonLoggerService,
-		private readonly storage: StorageService
+		private readonly tokenService: TokenService
 	) {
-		this.logger.setLabel(AuthService.name)
+		// this.logger.setLabel(AuthService.name)
 	}
 
 	public async register(req: Request, data: RegisterUserReqDTO): Promise<RegisterUserResDTO> {
-		// return this.transaction.run(async t => {
-			await this.userValidService.checkUserDoesNotExist(data) // t
+		const t = await this.sequelize.transaction()
+		try {
+			await this.userValidService.checkUserDoesNotExist(data, t)
 			const newUser = await this.userService.create(
 				data.username,
 				data.password,
 				data.email,
 				false,
-				AuthMethod.CREDENTIAL
+				AuthMethod.CREDENTIAL,
+				t
 			)
 			const dto = toDTO(RegisterUserResDTO, newUser)
 			await this.saveSession(req, newUser)
-			return dto;
-		// })
+			await t.commit()
+			return dto
+		} catch (e) {
+			this.logger.log(e.message, AuthService.name)
+			await t.rollback()
+			throw e
+		}
 	}
 
 	async login(data: UserLoginReqDTO): Promise<AuthResponse> {

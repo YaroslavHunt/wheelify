@@ -5,17 +5,18 @@ import * as cookieParser from 'cookie-parser'
 import IORedis from 'ioredis'
 import { AppModule } from './app/app.module'
 import { setupSwagger } from '@/config/configurations/swagger.config'
-import { ErrExFilter } from './filters/error/error.filter'
+import { GlobalExceptionFilter } from './filters/error/error.filter'
 import { WinstonLoggerService } from './logger/logger.service'
 import * as session from 'express-session'
 import { ms, StringValue } from '@/libs/common/utils/ms.utils'
 import { RedisStore } from 'connect-redis'
 import { AppEnv, RedisEnv, SecurityEnv } from '@/config/enums'
+import { LoggingInterceptor } from '@/logger/logger-interceptor.service'
 
 async function bootstrap() {
-	const app = await NestFactory.create(AppModule)
+	const app = await NestFactory.create(AppModule, { bufferLogs: true })
+	const logger = app.get(WinstonLoggerService)
 	const config = app.get(ConfigService)
-	const httpAdapterHost = app.get<HttpAdapterHost>(HttpAdapterHost)
 
 	const redis = new IORedis(config.getOrThrow<string>(RedisEnv.URI))
 	const port = config.getOrThrow<number>(AppEnv.PORT)
@@ -29,10 +30,23 @@ async function bootstrap() {
 		exposedHeaders: ['set-cookie']
 	})
 
-	// Filters
-	app.useGlobalFilters(
-		new ErrExFilter(httpAdapterHost, new WinstonLoggerService())
+	// Pipes
+	app.useGlobalPipes(
+		new ValidationPipe({
+			whitelist: true,
+			forbidNonWhitelisted: true,
+			transform: true
+		})
 	)
+
+	// Logger
+	app.useLogger(logger)
+
+	// Interceptors
+	app.useGlobalInterceptors(new LoggingInterceptor(logger))
+
+	// Filters
+	app.useGlobalFilters(new GlobalExceptionFilter(logger))
 
 	// Cookies
 	app.use(cookieParser(cookieSecret))
@@ -55,18 +69,6 @@ async function bootstrap() {
 			prefix: config.getOrThrow<string>('session.folder')
 		})
 	}))
-
-	// Pipes
-	app.useGlobalPipes(
-		new ValidationPipe({
-			whitelist: true,
-			forbidNonWhitelisted: true,
-			transform: true
-		})
-	)
-
-	// Logger
-	app.useLogger(new WinstonLoggerService())
 
 	// API
 	app.setGlobalPrefix('api/v1')

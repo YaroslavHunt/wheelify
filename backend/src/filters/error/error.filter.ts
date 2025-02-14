@@ -1,67 +1,26 @@
-import {
-	ArgumentsHost,
-	Catch,
-	ExceptionFilter,
-	HttpException,
-	HttpStatus
-} from '@nestjs/common'
-import { HttpAdapterHost } from '@nestjs/core'
-import { Request, Response } from 'express'
-
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common'
 import { WinstonLoggerService } from '@/logger/logger.service'
-import { LogError } from '@/logger/types/log.types'
 
 @Catch()
-export class ErrExFilter implements ExceptionFilter {
-	constructor(
-		private readonly httpAdapterHost: HttpAdapterHost,
-		private readonly logger: WinstonLoggerService
-	) {}
+export class GlobalExceptionFilter implements ExceptionFilter {
+	constructor(private readonly logger: WinstonLoggerService) {
+	}
 
-	catch(e: Error, host: ArgumentsHost): void {
-		const { httpAdapter } = this.httpAdapterHost
+	catch(e: HttpException, host: ArgumentsHost) {
 		const ctx = host.switchToHttp()
-		const res: Response = ctx.getResponse()
-		const req: Request = ctx.getRequest()
+		const response = ctx.getResponse()
+		const request = ctx.getRequest()
+		const status = e instanceof HttpException ? e.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR
 
-		const status: number =
-			e instanceof HttpException
-				? e.getStatus()
-				: HttpStatus.INTERNAL_SERVER_ERROR
+		const details = `Exception: ${e.message}\nURL - ${request.url}\tMethod - ${request.method}\tStatus - ${status}\tIP - ${request.ip}\tUser - ${request.user?.id || 'Anonymous'}`;
 
-		let message: string = e.message
-		if (e instanceof HttpException) {
-			const response = e.getResponse()
-			message = (response as any).message || message
-		}
+		this.logger.error(details)
 
-		const name: string = e.name
-		const stack: string = e.stack
-
-		const responseBody = {
-			status,
-			name,
+		response.status(status).json({
+			statusCode: status,
 			timestamp: new Date().toISOString(),
-			method: httpAdapter.getRequestMethod(req),
-			path: httpAdapter.getRequestUrl(req),
-			message
-		}
-
-		const logDetails: LogError = {
-			name,
-			message: Array.isArray(message) ? message.join(',\n') : message,
-			stack,
-			details: {
-				method: req.method,
-				url: req.url,
-				hostname: httpAdapter.getRequestHostname(req),
-				status
-			}
-		}
-
-		const logMethod = e instanceof HttpException ? 'warn' : 'error'
-		this.logger[logMethod](message, logDetails)
-
-		res.status(status).json(responseBody)
+			path: request.url,
+			message: e.message
+		})
 	}
 }

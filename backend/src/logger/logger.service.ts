@@ -1,81 +1,120 @@
-import { Global, Injectable } from '@nestjs/common'
+import { Injectable, LoggerService } from '@nestjs/common'
 import * as fs from 'fs'
 import * as winston from 'winston'
+import * as path from 'path'
+import * as winstonDailyRotateFile from 'winston-daily-rotate-file'
 
-import { localTimestamp, logDir } from './const/logger.const'
-import { LogError } from './types/log.types'
-import { createDailyRotateFileTransport, myFormat } from './utils/logger.utils'
+winston.addColors({
+	label: 'magenta',
+	timestamp: 'magenta',
+});
 
-@Global() //TODO check ??
 @Injectable()
-export class WinstonLoggerService {
-	private logger: winston.Logger
-	private label = 'App'
-
-	constructor() {
-		this.createLogDir()
-		this.initLogger()
+export class WinstonLoggerService implements LoggerService {
+	private static levels = ['info', 'warn', 'error', 'fatal'];
+	private static localTimestamp = () => {
+		const date = new Date()
+		return date.toLocaleString()
 	}
 
-	setLabel(label: string) {
-		this.label = label
-		this.initLogger()
+	private logger: winston.Logger;
+	private context = 'App';
+
+	constructor() {
+		this.createLogDirs();
+		this.initLogger();
 	}
 
 	private initLogger() {
 		this.logger = winston.createLogger({
 			level: 'info',
 			format: winston.format.combine(
-				winston.format.splat(),
-				winston.format.label({ label: this.label }),
-				winston.format.timestamp({ format: localTimestamp }),
 				winston.format.errors({ stack: true }),
-				myFormat
+				winston.format.timestamp({ format: WinstonLoggerService.localTimestamp }),
+				winston.format.splat(),
+				winston.format.printf(({ timestamp, level, message, stack, context }) => {
+					const ctx = context ? `[${context}]` : '[App]';
+					const colored = winston.format.colorize().colorize('label', ctx);
+					return `${timestamp} ${colored} ${level}: ${message}${stack ? `\nStack: ${stack}` : ''}`;
+				})
 			),
 			transports: [
-				createDailyRotateFileTransport('info', logDir),
-				createDailyRotateFileTransport('warn', logDir),
-				createDailyRotateFileTransport('error', logDir),
-				process.env.MODE !== 'production' &&
-					new winston.transports.Console({
+				new winston.transports.Console({
+					format: winston.format.combine(
+						winston.format.errors({ stack: true }),
+						winston.format.colorize(),
+						winston.format.timestamp({ format: WinstonLoggerService.localTimestamp }),
+						winston.format.printf(({ timestamp, level, message, stack, context }) => {
+							const ctx = context ? `[${context}]` : '[App]';
+							const coloredCtx = winston.format.colorize().colorize('label', ctx);
+							return `${timestamp} ${coloredCtx} ${level}: ${message}${stack ? `\nStack: ${stack}` : ''}`;
+						})
+					),
+				}),
+				...WinstonLoggerService.levels.map(level =>
+					new winstonDailyRotateFile({
+						level,
+						filename: path.join('./logs', level, `${level}-%DATE%.log`),
+						datePattern: 'YYYY-MM-DD',
+						zippedArchive: true,
+						maxFiles: '14d',
 						format: winston.format.combine(
-							winston.format.colorize(),
-							winston.format.timestamp({
-								format: localTimestamp
-							}),
-							myFormat
+							winston.format.timestamp({ format: WinstonLoggerService.localTimestamp }),
+							winston.format.printf(({ timestamp, level, message, stack, context }) => {
+								return JSON.stringify(
+									{ timestamp, level, message, context, stack },
+									null,
+									2
+								);
+							})
 						),
-						handleExceptions: true
 					})
-			].filter(Boolean)
-		})
+				),
+			],
+		});
 	}
 
-	private createLogDir() {
-		try {
-			if (!fs.existsSync(logDir)) {
-				fs.mkdirSync(logDir, { recursive: true })
+	private createLogDirs() {
+		WinstonLoggerService.levels.forEach(level => {
+			const levelDir = path.join('./logs', level);
+			if (!fs.existsSync(levelDir)) {
+				fs.mkdirSync(levelDir, { recursive: true });
 			}
-		} catch (e) {
-			console.error('Error creating log directory:', e)
-		}
+		});
 	}
 
-	log(message: string) {
-		this.logger.info(message, { label: this.label })
+	public setContext(context: string) {
+		this.context = context;
 	}
 
-	error(message: string, e?: LogError) {
-		const logDetails: LogError = e || { message }
-		this.logger.error(message, { label: this.label, ...logDetails })
+	private logMessage(level: string, message: any, optionalParams: any[]) {
+		const context = this.context;
+		const stack = (level === 'error' || level === 'warn' || level === 'fatal') ? new Error().stack : undefined;
+		this.logger.log(level, message, { context, stack });
 	}
 
-	warn(message: string, e?: LogError) {
-		const logDetails: LogError = e || { message }
-		this.logger.warn(message, { label: this.label, ...logDetails })
+
+	log(message: string, ...optionalParams: any[]) {
+		this.logMessage('info', message, optionalParams);
 	}
 
-	debug(message: string) {
-		this.logger.debug(message, { label: this.label })
+	error(message: string, ...optionalParams: any[]) {
+		this.logMessage('error', message, optionalParams);
+	}
+
+	warn(message: string, ...optionalParams: any[]) {
+		this.logMessage('warn', message, optionalParams);
+	}
+
+	debug(message: string, ...optionalParams: any[]) {
+		this.logMessage('debug', message, optionalParams);
+	}
+
+	verbose(message: string, ...optionalParams: any[]) {
+		this.logMessage('verbose', message, optionalParams);
+	}
+
+	fatal(message: string, ...optionalParams: any[]) {
+		this.logMessage('fatal', message, optionalParams);
 	}
 }

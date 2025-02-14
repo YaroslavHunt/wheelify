@@ -14,7 +14,7 @@ export class AdsService {
 		@InjectModel(Ads) private readonly adsRepository: typeof Ads,
 		private readonly logger: WinstonLoggerService
 	) {
-		this.logger.setLabel(AdsService.name)
+		// this.logger.setLabel(AdsService.name)
 	}
 
 	// async createAds(user: User, dto: AdsDto): Promise<CreateAdsResponse> {

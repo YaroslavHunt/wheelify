@@ -1,4 +1,4 @@
-import { Body, Controller, Header, HttpCode, HttpStatus, Post, Req } from '@nestjs/common'
+import { Body, Controller, Header, HttpCode, HttpStatus, Post, Req, UseInterceptors } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
 import { UserLoginReqDTO } from './dto/req/user-login-req.dto'
 import { AuthResponse } from './dto/res/auth-res'
@@ -17,6 +17,7 @@ export class AuthController {
 	@ApiResponse({ status: HttpStatus.CREATED, type: RegisterUserResDTO })
 	@HttpCode(HttpStatus.CREATED)
 	@Header('Content-Type', 'application/json')
+	@UseInterceptors()
 	register(@Req() req: Request, @Body() data: RegisterUserReqDTO) {
 		return this.authService.register(req, data)
 	}

@@ -21,7 +21,7 @@ async function createUsers(userCount: number){
 	sequelize.addModels([User])
 
 	const logger = app.get(WinstonLoggerService)
-	logger.setLabel('Seed: Create Users')
+	// logger.setLabel('Seed: Create Users')
 
 	try {
 		await sequelize.authenticate()

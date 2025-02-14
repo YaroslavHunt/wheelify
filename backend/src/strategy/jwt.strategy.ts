@@ -23,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 			ignoreExpiration: false,
 			secretOrKey: configService.get<string>('jwt.secret')
 		})
-		this.logger.setLabel(JwtStrategy.name)
+		// this.logger.setLabel(JwtStrategy.name)
 		this.logger.log('JWT strategy initialized')
 	}
 
