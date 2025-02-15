@@ -45,7 +45,7 @@ export class UserService {
 		method: AuthMethod,
 		t?: Transaction
 	) {
-		const avatar = await this.storage.getFileUrl(DEFAULT_USER_AVATAR)
+		const avatar = await this.storage.getFileUrl(DEFAULT_USER_AVATAR) || null
 		return await this.userRepository.create(
 			{
 				username,

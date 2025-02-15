@@ -26,7 +26,6 @@ export class AuthService {
 		private readonly userValidService: UserValidService,
 		private readonly tokenService: TokenService
 	) {
-		// this.logger.setLabel(AuthService.name)
 	}
 
 	public async register(req: Request, data: RegisterUserReqDTO): Promise<RegisterUserResDTO> {

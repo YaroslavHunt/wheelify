@@ -1,52 +1,45 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
-import { IsBoolean, IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator'
 
 import { AuthMethod, Role } from '@/libs/common/enums'
 
+@Expose()
 export class RegisterUserResDTO {
-	@Expose()
 	@ApiProperty()
-	@IsString()
+	@Expose()
 	id: string
 
 	@ApiProperty()
-	@IsString()
-	@IsNotEmpty()
-	@Length(3, 20)
+	@Expose()
 	username: string
 
 	@ApiProperty()
-	@IsEmail()
+	@Expose()
 	email: string
 
-	@ApiProperty()
-	@IsString()
-	@IsOptional()
+	@ApiProperty({ required: false })
+	@Expose()
 	picture?: string
 
-	@Expose()
 	@ApiProperty({ default: Role.USER })
+	@Expose()
 	role: Role
 
-	@Expose()
 	@ApiProperty({ default: false })
-	@IsBoolean()
+	@Expose()
 	isActive: boolean
 
 	@ApiProperty({ default: false })
-	@IsBoolean()
+	@Expose()
 	isVerified: boolean = false
 
 	@ApiProperty()
-	@IsEnum(AuthMethod)
-	@IsNotEmpty()
+	@Expose()
 	method: AuthMethod
 
 	// accounts: Account[] //TODO ??
 
-	@Expose()
 	@ApiProperty()
-	@IsDate()
+	@Expose()
 	createdAt: Date
 }

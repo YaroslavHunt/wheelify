@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 
 import { JwtPayload } from '@/strategy/types'
+import { JwtEnv } from '@/config/enums'
 
 @Injectable()
 export class TokenService {
@@ -15,8 +16,8 @@ export class TokenService {
 		return this.jwtService.signAsync(
 			{ ...user },
 			{
-				secret: this.configService.get('jwt.secret'),
-				expiresIn: this.configService.get('jwt.expire')
+				secret: this.configService.get(JwtEnv.SECRET),
+				expiresIn: this.configService.get(JwtEnv.ACCESS_EXP)
 			}
 		)
 	}
