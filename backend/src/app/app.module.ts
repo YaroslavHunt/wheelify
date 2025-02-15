@@ -11,6 +11,7 @@ import { AdminModule } from '@/modules/admin/admin.module'
 import { UserModule } from '@/modules/user/user.module'
 import { StorageModule } from '@/storage/storage.module'
 import { DatabaseModule } from '@/database/database.module'
+import { RedisModule } from '@/redis/redis.module'
 
 @Module({
 	imports: [
@@ -22,6 +23,7 @@ import { DatabaseModule } from '@/database/database.module'
 		LoggerModule,
 		DatabaseModule,
 		StorageModule,
+		RedisModule,
 
 		TokenModule,
 		AuthModule,

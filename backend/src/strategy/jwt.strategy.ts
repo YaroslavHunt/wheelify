@@ -10,20 +10,20 @@ import { RegisterUserResDTO } from '@/modules/auth/dto/res/register-user-res.dto
 import User from '../modules/user/model/user.model'
 
 import { JwtPayload } from './types'
+import { JwtEnv } from '@/config/enums'
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor(
 		@InjectModel(User) private readonly userRepository: typeof User,
-		private readonly configService: ConfigService,
+		private readonly config: ConfigService,
 		private readonly logger: WinstonLoggerService
 	) {
 		super({
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 			ignoreExpiration: false,
-			secretOrKey: configService.get<string>('jwt.secret')
+			secretOrKey: config.get<string>(JwtEnv.SECRET)
 		})
-		// this.logger.setLabel(JwtStrategy.name)
 		this.logger.log('JWT strategy initialized')
 	}
 

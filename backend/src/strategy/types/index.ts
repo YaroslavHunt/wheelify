@@ -1,4 +1,4 @@
-import { Role } from '../../libs/common/enums'
+import { Role } from '@/libs/common/enums'
 
 export interface JwtPayload {
 	id: string

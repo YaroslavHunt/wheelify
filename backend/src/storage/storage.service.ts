@@ -15,7 +15,6 @@ export class StorageService {
 		private readonly config: ConfigService,
 		private readonly logger: WinstonLoggerService
 	) {
-		// this.logger.setLabel(StorageService.name)
 		this.region = this.config.get(AwsEnv.REGION)
 		this.bucket = this.config.get(AwsEnv.BUCKET)
 		this.s3 = new S3({

@@ -12,7 +12,6 @@ export class SequelizeConfigService implements SequelizeOptionsFactory {
 		private readonly config: ConfigService,
 		private readonly logger: WinstonLoggerService
 	) {
-		// this.logger.setLabel(SequelizeConfigService.name)
 	}
 
 	createSequelizeOptions(): SequelizeModuleOptions {
