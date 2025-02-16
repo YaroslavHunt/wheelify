@@ -1,27 +1,36 @@
-import {
-	Body,
-	Controller,
-	HttpCode,
-	Patch,
-	Req,
-	UseGuards
-} from '@nestjs/common'
+import { Controller, Get, HttpCode, HttpStatus, Param } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-
-import { JwtAuthGuard } from '@/guards/jwt.guard'
-import { AuthRequest } from '@/strategy/types'
-
-import { ChangePasswordReq } from './dto/req/change.password.req'
-import { UpdateUserReq } from './dto/req/update.user.req'
-import { UpdateUserRes } from './dto/res/update.user.res'
-import { RegisterUserResDTO } from '../auth/dto/res/register-user-res.dto'
 import { UserService } from './user.service'
+import { Authorized } from '@/decorators/authorized.decorator'
+import { Authorization } from '@/decorators/auth.decorator'
+import { Role } from '@/libs/common/enums'
+import { toDTO } from '@/database/sequelize/utils/mapper.util'
+import { UserProfileDTO } from '@/modules/user/dto/res/user-profile.dto'
 
-@ApiTags('User')
-@UseGuards(JwtAuthGuard)
-@Controller('cabinet')
+@ApiTags('Users')
+// @UseGuards(JwtAuthGuard)
+@Controller('users')
 export class UserController {
-	constructor(private readonly userService: UserService) {}
+	constructor(private readonly userService: UserService) {
+	}
+
+
+	@Authorization()
+	@HttpCode(HttpStatus.OK)
+	@ApiResponse({ status: HttpStatus.OK })
+	@Get('profile')
+	public async findProfile(@Authorized('id') userId: string) {
+		return await this.userService.findById(userId)
+	}
+
+	@Authorization(Role.ADMIN, Role.MODERATOR)
+	@HttpCode(HttpStatus.OK)
+	@ApiResponse({ status: HttpStatus.OK })
+	@Get('by-id/:id')
+	public async findById(@Param('id') id: string) {
+		const user = await this.userService.findById(id)
+		return toDTO(UserProfileDTO, user)
+	}
 
 	// @ApiResponse({ status: 202, type: RegisterUserResDTO })
 	// @HttpCode(202)

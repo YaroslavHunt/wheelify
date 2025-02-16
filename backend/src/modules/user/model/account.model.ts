@@ -31,19 +31,21 @@ export default class Account extends Model<
 
 	@Column({
 		type: DataType.STRING,
-		allowNull: false
+		allowNull: false,
 	})
 	provider: string
 
 	@Column({
 		type: DataType.STRING,
-		allowNull: true
+		allowNull: true,
+		unique: true
 	})
 	refreshToken?: string
 
 	@Column({
 		type: DataType.STRING,
-		allowNull: true
+		allowNull: true,
+		unique: true
 	})
 	accessToken?: string
 

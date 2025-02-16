@@ -24,7 +24,7 @@ export class UserService {
 	public async findById(id: string) {
 		const user = this.userRepository.findOne({ where: { id }, include: [{ model: Account }] })
 		if (!user) {
-			throw new NotFoundException(`User with id: ${id} not found`)
+			throw new NotFoundException(`User not found`)
 		}
 		return user
 	}
@@ -32,7 +32,7 @@ export class UserService {
 	public async findByEmail(email: string) {
 		const user = this.userRepository.findOne({ where: { email }, include: [{ model: Account }] })
 		if (!user) {
-			throw new NotFoundException(`User with email: ${email} not found`)
+			throw new NotFoundException(`User not found`)
 		}
 		return user
 	}

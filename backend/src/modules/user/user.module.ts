@@ -13,6 +13,6 @@ import { StorageService } from '@/storage/storage.service'
 	imports: [SequelizeModule.forFeature([User, Account, Token])], // TODO
 	providers: [UserService, UserValidService, StorageService],
 	controllers: [UserController],
-	exports: [UserService, UserValidService]
+	exports: [UserService, UserValidService, StorageService]
 })
 export class UserModule {}

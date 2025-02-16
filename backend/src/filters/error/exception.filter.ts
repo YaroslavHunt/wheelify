@@ -13,7 +13,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
 		let status = HttpStatus.INTERNAL_SERVER_ERROR
 		let message = 'Internal Server Error'
-		let errors = null
 
 		if (e instanceof HttpException) {
 			status = e.getStatus()
@@ -21,7 +20,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
 			if (typeof exceptionRes === 'object' && exceptionRes !== null) {
 				message = exceptionRes['message'] || 'Bad Request'
-				errors = exceptionRes['errors'] || null
 			} else {
 				message = String(exceptionRes)
 			}
@@ -36,7 +34,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 			timestamp: new Date().toISOString(),
 			path: request.url,
 			message,
-			errors,
 		})
 	}
 }

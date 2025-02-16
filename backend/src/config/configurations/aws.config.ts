@@ -7,5 +7,5 @@ export default (): AwsConfig => ({
 	secret: <string> process.env.AWS_SECRET_ACCESS_KEY,
 	region: <string> process.env.AWS_REGION || DEFAULT_REGION,
 	s3bucket: <string> process.env.AWS_BUCKET_NAME,
-	isPublicBucket: <boolean> Boolean(process.env.AWS_BUCKET_PUBLIC)
+	isPublicBucket: process.env.AWS_BUCKET_PUBLIC === 'true'
 })

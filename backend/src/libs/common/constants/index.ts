@@ -1,3 +1,8 @@
+/*** KEYS: ***/
+
+
+/*** DEFAULT VALUES: ***/
+
 // Default configurations values
 export const DEFAULT_HOST = 'localhost'
 export const DEFAULT_APP_URL = 'http://localhost:4000'
@@ -10,6 +15,5 @@ export const DEFAULT_REDIS_USER = 'default'
 export const DEFAULT_REDIS_URI = 'redis://localhost:6379'
 export const DEFAULT_SESSION_MAX_AGE = '30d'
 export const DEFAULT_SESSION_FOLDER = 'sessions:'
-
-// AWS_S3_Store
+// Default storage values
 export const DEFAULT_USER_AVATAR = 'avatars/user-icon.png'

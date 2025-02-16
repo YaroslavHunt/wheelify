@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 
-import { Roles } from '@/modules/user/decorators/roles.decorator'
+import { Roles } from '@/decorators/roles.decorator'
 import { Role } from '@/libs/common/enums'
 import { JwtAuthGuard } from '@/guards/jwt.guard'
 import { RolesGuard } from '@/guards/roles.guard'

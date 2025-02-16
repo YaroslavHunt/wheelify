@@ -1,10 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
+import { Role } from '@/libs/common/enums'
+import Account from '@/modules/user/model/account.model'
 
-import { AuthMethod, Role } from '@/libs/common/enums'
-
-@Expose()
-export class RegisterUserResDTO {
+export class UserProfileDTO {
 	@ApiProperty({ uniqueItems: true, nullable: false })
 	@Expose()
 	id: string
@@ -13,9 +12,21 @@ export class RegisterUserResDTO {
 	@Expose()
 	username: string
 
+	@ApiProperty({ nullable: true })
+	@Expose()
+	firstname: string
+
+	@ApiProperty({ nullable: true })
+	@Expose()
+	lastname: string
+
 	@ApiProperty({ uniqueItems: true, nullable: false })
 	@Expose()
 	email: string
+
+	@ApiProperty({ uniqueItems: true, nullable: true })
+	@Expose()
+	phone: string
 
 	@ApiProperty({ nullable: true })
 	@Expose()
@@ -33,23 +44,27 @@ export class RegisterUserResDTO {
 	@Expose()
 	isVerified: boolean
 
-	// @ApiProperty()
-	// @Expose()
-	// isTwoFactorEnabled: boolean
-
-	@ApiProperty({ enum: AuthMethod, nullable: false })
+	@ApiProperty()
 	@Expose()
-	method: AuthMethod
+	isTwoFactorEnabled: boolean
+
+	// @ApiProperty({ enum: AuthMethod, nullable: false })
+	// @Expose()
+	// method: AuthMethod //TODO
 
 	@ApiProperty()
 	@Expose()
 	createdAt: Date
 
-	// @ApiProperty({ isArray: true, type: () => Account })
-	// @Expose()
-	// accounts: Account[]
+	@ApiProperty()
+	@Expose()
+	updatedAt: Date
+
+	@ApiProperty({ isArray: true, type: () => Account })
+	@Expose()
+	accounts: Account[]
 
 	// @ApiProperty({ isArray: true, type: () => AccountResDTO })
 	// @Expose()
-	// accounts: AccountResDTO[] //TODO ??
+	// accounts: AccountResDTO[] //TODO
 }
