@@ -7,6 +7,8 @@ export enum AdminEnv {
 export enum AppEnv {
 	MODE = 'app.mode',
 	PORT = 'app.port',
+	PREFIX = 'app.prefix',
+	CLIENT = 'app.client',
 	URL = 'app.url',
 }
 
@@ -16,6 +18,12 @@ export enum AwsEnv {
 	REGION = 'aws.region',
 	BUCKET = 'aws.s3bucket',
 	IS_PUBLIC_BUCKET = 'aws.isPublicBucket',
+}
+
+export enum OAuthEnv {
+	CLIENT_ID = 'oauth.client_id',
+	CLIENT_SECRET = 'oauth.client_secret',
+	RECAPTCHA_SECRET_KEY = 'oauth.recaptcha_secret_key',
 }
 
 export enum JwtEnv {

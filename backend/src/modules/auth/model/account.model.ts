@@ -1,5 +1,5 @@
-import { CreationOptional, InferAttributes, InferCreationAttributes, UUIDV4 } from 'sequelize'
-import { Column, DataType, Model, Table, ForeignKey, BelongsTo } from 'sequelize-typescript'
+import { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
+import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript'
 import User from '@/modules/user/model/user.model'
 
 @Table({
@@ -17,11 +17,11 @@ export default class Account extends Model<
 	declare updatedAt: CreationOptional<Date>
 
 	@Column({
-		type: DataType.INTEGER,
-		autoIncrement: true,
+		type: DataType.STRING,
+		unique: true,
 		primaryKey: true
 	})
-	id: number
+	id: string
 
 	@Column({
 		type: DataType.STRING,
@@ -35,14 +35,9 @@ export default class Account extends Model<
 	})
 	provider: string
 
-	@Column({
-		type: DataType.STRING,
-		allowNull: true,
-		unique: true
-	})
-	refreshToken?: string
 
 	@Column({
+		field: 'refresh_token',
 		type: DataType.STRING,
 		allowNull: true,
 		unique: true
@@ -50,13 +45,23 @@ export default class Account extends Model<
 	accessToken?: string
 
 	@Column({
-		type: DataType.DATE,
+		field: 'refresh_token',
+		type: DataType.STRING,
+		allowNull: true,
+		unique: true
+	})
+	refreshToken?: string
+
+	@Column({
+		field: 'expires_at',
+		type: DataType.INTEGER,
 		allowNull: false
 	})
-	expiresAt: Date
+	expiresAt: number
 
 	@ForeignKey(() => User)
 	@Column({
+		field: 'user_id',
 		type: DataType.UUID,
 		allowNull: true
 	})

@@ -17,15 +17,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 		if (e instanceof HttpException) {
 			status = e.getStatus()
 			const exceptionRes = e.getResponse()
-
-			if (typeof exceptionRes === 'object' && exceptionRes !== null) {
-				message = exceptionRes['message'] || 'Bad Request'
-			} else {
-				message = String(exceptionRes)
-			}
+			message = typeof exceptionRes === 'object' ? exceptionRes['message'] || 'Bad Request' : String(exceptionRes)
+		} else if (e instanceof Error) {
+			message = e.message
 		}
 
-		const details = `Exception: ${message}\nURL - ${request.url}\tMethod - ${request.method}\tStatus - ${status}\tIP - ${request.ip}\tUser - ${request.user?.id || 'Anonymous'}`
+		const details = `${message}\nURL - ${request.url}\nMethod - ${request.method}\tStatus - ${status}\tIP - ${request.ip}\tUser - ${request.user?.id || 'Anonymous'}`
 
 		this.logger.error(details)
 

@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { WinstonLoggerService } from '@/logger/logger.service'
 import User from './model/user.model'
 import { UserValidService } from './user-validation.service'
-import Account from '@/modules/user/model/account.model'
+import Account from '@/modules/auth/model/account.model'
 import { AuthMethod, Role } from '@/libs/common/enums'
 import { StorageService } from '@/storage/storage.service'
 import { DEFAULT_USER_AVATAR } from '@/libs/common/constants'
@@ -17,7 +17,6 @@ export class UserService {
 		private sequelize: Sequelize,
 		private readonly userValidService: UserValidService,
 		private readonly logger: WinstonLoggerService,
-		private readonly storage: StorageService
 	) {
 	}
 
@@ -43,15 +42,16 @@ export class UserService {
 		email: string,
 		isVerified: boolean,
 		method: AuthMethod,
+		avatar?: string,
 		t?: Transaction
 	) {
-		const avatar = await this.storage.getFileUrl(DEFAULT_USER_AVATAR) || null
+
 		return await this.userRepository.create(
 			{
 				username,
 				password,
 				email,
-				avatar,
+				avatar: avatar ? avatar : null,
 				role: Role.USER,
 				isVerified,
 				method

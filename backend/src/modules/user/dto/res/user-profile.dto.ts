@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
 import { Role } from '@/libs/common/enums'
-import Account from '@/modules/user/model/account.model'
+import Account from '@/modules/auth/model/account.model'
 
 export class UserProfileDTO {
 	@ApiProperty({ uniqueItems: true, nullable: false })

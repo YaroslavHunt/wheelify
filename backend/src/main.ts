@@ -53,7 +53,7 @@ async function bootstrap() {
 	app.use(session(redis.getSessionConfig()))
 
 	// API
-	app.setGlobalPrefix('api/v1')
+	app.setGlobalPrefix(config.getOrThrow<string>(AppEnv.PREFIX))
 	setupSwagger(app)
 
 	await app.listen(port)

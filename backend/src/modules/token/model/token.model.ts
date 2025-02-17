@@ -46,6 +46,7 @@ export default class Token extends Model<
 	type: TokenType
 
 	@Column({
+		field:'expires_in',
 		type: DataType.DATE,
 		allowNull: false
 	})

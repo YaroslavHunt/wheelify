@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 
-import { JwtPayload } from '@/strategy/types'
 import { JwtEnv } from '@/config/enums'
 
 @Injectable()
@@ -12,7 +11,7 @@ export class TokenService {
 		private readonly configService: ConfigService
 	) {}
 
-	async generateJwtToken(user: JwtPayload): Promise<string> {
+	async generateJwtToken(user: object): Promise<string> {
 		return this.jwtService.signAsync(
 			{ ...user },
 			{

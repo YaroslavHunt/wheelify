@@ -8,7 +8,6 @@ import { toDTO } from '@/database/sequelize/utils/mapper.util'
 import { UserProfileDTO } from '@/modules/user/dto/res/user-profile.dto'
 
 @ApiTags('Users')
-// @UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UserController {
 	constructor(private readonly userService: UserService) {

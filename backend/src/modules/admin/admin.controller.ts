@@ -14,7 +14,6 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger'
 
 import { Roles } from '@/decorators/roles.decorator'
 import { Role } from '@/libs/common/enums'
-import { JwtAuthGuard } from '@/guards/jwt.guard'
 import { RolesGuard } from '@/guards/roles.guard'
 import { RegisterUserResDTO } from '../auth/dto/res/register-user-res.dto'
 
@@ -23,7 +22,7 @@ import { PaginationUsersRes } from './dto/res/pagination.users.res'
 
 @ApiTags('Administrator service')
 @Roles(Role.ADMIN, Role.MODERATOR)
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(RolesGuard)
 @Controller('admin')
 export class AdminController {
 	// constructor(private readonly adminService: AdminService) {}

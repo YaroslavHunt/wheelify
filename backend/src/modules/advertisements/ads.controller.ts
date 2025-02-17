@@ -10,8 +10,6 @@ import {
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 
-import { JwtAuthGuard } from '../../guards/jwt.guard'
-import { JwtPayload } from '../../strategy/types'
 import User from '../user/model/user.model'
 
 import { AdsService } from './ads.service'

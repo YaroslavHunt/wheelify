@@ -11,12 +11,21 @@ export interface Configurations {
 	security: SecurityConfig
 	sequelize: SequelizeModuleOptions
 	session: SessionConfig
+	oauth: OAuthConfig
+}
+
+export interface OAuthConfig {
+	client_id: string
+	client_secret: string
+	recaptcha_secret_key: string
 }
 
 export interface AppConfig {
 	mode?: Mode
 	host?: string
 	port?: number
+	prefix: string
+	client: string
 	url: string
 }
 

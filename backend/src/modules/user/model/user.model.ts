@@ -4,7 +4,7 @@ import * as bcrypt from 'bcrypt'
 
 import { AuthMethod, Role } from 'src/libs/common/enums'
 import Ads from '../../advertisements/model/ads.model'
-import Account from '@/modules/user/model/account.model'
+import Account from '@/modules/auth/model/account.model'
 
 @Table({
 	tableName: 'users',

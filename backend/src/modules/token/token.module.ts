@@ -7,4 +7,4 @@ import { TokenService } from './token.service'
 	providers: [TokenService, JwtService],
 	exports: [TokenService]
 })
-export class TokenModule {}
+export class TokenModule {} //TODO ??
