@@ -1,10 +1,10 @@
-import { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
+import { CreationOptional, InferAttributes, InferCreationAttributes, UUIDV4 } from 'sequelize'
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript'
 import User from '@/modules/user/model/user.model'
 
 @Table({
 	tableName: 'accounts',
-	timestamps: true,
+	timestamps: false,
 	indexes: [
 		{ unique: true, fields: ['id'] },
 	]
@@ -13,15 +13,20 @@ export default class Account extends Model<
 	InferAttributes<Account>,
 	InferCreationAttributes<Account>
 > {
-	declare createdAt: CreationOptional<Date>
-	declare updatedAt: CreationOptional<Date>
+	@Column({
+		type: DataType.UUID,
+		defaultValue: UUIDV4,
+		primaryKey: true,
+		unique: true,
+	})
+	id: string
 
 	@Column({
 		type: DataType.STRING,
-		unique: true,
-		primaryKey: true
+		allowNull: false,
+		unique: true
 	})
-	id: string
+	email: string
 
 	@Column({
 		type: DataType.STRING,
@@ -37,7 +42,7 @@ export default class Account extends Model<
 
 
 	@Column({
-		field: 'refresh_token',
+		field: 'access_token',
 		type: DataType.STRING,
 		allowNull: true,
 		unique: true
@@ -69,4 +74,11 @@ export default class Account extends Model<
 
 	@BelongsTo(() => User)
 	user?: User
+
+	@Column({
+		type: DataType.DATE,
+		allowNull: false,
+		defaultValue: DataType.NOW,
+	})
+	createdAt: Date
 }

@@ -76,10 +76,9 @@ export class AuthService {
 	public async extractProfileFromCode(req: Request, provider: string, code: string) {
 		const providerInstance = this.providerService.findByService(provider)
 		const profile = await providerInstance.findUserByCode(code)
-		console.log(profile)
 
 		const account = await this.accountRepository.findOne({
-			where: { id: profile.id, provider: profile.provider }
+			where: { email: profile.email, provider: profile.provider }
 		})
 
 		let user = account?.userId ? await this.userService.findById(account.userId) : null
@@ -101,14 +100,14 @@ export class AuthService {
 
 			if (!account) {
 				await this.accountRepository.create({
-					id: profile.id,
+					email: profile.email,
 					type: 'oauth',
 					provider: profile.provider,
 					accessToken: profile.access_token,
 					refreshToken: profile.refresh_token,
 					expiresAt: profile.expires_at,
 					userId: user.id,
-				}, { transaction: t }); //TODO
+				}, { transaction: t });
 			}
 
 			await t.commit();
@@ -116,7 +115,6 @@ export class AuthService {
 			await t.rollback();
 			throw new InternalServerErrorException('Failed to process OAuth login');
 		}
-
 		return this.saveSession(req, user);
 	}
 
