@@ -1,73 +1,55 @@
-import { SequelizeModuleOptions } from '@nestjs/sequelize'
-
 import { Mode } from '@/libs/common/enums'
+import { SequelizeModuleOptions } from '@nestjs/sequelize'
+import { RedisOptions } from 'ioredis'
+import { SessionOptions } from 'express-session'
 
 export interface Configurations {
-	admin: AdministratorConfig
-	app: AppConfig
-	aws: AwsConfig
-	jwt: JwtConfig
-	redis: RedisConfig
-	security: SecurityConfig
-	sequelize: SequelizeModuleOptions
-	session: SessionConfig
-	oauth: OAuthConfig
+	admin: AdministratorOptions,
+	app: AppOptions,
+	cors: CorsOptions,
+	database: SequelizeModuleOptions,
+	oauth: OAuthOptions,
+	redis: RedisOptions,
+	session: SessionOptions,
+	storage: StorageOptions
 }
 
-export interface OAuthConfig {
-	client_id: string
-	client_secret: string
-	recaptcha_secret_key: string
+export interface StorageOptions {
+	key: string;
+	secret: string;
+	region: string;
+	s3bucket: string;
+	isPublicBucket: boolean;
 }
 
-export interface AppConfig {
-	mode?: Mode
-	host?: string
-	port?: number
-	prefix: string
-	client: string
-	url: string
+export interface OAuthOptions {
+	client_id: string;
+	client_secret: string;
+	recaptcha_secret_key: string;
 }
 
-export interface AwsConfig {
-	key: string,
-	secret: string,
-	region: string,
-	s3bucket: string,
-	isPublicBucket: boolean
+export interface CorsOptions {
+	domains: string[];
+	cookiesSecret: string;
 }
 
-export interface JwtConfig {
-	secret: string
-	accessExpire: string
-	refreshExpire: string
+export interface AdministratorOptions {
+	username: string;
+	password: string;
+	email: string;
 }
 
-export interface AdministratorConfig {
-	username: string
-	password: string
-	email: string
+export interface AppOptions {
+	mode: Mode;
+	host: string;
+	port: number;
+	prefix: string;
+	client: string;
+	url: string;
 }
 
-export interface RedisConfig {
-	host: string
-	port: number
-	username: string
-	password: string
-	uri: string
-}
 
-export interface SecurityConfig {
-	cookiesSecret: string
-	domains: string[]
-}
 
-export interface SessionConfig {
-	secret: string
-	name: string
-	domain: string
-	maxAge: string
-	httpOnly: boolean
-	secure: boolean
-	folder: string
-}
+
+
+

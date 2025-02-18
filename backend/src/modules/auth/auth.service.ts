@@ -73,7 +73,11 @@ export class AuthService {
 		}
 	}
 
-	public async extractProfileFromCode(req: Request, provider: string, code: string) {
+	public async extractProfileFromCode(
+		req: Request,
+		provider: string,
+		code: string
+	) {
 		const providerInstance = this.providerService.findByService(provider)
 		const profile = await providerInstance.findUserByCode(code)
 
@@ -131,7 +135,7 @@ export class AuthService {
 					)
 				}
 				res.clearCookie(this.config.getOrThrow<string>(SessionEnv.NAME))
-				resolve()
+				resolve() //TODO for OAuth2
 			})
 		})
 	}

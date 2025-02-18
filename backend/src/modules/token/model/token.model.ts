@@ -5,7 +5,7 @@ import { TokenType } from '@/libs/common/enums'
 
 @Table({
 	tableName: 'tokens',
-	timestamps: true,
+	timestamps: false,
 	indexes: [
 		{ unique: true, fields: ['id'] },
 	]
@@ -14,9 +14,6 @@ export default class Token extends Model<
 	InferAttributes<Token>,
 	InferCreationAttributes<Token>
 > {
-	declare createdAt: CreationOptional<Date>
-	declare updatedAt: CreationOptional<Date>
-
 	@Column({
 		type: DataType.UUID,
 		defaultValue: UUIDV4,
@@ -46,21 +43,18 @@ export default class Token extends Model<
 	type: TokenType
 
 	@Column({
-		field:'expires_in',
+		field:'expires_at',
 		type: DataType.DATE,
 		allowNull: false
 	})
-	expiresIn: Date
+	expiresAt: Date
 
-	@ForeignKey(() => User)
 	@Column({
-		type: DataType.UUID,
-		allowNull: true
+		type: DataType.DATE,
+		allowNull: false,
+		defaultValue: DataType.NOW,
 	})
-	userId?: string
-
-	@BelongsTo(() => User)
-	user?: User
+	createdAt: Date
 }
 
 

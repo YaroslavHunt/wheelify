@@ -12,11 +12,12 @@ import { UserModule } from '@/modules/user/user.module'
 import { StorageModule } from '@/storage/storage.module'
 import { DatabaseModule } from '@/database/database.module'
 import { RedisModule } from '@/redis/redis.module'
+import { IS_DEV } from '@/libs/common/utils/is-dev.util'
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
-			cache: true,
+			ignoreEnvFile: !IS_DEV,
 			isGlobal: true,
 			load: [configurations]
 		}),

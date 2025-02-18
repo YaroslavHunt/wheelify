@@ -20,7 +20,6 @@ async function createAdmin() {
 	sequelize.addModels([User])
 
 	const logger = app.get(WinstonLoggerService)
-	// logger.setLabel('Administrator')
 
 	const adminUsername = config.getOrThrow<string>(AdminEnv.USERNAME)
 	const adminEmail = config.getOrThrow<string>(AdminEnv.EMAIL)

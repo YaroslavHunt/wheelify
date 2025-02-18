@@ -7,7 +7,7 @@ import { setupSwagger } from '@/config/configurations/swagger.config'
 import { GlobalExceptionFilter } from './filters/error/exception.filter'
 import { WinstonLoggerService } from './logger/logger.service'
 import * as session from 'express-session'
-import { AppEnv, SecurityEnv } from '@/config/enums'
+import { AppEnv, CorsEnv } from '@/config/enums'
 import { LoggingInterceptor } from '@/logger/logger-interceptor.service'
 import { RedisConfigService } from '@/redis/redis.service'
 
@@ -18,8 +18,8 @@ async function bootstrap() {
 	const redis = app.get(RedisConfigService)
 
 	const port = config.getOrThrow<number>(AppEnv.PORT)
-	const domains = config.getOrThrow<string[]>(SecurityEnv.DOMAINS)
-	const cookieSecret = config.getOrThrow<string>(SecurityEnv.COOKIES_SECRET)
+	const domains = config.getOrThrow<string[]>(CorsEnv.DOMAINS)
+	const cookieSecret = config.getOrThrow<string>(CorsEnv.COOKIES_SECRET)
 
 	// Security
 	app.enableCors({

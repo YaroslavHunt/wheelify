@@ -27,7 +27,7 @@ export class RedisConfigService {
 
 		this.sessionStore = new RedisStore({
 			client: this.client,
-			prefix: this.config.getOrThrow<string>(SessionEnv.FOLDER)
+			prefix: 'sessions:'
 		});
 	}
 

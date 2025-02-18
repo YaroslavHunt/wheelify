@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { GetObjectCommand, PutObjectCommand, S3 } from '@aws-sdk/client-s3'
 import { WinstonLoggerService } from '@/logger/logger.service'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { AwsEnv } from '@/config/enums'
+import { StorageEnv } from '@/config/enums'
 
 @Injectable()
 export class StorageService {
@@ -15,13 +15,13 @@ export class StorageService {
 		private readonly config: ConfigService,
 		private readonly logger: WinstonLoggerService
 	) {
-		this.region = this.config.get(AwsEnv.REGION)
-		this.bucket = this.config.get(AwsEnv.BUCKET)
+		this.region = this.config.get(StorageEnv.REGION)
+		this.bucket = this.config.get(StorageEnv.BUCKET)
 		this.s3 = new S3({
 			region: this.region,
 			credentials: {
-				accessKeyId: this.config.get(AwsEnv.KEY),
-				secretAccessKey: this.config.get(AwsEnv.SECRET)
+				accessKeyId: this.config.get(StorageEnv.KEY),
+				secretAccessKey: this.config.get(StorageEnv.SECRET)
 			}
 		})
 
@@ -80,7 +80,7 @@ export class StorageService {
 	}
 
 	private isPublicBucket(): boolean {
-		return this.config.get<boolean>(AwsEnv.IS_PUBLIC_BUCKET) ?? false;
+		return this.config.get<boolean>(StorageEnv.IS_PUBLIC_BUCKET) ?? false;
 	}
 
 

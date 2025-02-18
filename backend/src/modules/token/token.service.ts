@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 
-import { JwtEnv } from '@/config/enums'
-
 @Injectable()
 export class TokenService {
 	constructor(
@@ -13,11 +11,7 @@ export class TokenService {
 
 	async generateJwtToken(user: object): Promise<string> {
 		return this.jwtService.signAsync(
-			{ ...user },
-			{
-				secret: this.configService.get(JwtEnv.SECRET),
-				expiresIn: this.configService.get(JwtEnv.ACCESS_EXP)
-			}
+			{ ...user }
 		)
 	}
 }
