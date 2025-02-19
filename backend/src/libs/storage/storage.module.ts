@@ -1,4 +1,4 @@
-import { StorageService } from '@/storage/storage.service'
+import { StorageService } from '@/libs/storage/storage.service'
 import { Module } from '@nestjs/common'
 
 @Module({

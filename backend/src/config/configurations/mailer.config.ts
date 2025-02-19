@@ -12,7 +12,7 @@ export const getMailerConfig = async (
 		secure: !isDev(config),
 		auth: {
 			user: config.getOrThrow<string>('MAIL_API_NAME', DEFAULT_MAILER_API_NAME),
-			password: config.getOrThrow<string>('MAIL_API_KEY'),
+			pass: config.getOrThrow<string>('MAIL_API_KEY'),
 		}
 	},
 	defaults: {

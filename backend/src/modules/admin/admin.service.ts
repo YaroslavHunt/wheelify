@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { Op, WhereOptions } from 'sequelize'
 
 import { toDTO } from '@/database/sequelize/utils/mapper.util'
-import { WinstonLoggerService } from '@/logger/logger.service'
+import { WinstonLoggerService } from '@/libs/logger/logger.service'
 import { RegisterUserResDTO } from '../auth/dto/res/register-user-res.dto'
 import User from '../user/model/user.model'
 

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import IORedis, { Redis } from 'ioredis'
 import { RedisEnv, SessionEnv } from '@/config/enums'
-import { WinstonLoggerService } from '@/logger/logger.service'
+import { WinstonLoggerService } from '@/libs/logger/logger.service'
 import * as session from 'express-session'
 import { RedisStore } from 'connect-redis'
 

@@ -12,9 +12,9 @@ import {
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 
-import { Roles } from '@/decorators/roles.decorator'
+import { Roles } from '@/modules/auth/decorators/roles.decorator'
 import { Role } from '@/libs/common/enums'
-import { RolesGuard } from '@/guards/roles.guard'
+import { RolesGuard } from '@/modules/auth/guards/roles.guard'
 import { RegisterUserResDTO } from '../auth/dto/res/register-user-res.dto'
 
 import { AdminService } from './admin.service'

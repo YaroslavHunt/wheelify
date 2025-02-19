@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 
-import { WinstonLoggerService } from '../../logger/logger.service'
+import { WinstonLoggerService } from '@/libs/logger/logger.service'
 import User from '../user/model/user.model'
 
 import { AdsDto } from './dto/ads.dto'

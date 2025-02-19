@@ -5,11 +5,11 @@ import * as cookieParser from 'cookie-parser'
 import { AppModule } from './app/app.module'
 import { setupSwagger } from '@/config/configurations/swagger.config'
 import { GlobalExceptionFilter } from './filters/error/exception.filter'
-import { WinstonLoggerService } from './logger/logger.service'
+import { WinstonLoggerService } from '@/libs/logger/logger.service'
 import * as session from 'express-session'
 import { AppEnv, CorsEnv } from '@/config/enums'
-import { LoggingInterceptor } from '@/logger/logger-interceptor.service'
-import { RedisConfigService } from '@/redis/redis.service'
+import { LoggingInterceptor } from '@/libs/logger/logger-interceptor.service'
+import { RedisConfigService } from '@/libs/redis/redis.service'
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule, { bufferLogs: true })

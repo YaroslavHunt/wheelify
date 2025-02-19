@@ -1,6 +1,6 @@
 import { SequelizeModuleOptions, SequelizeOptionsFactory } from '@nestjs/sequelize'
 import { ConfigService } from '@nestjs/config'
-import { WinstonLoggerService } from '@/logger/logger.service'
+import { WinstonLoggerService } from '@/libs/logger/logger.service'
 import { AppEnv, DatabaseEnv } from 'src/config/enums'
 import { Mode } from '@/libs/common/enums'
 import { Injectable } from '@nestjs/common'

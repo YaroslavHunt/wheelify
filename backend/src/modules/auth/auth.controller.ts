@@ -20,7 +20,7 @@ import { AuthService } from './auth.service'
 import { RegisterUserReqDTO } from '@/modules/auth/dto/req/register-user-req.dto'
 import { RegisterUserResDTO } from '@/modules/auth/dto/res/register-user-res.dto'
 import { Recaptcha } from '@nestlab/google-recaptcha'
-import { AuthProvider } from '@/decorators/auth-provider.decorator'
+import { AuthProvider } from '@/modules/auth/decorators/auth-provider.decorator'
 import { ProviderService } from '@/modules/auth/providers/provider.service'
 import { ConfigService } from '@nestjs/config'
 import { AppEnv } from '@/config/enums'
@@ -38,7 +38,7 @@ export class AuthController {
 	@UseInterceptors()
 	@Post('register')
 	@HttpCode(HttpStatus.CREATED)
-	@ApiResponse({ status: HttpStatus.CREATED, type: RegisterUserResDTO })
+	@ApiResponse({ status: HttpStatus.CREATED })
 	public async register(@Req() req: Request, @Body() data: RegisterUserReqDTO) {
 		return this.authService.register(req, data)
 	}

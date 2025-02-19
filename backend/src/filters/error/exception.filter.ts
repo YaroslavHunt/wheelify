@@ -1,6 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common'
 import { Response } from 'express'
-import { WinstonLoggerService } from '@/logger/logger.service'
+import { WinstonLoggerService } from '@/libs/logger/logger.service'
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {

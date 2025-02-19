@@ -6,13 +6,14 @@ import { AuthModule } from '@/modules/auth/auth.module'
 import { TokenModule } from '@/modules/token/token.module'
 
 import configurations from '../config'
-import { LoggerModule } from '@/logger/logger.module'
+import { LoggerModule } from '@/libs/logger/logger.module'
 import { AdminModule } from '@/modules/admin/admin.module'
 import { UserModule } from '@/modules/user/user.module'
-import { StorageModule } from '@/storage/storage.module'
+import { StorageModule } from '@/libs/storage/storage.module'
 import { DatabaseModule } from '@/database/database.module'
-import { RedisModule } from '@/redis/redis.module'
+import { RedisModule } from '@/libs/redis/redis.module'
 import { IS_DEV } from '@/libs/common/utils/is-dev.util'
+import { MailModule } from '@/libs/mail/mail.module'
 
 @Module({
 	imports: [
@@ -25,6 +26,7 @@ import { IS_DEV } from '@/libs/common/utils/is-dev.util'
 		DatabaseModule,
 		StorageModule,
 		RedisModule,
+		MailModule,
 
 		TokenModule,
 		AuthModule,

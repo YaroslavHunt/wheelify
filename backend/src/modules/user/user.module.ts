@@ -7,7 +7,7 @@ import { UserService } from './user.service'
 import { UserValidService } from './user-validation.service'
 import Account from '@/modules/auth/model/account.model'
 import Token from '../token/model/token.model'
-import { StorageService } from '@/storage/storage.service'
+import { StorageService } from '@/libs/storage/storage.service'
 
 @Module({
 	imports: [SequelizeModule.forFeature([User, Account, Token])], // TODO

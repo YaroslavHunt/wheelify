@@ -4,7 +4,7 @@ import * as bcrypt from 'bcrypt'
 
 import { AppModule } from '@/app/app.module'
 import { faker } from '@faker-js/faker'
-import { WinstonLoggerService } from '@/logger/logger.service'
+import { WinstonLoggerService } from '@/libs/logger/logger.service'
 import User from '../../modules/user/model/user.model'
 import { ConfigService } from '@nestjs/config'
 import { SequelizeConfigService } from '@/database/sequelize/sequelize-config.service'

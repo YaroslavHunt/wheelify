@@ -1,7 +1,7 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common'
+import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { toDTO } from '@/database/sequelize/utils/mapper.util'
-import { WinstonLoggerService } from '@/logger/logger.service'
+import { WinstonLoggerService } from '@/libs/logger/logger.service'
 import { UserLoginReqDTO } from './dto/req/user-login-req.dto'
 import { RegisterUserResDTO } from './dto/res/register-user-res.dto'
 import User from '../user/model/user.model'
@@ -16,8 +16,9 @@ import { SessionEnv } from '@/config/enums'
 import { LoginResDTO } from '@/modules/auth/dto/res/login-res.dto'
 import { ProviderService } from '@/modules/auth/providers/provider.service'
 import { DEFAULT_USER_AVATAR } from '@/libs/common/constants'
-import { StorageService } from '@/storage/storage.service'
+import { StorageService } from '@/libs/storage/storage.service'
 import Account from '@/modules/auth/model/account.model'
+import { MailConfirmService } from '@/modules/auth/mail-confirm/mail-confirm.service'
 
 @Injectable()
 export class AuthService {
@@ -29,12 +30,13 @@ export class AuthService {
 		private readonly logger: WinstonLoggerService,
 		private readonly providerService: ProviderService,
 		private readonly storageService: StorageService,
+		private readonly emailConfirmService: MailConfirmService,
 		private readonly userService: UserService,
 		private readonly userValidService: UserValidService
 	) {
 	}
 
-	public async register(req: Request, data: RegisterUserReqDTO): Promise<RegisterUserResDTO> {
+	public async register(req: Request, data: RegisterUserReqDTO){
 		const defaultAvatar = await this.storageService.getFileUrl(DEFAULT_USER_AVATAR) || null
 		const t = await this.sequelize.transaction()
 		try {
@@ -48,9 +50,14 @@ export class AuthService {
 				defaultAvatar,
 				t
 			)
-			await this.saveSession(req, newUser)
+
+			await this.emailConfirmService.sendVerificationToken(newUser)
 			await t.commit()
-			return toDTO(RegisterUserResDTO, newUser)
+			return {
+				message: 'You have successfully registered. ' +
+					'A letter has been sent to your mail. ' +
+					'Check the specified mail and follow the link to it for successful verification'
+			}
 		} catch (e) {
 			this.logger.log(e.message, AuthService.name)
 			await t.rollback()
@@ -59,18 +66,20 @@ export class AuthService {
 	}
 
 	public async login(req: Request, data: UserLoginReqDTO) {
-		try {
 			const user = await this.userService.findByEmail(data.email)
 			await this.userValidService.checkUserExists(data)
 			await this.userValidService.checkPassword(
 				data.password,
 				user.password
 			)
+			if(!user.isVerified) {
+				await this.emailConfirmService.sendVerificationToken(user)
+				throw new UnauthorizedException(
+					'Your Emile is not confirmed. Please check your mail and confirm the address.'
+				)
+			}
 			await this.saveSession(req, user)
 			return toDTO(LoginResDTO, user)
-		} catch (e) {
-			throw e
-		}
 	}
 
 	public async extractProfileFromCode(
@@ -140,7 +149,7 @@ export class AuthService {
 		})
 	}
 
-	private async saveSession(req: Request, user: User) {
+	public async saveSession(req: Request, user: User) {
 		return new Promise((resolve, reject) => {
 			req.session.userId = user.id
 			req.session.save(err => {
