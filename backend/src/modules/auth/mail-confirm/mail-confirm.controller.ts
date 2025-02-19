@@ -3,7 +3,7 @@ import { MailConfirmService } from './mail-confirm.service';
 import { Request } from 'express'
 import { ConfirmationDTO } from '@/modules/auth/mail-confirm/dto/confirmation.dto'
 
-@Controller('auth/mail-confirmation')
+@Controller('auth/email-confirmation')
 export class MailConfirmController {
   constructor(private readonly mailConfirmService: MailConfirmService) {}
 

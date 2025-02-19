@@ -6,7 +6,7 @@ import { Sequelize } from 'sequelize-typescript'
 import { AppModule } from '@/app/app.module'
 import { Role } from '@/libs/common/enums'
 import { WinstonLoggerService } from '@/libs/logger/logger.service'
-import User from '../modules/user/model/user.model'
+import User from '@/modules/user/model/user.model'
 import { SequelizeConfigService } from '@/database/sequelize/sequelize-config.service'
 import { AdminEnv } from '@/config/enums'
 

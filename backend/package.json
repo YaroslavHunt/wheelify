@@ -6,8 +6,8 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "seed:admin": "ts-node -r tsconfig-paths/register src/seeders/create-admin.seed.ts",
-    "seed:users": "ts-node -r tsconfig-paths/register src/seeders/dev/create-users.seed.ts",
+    "seed:admin": "ts-node -r tsconfig-paths/register seeders/create-admin.seed.ts",
+    "seed:users": "ts-node -r tsconfig-paths/register seeders/dev/create-users.seed.ts",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
