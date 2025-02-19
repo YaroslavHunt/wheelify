@@ -5,7 +5,6 @@ import { RedisEnv, SessionEnv } from '@/config/enums'
 import { WinstonLoggerService } from '@/logger/logger.service'
 import * as session from 'express-session'
 import { RedisStore } from 'connect-redis'
-import { ms, StringValue } from '@/libs/common/utils/ms.utils'
 
 @Injectable()
 export class RedisConfigService {
@@ -47,7 +46,7 @@ export class RedisConfigService {
 			saveUninitialized: false,
 			cookie: {
 				domain: this.config.getOrThrow<string>(SessionEnv.DOMAIN),
-				maxAge: ms(this.config.getOrThrow<StringValue>(SessionEnv.MAX_AGE)),
+				maxAge: this.config.getOrThrow<number>(SessionEnv.MAX_AGE),
 				httpOnly: this.config.getOrThrow<boolean>(SessionEnv.IS_HTTP_ONLY),
 				secure: this.config.getOrThrow<boolean>(SessionEnv.SECURE),
 				sameSite: 'lax'

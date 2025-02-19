@@ -17,9 +17,9 @@ import { IS_DEV } from '@/libs/common/utils/is-dev.util'
 @Module({
 	imports: [
 		ConfigModule.forRoot({
-			ignoreEnvFile: !IS_DEV,
 			isGlobal: true,
-			load: [configurations]
+			load: [configurations],
+			ignoreEnvFile: !IS_DEV
 		}),
 		LoggerModule,
 		DatabaseModule,
