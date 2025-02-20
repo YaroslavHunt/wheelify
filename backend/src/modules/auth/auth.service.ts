@@ -1,6 +1,5 @@
 import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import { WinstonLoggerService } from '@/libs/logger/logger.service'
 import { UserLoginReqDTO } from './dto/req/user-login-req.dto'
 import User from '../user/model/user.model'
 import { UserValidService } from '../user/user-validation/user-validation.service'
@@ -24,7 +23,6 @@ export class AuthService {
 		@InjectModel(Account) private readonly accountRepository: typeof Account,
 		private readonly sequelize: Sequelize,
 		private readonly config: ConfigService,
-		private readonly logger: WinstonLoggerService,
 		private readonly providerService: ProviderService,
 		private readonly storageService: StorageService,
 		private readonly emailConfirmService: MailConfirmService,
@@ -119,7 +117,7 @@ export class AuthService {
 						accessToken: profile.access_token,
 						refreshToken: profile.refresh_token,
 						expiresAt: profile.expires_at,
-						userId: user.id,
+						userId: user.id
 					},
 					{ transaction: t }
 				);

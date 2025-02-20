@@ -127,7 +127,6 @@ export default class User extends Model<
 		field: 'updated_at',
 		type: DataType.DATE,
 		allowNull: false,
-		defaultValue: DataType.NOW,
 	})
 	declare updatedAt: CreationOptional<Date>
 

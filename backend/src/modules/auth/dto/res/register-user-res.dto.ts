@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
 
 import { AuthMethod, Role } from '@/libs/common/enums'
-import Account from '@/modules/auth/models/account.model'
 
 @Expose()
 export class RegisterUserResDTO {
@@ -45,9 +44,4 @@ export class RegisterUserResDTO {
 	@ApiProperty()
 	@Expose()
 	createdAt: Date
-
-	@ApiProperty({ isArray: true, type: () => Account })
-	@Expose()
-	accounts: Account[]
-
 }

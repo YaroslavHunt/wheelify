@@ -13,4 +13,12 @@ export class AccountResDTO {
 	@ApiProperty({ nullable: false })
 	@Expose()
 	provider: string
+
+	@ApiProperty({ nullable: false })
+	@Expose()
+	expiresAt: Date
+
+	@ApiProperty({ nullable: false })
+	@Expose()
+	createdAt: Date
 }

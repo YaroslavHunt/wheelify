@@ -1,22 +1,14 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import { WinstonLoggerService } from '@/libs/logger/logger.service'
 import User from './model/user.model'
-import { UserValidService } from './user-validation/user-validation.service'
 import Account from '@/modules/auth/models/account.model'
 import { AuthMethod, Role } from '@/libs/common/enums'
-import { StorageService } from '@/libs/storage/storage.service'
-import { DEFAULT_USER_AVATAR } from '@/libs/common/constants'
-import { Sequelize } from 'sequelize-typescript'
 import { Transaction } from 'sequelize'
 
 @Injectable()
 export class UserService {
 	constructor(
 		@InjectModel(User) private readonly userRepository: typeof User,
-		private sequelize: Sequelize,
-		private readonly userValidService: UserValidService,
-		private readonly logger: WinstonLoggerService
 	) {
 	}
 
@@ -54,7 +46,7 @@ export class UserService {
 				avatar: avatar ? avatar : null,
 				role: Role.USER,
 				isVerified,
-				method
+				method,
 			},
 			{
 				include: [{ model: Account }],

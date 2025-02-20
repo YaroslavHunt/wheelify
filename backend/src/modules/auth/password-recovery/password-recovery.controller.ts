@@ -1,7 +1,6 @@
 import { Body, Controller, HttpCode, HttpStatus, Param, Post } from '@nestjs/common'
-import { PasswordRecoveryService } from './password-recovery.service';
+import { PasswordRecoveryService } from './password-recovery.service'
 import { ApiResponse } from '@nestjs/swagger'
-import { AccountResDTO } from '@/modules/auth/dto/res/account-res.dto'
 import { ResetPasswordDTO } from '@/modules/auth/password-recovery/dto/reset-password.dto'
 import { Recaptcha } from '@nestlab/google-recaptcha'
 import { NewPasswordDTO } from '@/modules/auth/password-recovery/dto/new-password.dto'

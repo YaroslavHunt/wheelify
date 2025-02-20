@@ -14,7 +14,6 @@ import { AuthService } from '@/modules/auth/auth.service'
 export class MailConfirmService {
 	public constructor(
 		@InjectModel(Token) private readonly tokenRepository: typeof Token,
-		@InjectModel(User) private readonly userRepository: typeof User,
 		private readonly mailService: MailService,
 		private readonly userService: UserService,
 		@Inject(forwardRef(() => AuthService))
@@ -42,6 +41,7 @@ export class MailConfirmService {
 			throw new NotFoundException('User not found. Please make sure you provide a valid email address and try again.')
 		}
 		existingUser.isVerified = true;
+		existingUser.updatedAt = new Date()
 		await existingUser.save();
 		await this.tokenRepository.destroy({
 			where: {

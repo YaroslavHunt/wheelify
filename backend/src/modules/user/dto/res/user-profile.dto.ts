@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
 import { AuthMethod, Role } from '@/libs/common/enums'
-import Account from '@/modules/auth/models/account.model'
 import { AccountResDTO } from '@/modules/auth/dto/res/account-res.dto'
 
 export class UserProfileDTO {
@@ -65,5 +64,4 @@ export class UserProfileDTO {
 	@Expose()
 	@Type(() => AccountResDTO)
 	accounts: AccountResDTO[]
-
 }

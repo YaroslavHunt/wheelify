@@ -5,7 +5,6 @@ import { MailService } from '@/libs/mail/mail.service'
 import { v4 as uuidv4 } from 'uuid'
 import { TokenType } from '@/libs/common/enums'
 import Token from '@/modules/auth/models/token.model'
-import User from '@/modules/user/model/user.model'
 import { ResetPasswordDTO } from '@/modules/auth/password-recovery/dto/reset-password.dto'
 import { NewPasswordDTO } from '@/modules/auth/password-recovery/dto/new-password.dto'
 
@@ -13,7 +12,6 @@ import { NewPasswordDTO } from '@/modules/auth/password-recovery/dto/new-passwor
 export class PasswordRecoveryService {
 	public constructor(
 		@InjectModel(Token) private readonly tokenRepository: typeof Token,
-		@InjectModel(User) private readonly userRepository: typeof User,
 		private readonly userService: UserService,
 		private readonly mailService: MailService
 	) {
@@ -44,10 +42,9 @@ export class PasswordRecoveryService {
 		if(!existingUser) {
 			throw new NotFoundException('User not found. Please make sure you provide a valid email address and try again.')
 		}
-		await this.userRepository.update(
-			{ password: data.password },
-			{ where: { id: existingUser.id } }
-		);
+		existingUser.password = data.password
+		existingUser.updatedAt = new Date()
+		await existingUser.save()
 		await this.tokenRepository.destroy({ where: { token, type: TokenType.PASSWORD_RESET } });
 
 		return true;
