@@ -1,11 +1,9 @@
 import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import { toDTO } from '@/database/sequelize/utils/mapper.util'
 import { WinstonLoggerService } from '@/libs/logger/logger.service'
 import { UserLoginReqDTO } from './dto/req/user-login-req.dto'
-import { RegisterUserResDTO } from './dto/res/register-user-res.dto'
 import User from '../user/model/user.model'
-import { UserValidService } from '../user/user-validation.service'
+import { UserValidService } from '../user/user-validation/user-validation.service'
 import { UserService } from '../user/user.service'
 import { RegisterUserReqDTO } from '@/modules/auth/dto/req/register-user-req.dto'
 import { AuthMethod } from '@/libs/common/enums'
@@ -13,11 +11,10 @@ import { Request, Response } from 'express'
 import { Sequelize } from 'sequelize-typescript'
 import { ConfigService } from '@nestjs/config'
 import { SessionEnv } from '@/config/enums'
-import { LoginResDTO } from '@/modules/auth/dto/res/login-res.dto'
 import { ProviderService } from '@/modules/auth/providers/provider.service'
 import { DEFAULT_USER_AVATAR } from '@/libs/common/constants'
 import { StorageService } from '@/libs/storage/storage.service'
-import Account from '@/modules/auth/model/account.model'
+import Account from '@/modules/auth/models/account.model'
 import { MailConfirmService } from '@/modules/auth/mail-confirm/mail-confirm.service'
 
 @Injectable()
@@ -59,7 +56,6 @@ export class AuthService {
 					'Check the specified mail and follow the link to it for successful verification'
 			}
 		} catch (e) {
-			this.logger.log(e.message, AuthService.name)
 			await t.rollback()
 			throw e
 		}
@@ -75,11 +71,11 @@ export class AuthService {
 			if(!user.isVerified) {
 				await this.emailConfirmService.sendVerificationToken(user)
 				throw new UnauthorizedException(
-					'Your Emile is not confirmed. Please check your mail and confirm the address.'
+					'Your email is not confirmed. Please check your mail and confirm the address.'
 				)
 			}
 			await this.saveSession(req, user)
-			return toDTO(LoginResDTO, user)
+			return user
 	}
 
 	public async extractProfileFromCode(

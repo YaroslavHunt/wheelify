@@ -1,7 +1,7 @@
 import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { v4 as uuidv4 } from 'uuid'
 import { InjectModel } from '@nestjs/sequelize'
-import Token from '@/modules/token/model/token.model'
+import Token from '@/modules/auth/models/token.model'
 import { TokenType } from '@/libs/common/enums'
 import { Request } from 'express'
 import { ConfirmationDTO } from '@/modules/auth/mail-confirm/dto/confirmation.dto'
@@ -39,19 +39,18 @@ export class MailConfirmService {
 		}
 		const existingUser = await this.userService.findByEmail(existingToken.email)
 		if(!existingUser) {
-			throw new NotFoundException('User not found. Please make sure you provide a valid email address.')
+			throw new NotFoundException('User not found. Please make sure you provide a valid email address and try again.')
 		}
-		await this.userRepository.update(
-			{ isVerified: true },
-			{ where: { id: existingUser.id } }
-		);
+		existingUser.isVerified = true;
+		await existingUser.save();
 		await this.tokenRepository.destroy({
 			where: {
 				id: existingToken.id,
 				type: TokenType.VERIFICATION
 			}
 		})
-		return this.authService.saveSession(req, existingUser)
+		await this.authService.saveSession(req, existingUser)
+		return existingUser
 	}
 
 	public async sendVerificationToken(user: User) {
@@ -71,7 +70,6 @@ export class MailConfirmService {
 				type: TokenType.VERIFICATION
 			}
 		})
-
 		if (existingToken) {
 			await this.tokenRepository.destroy({
 				where: {

@@ -4,20 +4,21 @@ import { MailConfirmController } from './mail-confirm.controller'
 import { MailModule } from '@/libs/mail/mail.module'
 import { AuthModule } from '@/modules/auth/auth.module'
 import { SequelizeModule } from '@nestjs/sequelize'
-import Token from '@/modules/token/model/token.model'
+import Token from '@/modules/auth/models/token.model'
 import User from '@/modules/user/model/user.model'
-import { UserService } from '@/modules/user/user.service'
-import { MailService } from '@/libs/mail/mail.service'
-import { UserValidService } from '@/modules/user/user-validation.service'
+import { UserModule } from '@/modules/user/user.module'
+import { UserValidationModule } from '@/modules/user/user-validation/user-validation.module'
 
 @Module({
 	imports: [
 		MailModule,
-		MailModule, forwardRef(() => AuthModule),
-		SequelizeModule.forFeature([Token, User])
+		forwardRef(() => AuthModule),
+		SequelizeModule.forFeature([Token, User]),
+		forwardRef(() => UserModule),
+		UserValidationModule
 	],
 	controllers: [MailConfirmController],
-	providers: [MailConfirmService, UserService, UserValidService, MailService],
+	providers: [MailConfirmService],
 	exports: [MailConfirmService]
 })
 export class MailConfirmModule {

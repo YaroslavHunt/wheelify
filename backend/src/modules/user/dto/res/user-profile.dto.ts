@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
-import { Role } from '@/libs/common/enums'
-import Account from '@/modules/auth/model/account.model'
+import { AuthMethod, Role } from '@/libs/common/enums'
+import Account from '@/modules/auth/models/account.model'
 
 export class UserProfileDTO {
 	@ApiProperty({ uniqueItems: true, nullable: false })
@@ -48,9 +48,9 @@ export class UserProfileDTO {
 	@Expose()
 	isTwoFactorEnabled: boolean
 
-	// @ApiProperty({ enum: AuthMethod, nullable: false })
-	// @Expose()
-	// method: AuthMethod //TODO
+	@ApiProperty({ enum: AuthMethod, nullable: false })
+	@Expose()
+	method: AuthMethod
 
 	@ApiProperty()
 	@Expose()
@@ -64,7 +64,4 @@ export class UserProfileDTO {
 	@Expose()
 	accounts: Account[]
 
-	// @ApiProperty({ isArray: true, type: () => AccountResDTO })
-	// @Expose()
-	// accounts: AccountResDTO[] //TODO
 }

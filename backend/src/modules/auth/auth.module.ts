@@ -4,20 +4,23 @@ import User from '../user/model/user.model'
 
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
-import { UserService } from '@/modules/user/user.service'
-import { UserValidService } from '@/modules/user/user-validation.service'
-import { StorageService } from '@/libs/storage/storage.service'
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { getRecaptchaConfig } from '@/config/configurations/recaptcha.config'
 import { ProviderModule } from '@/modules/auth/providers/provider.module'
 import { getProvidersConfig } from '@/config/configurations/providers.config'
-import Account from '@/modules/auth/model/account.model'
+import Account from '@/modules/auth/models/account.model'
 import { MailConfirmModule } from '@/modules/auth/mail-confirm/mail-confirm.module'
-import { MailService } from '@/libs/mail/mail.service'
+import { UserModule } from '@/modules/user/user.module'
+import { MailModule } from '@/libs/mail/mail.module'
+import { StorageService } from '@/libs/storage/storage.service'
+import { UserValidationModule } from '@/modules/user/user-validation/user-validation.module'
 
 @Module({
 	imports: [
+		MailModule,
+		UserValidationModule,
+		forwardRef(() => UserModule),
 		ProviderModule.registerAsync({
 			imports: [ConfigModule],
 			useFactory: getProvidersConfig,
@@ -34,9 +37,6 @@ import { MailService } from '@/libs/mail/mail.service'
 	controllers: [AuthController],
 	providers: [
 		AuthService,
-		MailService,
-		UserService,
-		UserValidService,
 		StorageService,
 	],
 	exports: [AuthService],

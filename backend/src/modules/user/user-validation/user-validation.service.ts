@@ -9,7 +9,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import * as bcrypt from 'bcrypt'
 import { Op, Transaction, WhereOptions } from 'sequelize'
 
-import User from './model/user.model'
+import User from '../model/user.model'
 
 @Injectable()
 export class UserValidService {

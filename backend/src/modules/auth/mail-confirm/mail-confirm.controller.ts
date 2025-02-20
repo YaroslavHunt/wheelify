@@ -2,6 +2,10 @@ import { Body, Controller, HttpCode, HttpStatus, Post, Req } from '@nestjs/commo
 import { MailConfirmService } from './mail-confirm.service';
 import { Request } from 'express'
 import { ConfirmationDTO } from '@/modules/auth/mail-confirm/dto/confirmation.dto'
+import { ApiResponse } from '@nestjs/swagger'
+import { toDTO } from '@/database/sequelize/utils/mapper.util'
+import { UserLoginReqDTO } from '@/modules/auth/dto/req/user-login-req.dto'
+import { RegisterUserResDTO } from '@/modules/auth/dto/res/register-user-res.dto'
 
 @Controller('auth/email-confirmation')
 export class MailConfirmController {
@@ -9,9 +13,11 @@ export class MailConfirmController {
 
   @Post()
   @HttpCode(HttpStatus.OK)
+  @ApiResponse({ status: HttpStatus.OK })
   public async newVerification(
       @Req() req: Request,
       @Body() data: ConfirmationDTO ) {
-      return this.mailConfirmService.newVerification(req, data)
+      const res = await this.mailConfirmService.newVerification(req, data)
+      return await toDTO(RegisterUserResDTO, res)
   }
 }

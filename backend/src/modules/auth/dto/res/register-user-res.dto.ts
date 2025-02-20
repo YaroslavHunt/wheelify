@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
 
 import { AuthMethod, Role } from '@/libs/common/enums'
+import Account from '@/modules/auth/models/account.model'
 
 @Expose()
 export class RegisterUserResDTO {
@@ -33,9 +34,9 @@ export class RegisterUserResDTO {
 	@Expose()
 	isVerified: boolean
 
-	// @ApiProperty()
-	// @Expose()
-	// isTwoFactorEnabled: boolean
+	@ApiProperty()
+	@Expose()
+	isTwoFactorEnabled: boolean
 
 	@ApiProperty({ enum: AuthMethod, nullable: false })
 	@Expose()
@@ -45,11 +46,8 @@ export class RegisterUserResDTO {
 	@Expose()
 	createdAt: Date
 
-	// @ApiProperty({ isArray: true, type: () => Account })
-	// @Expose()
-	// accounts: Account[]
+	@ApiProperty({ isArray: true, type: () => Account })
+	@Expose()
+	accounts: Account[]
 
-	// @ApiProperty({ isArray: true, type: () => AccountResDTO })
-	// @Expose()
-	// accounts: AccountResDTO[] //TODO ??
 }

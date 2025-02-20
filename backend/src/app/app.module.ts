@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config'
 
 import { AdsModule } from '@/modules/advertisements/ads.module'
 import { AuthModule } from '@/modules/auth/auth.module'
-import { TokenModule } from '@/modules/token/token.module'
 
 import configurations from '../config'
 import { LoggerModule } from '@/libs/logger/logger.module'
@@ -14,6 +13,8 @@ import { DatabaseModule } from '@/database/database.module'
 import { RedisModule } from '@/libs/redis/redis.module'
 import { IS_DEV } from '@/libs/common/utils/is-dev.util'
 import { MailModule } from '@/libs/mail/mail.module'
+import { PasswordRecoveryModule } from '@/modules/auth/password-recovery/password-recovery.module'
+import { MailConfirmModule } from '@/modules/auth/mail-confirm/mail-confirm.module'
 
 @Module({
 	imports: [
@@ -26,10 +27,10 @@ import { MailModule } from '@/libs/mail/mail.module'
 		DatabaseModule,
 		StorageModule,
 		RedisModule,
-		MailModule,
-
-		TokenModule,
 		AuthModule,
+		MailModule,
+		MailConfirmModule,
+		PasswordRecoveryModule,
 		UserModule,
 		AdsModule,
 		AdminModule,
