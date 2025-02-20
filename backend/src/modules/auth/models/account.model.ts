@@ -76,6 +76,7 @@ export default class Account extends Model<
 	user?: User
 
 	@Column({
+		field: 'created_at',
 		type: DataType.DATE,
 		allowNull: false,
 		defaultValue: DataType.NOW,

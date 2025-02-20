@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Expose } from 'class-transformer'
+import { Expose, Type } from 'class-transformer'
 import { AuthMethod, Role } from '@/libs/common/enums'
 import Account from '@/modules/auth/models/account.model'
+import { AccountResDTO } from '@/modules/auth/dto/res/account-res.dto'
 
 export class UserProfileDTO {
 	@ApiProperty({ uniqueItems: true, nullable: false })
@@ -60,8 +61,9 @@ export class UserProfileDTO {
 	@Expose()
 	updatedAt: Date
 
-	@ApiProperty({ isArray: true, type: () => Account })
+	@ApiProperty({ isArray: true, type: () => AccountResDTO })
 	@Expose()
-	accounts: Account[]
+	@Type(() => AccountResDTO)
+	accounts: AccountResDTO[]
 
 }

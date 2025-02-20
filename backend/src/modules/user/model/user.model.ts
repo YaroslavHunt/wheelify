@@ -8,7 +8,7 @@ import Account from '@/modules/auth/models/account.model'
 
 @Table({
 	tableName: 'users',
-	timestamps: true,
+	timestamps: false,
 	indexes: [
 		{ unique: true, fields: ['id'] },
 		{ unique: true, fields: ['email'] },
@@ -20,9 +20,6 @@ export default class User extends Model<
 	InferAttributes<User>,
 	InferCreationAttributes<User>
 > {
-	declare createdAt: CreationOptional<Date>
-	declare updatedAt: CreationOptional<Date>
-
 	@Column({
 		type: DataType.UUID,
 		defaultValue: UUIDV4,
@@ -117,6 +114,22 @@ export default class User extends Model<
 		onUpdate: 'CASCADE'
 	})
 	advertisements: Ads[]
+
+	@Column({
+		field: 'created_at',
+		type: DataType.DATE,
+		allowNull: false,
+		defaultValue: DataType.NOW,
+	})
+	declare createdAt: CreationOptional<Date>
+
+	@Column({
+		field: 'updated_at',
+		type: DataType.DATE,
+		allowNull: false,
+		defaultValue: DataType.NOW,
+	})
+	declare updatedAt: CreationOptional<Date>
 
 	@BeforeCreate
 	@BeforeUpdate

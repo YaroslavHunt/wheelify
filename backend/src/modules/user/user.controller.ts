@@ -28,7 +28,7 @@ export class UserController {
 	@Get('by-id/:id')
 	public async findById(@Param('id') id: string) {
 		const user = await this.userService.findById(id)
-		return toDTO(UserProfileDTO, user)
+		return await toDTO(UserProfileDTO, user)
 	}
 
 	// @ApiResponse({ status: 202, type: RegisterUserResDTO })

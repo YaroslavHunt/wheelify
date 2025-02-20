@@ -1,6 +1,5 @@
-import { CreationOptional, InferAttributes, InferCreationAttributes, UUIDV4 } from 'sequelize'
-import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript'
-import User from '@/modules/user/model/user.model'
+import { InferAttributes, InferCreationAttributes, UUIDV4 } from 'sequelize'
+import { Column, DataType, Model, Table } from 'sequelize-typescript'
 import { TokenType } from '@/libs/common/enums'
 
 @Table({
@@ -50,6 +49,7 @@ export default class Token extends Model<
 	expiresAt: Date
 
 	@Column({
+		field: 'created_at',
 		type: DataType.DATE,
 		allowNull: false,
 		defaultValue: DataType.NOW,
