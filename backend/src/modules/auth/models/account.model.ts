@@ -1,4 +1,4 @@
-import { CreationOptional, InferAttributes, InferCreationAttributes, UUIDV4 } from 'sequelize'
+import { InferAttributes, InferCreationAttributes, UUIDV4 } from 'sequelize'
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript'
 import User from '@/modules/user/model/user.model'
 
@@ -19,7 +19,7 @@ export default class Account extends Model<
 		primaryKey: true,
 		unique: true,
 	})
-	id: string
+	declare id: string
 
 	@Column({
 		type: DataType.STRING,
@@ -81,5 +81,5 @@ export default class Account extends Model<
 		allowNull: false,
 		defaultValue: DataType.NOW,
 	})
-	createdAt: Date
+	declare createdAt: Date
 }

@@ -3,7 +3,7 @@ import { Expose, Type } from 'class-transformer'
 import { AuthMethod, Role } from '@/libs/common/enums'
 import { AccountResDTO } from '@/modules/auth/dto/res/account-res.dto'
 
-export class UserProfileDTO {
+export class UserProfileResDTO {
 	@ApiProperty({ uniqueItems: true, nullable: false })
 	@Expose()
 	id: string
@@ -14,11 +14,11 @@ export class UserProfileDTO {
 
 	@ApiProperty({ nullable: true })
 	@Expose()
-	firstname: string
+	firstname: string | null
 
 	@ApiProperty({ nullable: true })
 	@Expose()
-	lastname: string
+	lastname: string | null
 
 	@ApiProperty({ uniqueItems: true, nullable: false })
 	@Expose()
@@ -26,11 +26,11 @@ export class UserProfileDTO {
 
 	@ApiProperty({ uniqueItems: true, nullable: true })
 	@Expose()
-	phone: string
+	phone: string | null
 
 	@ApiProperty({ nullable: true })
 	@Expose()
-	avatar: string
+	avatar: string | null
 
 	@ApiProperty({ enum: Role, default: Role.USER, nullable: false })
 	@Expose()
@@ -56,9 +56,9 @@ export class UserProfileDTO {
 	@Expose()
 	createdAt: Date
 
-	@ApiProperty()
+	@ApiProperty({ nullable: true })
 	@Expose()
-	updatedAt: Date
+	updatedAt: Date | null
 
 	@ApiProperty({ isArray: true, type: () => AccountResDTO })
 	@Expose()

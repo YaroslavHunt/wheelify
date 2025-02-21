@@ -1,11 +1,13 @@
-import { Controller, Get, HttpCode, HttpStatus, Param } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { UserService } from './user.service'
 import { Authorized } from '@/modules/auth/decorators/authorized.decorator'
 import { Authorization } from '@/modules/auth/decorators/auth.decorator'
 import { Role } from '@/libs/common/enums'
 import { toDTO } from '@/database/sequelize/utils/mapper.util'
-import { UserProfileDTO } from '@/modules/user/dto/res/user-profile.dto'
+import { UserProfileResDTO } from './dto/res/user-profile-res.dto'
+import { UpdateUserReqDTO } from '@/modules/user/dto/req/update-user-profile-req.dto'
+import { UpdateUserDTO, UpdateUserResDTO } from '@/modules/user/dto/res/update-user-res.dto'
 
 @ApiTags('Users')
 @Controller('users')
@@ -18,8 +20,8 @@ export class UserController {
 	@HttpCode(HttpStatus.OK)
 	@ApiResponse({ status: HttpStatus.OK })
 	@Get('profile')
-	public async findProfile(@Authorized('id') userId: string) {
-		return await this.userService.findById(userId)
+	public async findProfile(@Authorized('id') id: string) {
+		return await this.userService.findById(id)
 	}
 
 	@Authorization(Role.ADMIN, Role.MODERATOR)
@@ -28,20 +30,25 @@ export class UserController {
 	@Get('by-id/:id')
 	public async findById(@Param('id') id: string) {
 		const user = await this.userService.findById(id)
-		return await toDTO(UserProfileDTO, user)
+		return await toDTO(UserProfileResDTO, user)
 	}
 
-	// @ApiResponse({ status: 202, type: RegisterUserResDTO })
-	// @HttpCode(202)
-	// @Patch('edit')
-	// updateUser(
-	// 	@Body() dto: UpdateUserReq,
-	// 	@Req() req: AuthRequest
-	// ): Promise<UpdateUserRes> {
-	// 	const user = req.user
-	// 	return this.userService.updateUser(user.email, dto)
-	// }
-	//
+	@Authorization()
+	@HttpCode(HttpStatus.OK)
+	@ApiResponse({ status: HttpStatus.OK })
+	@Patch('edit-profile')
+	public async updateProfile(
+		@Authorized('id') id: string,
+		@Body() data: UpdateUserReqDTO): Promise<UpdateUserResDTO> {
+		const previousUser = await this.userService.findById(id)
+		const updatedUser = await this.userService.update(id, data)
+
+		return {
+			data: await toDTO(UpdateUserDTO, updatedUser),
+			previousData: await toDTO(UpdateUserDTO, previousUser)
+		}
+	}
+
 	// @ApiResponse({ status: 202, type: Boolean })
 	// @HttpCode(202)
 	// @Patch('change-password')

@@ -18,7 +18,7 @@ export default class Token extends Model<
 		defaultValue: UUIDV4,
 		primaryKey: true
 	})
-	id: string
+	declare id: string
 
 	@Column({
 		type: DataType.STRING,
@@ -54,7 +54,7 @@ export default class Token extends Model<
 		allowNull: false,
 		defaultValue: DataType.NOW,
 	})
-	createdAt: Date
+	declare createdAt: Date
 }
 
 

@@ -7,7 +7,7 @@ import { SequelizeModule } from '@nestjs/sequelize'
 import Token from '@/modules/auth/models/token.model'
 import User from '@/modules/user/model/user.model'
 import { UserModule } from '@/modules/user/user.module'
-import { UserValidationModule } from '@/modules/user/user-validation/user-validation.module'
+import { UserValidationModule } from '@/modules/user/libs/user-validation/user-validation.module'
 
 @Module({
 	imports: [

@@ -15,6 +15,7 @@ import { IS_DEV } from '@/libs/common/utils/is-dev.util'
 import { MailModule } from '@/libs/mail/mail.module'
 import { PasswordRecoveryModule } from '@/modules/auth/password-recovery/password-recovery.module'
 import { MailConfirmModule } from '@/modules/auth/mail-confirm/mail-confirm.module'
+import { TwoFactorAuthModule } from '@/modules/auth/two-factor-auth/two-factor-auth.module'
 
 @Module({
 	imports: [
@@ -27,10 +28,13 @@ import { MailConfirmModule } from '@/modules/auth/mail-confirm/mail-confirm.modu
 		DatabaseModule,
 		StorageModule,
 		RedisModule,
+		//
 		AuthModule,
 		MailModule,
 		MailConfirmModule,
 		PasswordRecoveryModule,
+		TwoFactorAuthModule,
+		//
 		UserModule,
 		AdsModule,
 		AdminModule,

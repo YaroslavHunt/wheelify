@@ -5,7 +5,6 @@ import Token from '@/modules/auth/models/token.model'
 import { TokenType } from '@/libs/common/enums'
 import { Request } from 'express'
 import { ConfirmationDTO } from '@/modules/auth/mail-confirm/dto/confirmation.dto'
-import User from '@/modules/user/model/user.model'
 import { MailService } from '@/libs/mail/mail.service'
 import { UserService } from '@/modules/user/user.service'
 import { AuthService } from '@/modules/auth/auth.service'
@@ -41,7 +40,6 @@ export class MailConfirmService {
 			throw new NotFoundException('User not found. Please make sure you provide a valid email address and try again.')
 		}
 		existingUser.isVerified = true;
-		existingUser.updatedAt = new Date()
 		await existingUser.save();
 		await this.tokenRepository.destroy({
 			where: {
@@ -53,8 +51,8 @@ export class MailConfirmService {
 		return existingUser
 	}
 
-	public async sendVerificationToken(user: User) {
-		const verificationToken = await this.generateVerificationToken(user.email)
+	public async sendVerificationToken(email: string) {
+		const verificationToken = await this.generateVerificationToken(email)
 
 		await this.mailService.sendConfirmationEmail(verificationToken.email, verificationToken.token)
 		return true

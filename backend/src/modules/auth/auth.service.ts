@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException, UnauthorizedException } from 
 import { InjectModel } from '@nestjs/sequelize'
 import { UserLoginReqDTO } from './dto/req/user-login-req.dto'
 import User from '../user/model/user.model'
-import { UserValidService } from '../user/user-validation/user-validation.service'
+import { UserValidService } from '@/modules/user/libs/user-validation/user-validation.service'
 import { UserService } from '../user/user.service'
 import { RegisterUserReqDTO } from '@/modules/auth/dto/req/register-user-req.dto'
 import { AuthMethod } from '@/libs/common/enums'
@@ -15,6 +15,7 @@ import { DEFAULT_USER_AVATAR } from '@/libs/common/constants'
 import { StorageService } from '@/libs/storage/storage.service'
 import Account from '@/modules/auth/models/account.model'
 import { MailConfirmService } from '@/modules/auth/mail-confirm/mail-confirm.service'
+import { TwoFactorAuthService } from './two-factor-auth/two-factor-auth.service'
 
 @Injectable()
 export class AuthService {
@@ -27,7 +28,8 @@ export class AuthService {
 		private readonly storageService: StorageService,
 		private readonly emailConfirmService: MailConfirmService,
 		private readonly userService: UserService,
-		private readonly userValidService: UserValidService
+		private readonly userValidService: UserValidService,
+		private readonly twoFactorAuthService: TwoFactorAuthService,
 	) {
 	}
 
@@ -46,7 +48,7 @@ export class AuthService {
 				t
 			)
 
-			await this.emailConfirmService.sendVerificationToken(newUser)
+			await this.emailConfirmService.sendVerificationToken(newUser.email)
 			await t.commit()
 			return {
 				message: 'You have successfully registered. ' +
@@ -67,11 +69,24 @@ export class AuthService {
 				user.password
 			)
 			if(!user.isVerified) {
-				await this.emailConfirmService.sendVerificationToken(user)
+				await this.emailConfirmService.sendVerificationToken(user.email)
 				throw new UnauthorizedException(
-					'Your email is not confirmed. Please check your mail and confirm the address.'
+					'Your email has not been verified. ' +
+					'Please check your inbox and follow the instructions to confirm your email address.'
 				)
 			}
+			if(user.isTwoFactorEnabled){
+				if(!data.code) {
+					await this.twoFactorAuthService.sendTwoFactorToken(user.email)
+
+					return {
+						message: 'A 2FA authentication code has been sent to your email. ' +
+							'Please check your inbox and enter the code to proceed.'
+					}
+				}
+				await this.twoFactorAuthService.validate(user.email, data.code)
+			}
+
 			await this.saveSession(req, user)
 			return user
 	}

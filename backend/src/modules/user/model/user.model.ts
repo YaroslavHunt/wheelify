@@ -26,7 +26,7 @@ export default class User extends Model<
 		primaryKey: true,
 		unique: true,
 	})
-	id: string
+	declare id: string
 
 	@Column({
 		type: DataType.STRING,
@@ -126,9 +126,14 @@ export default class User extends Model<
 	@Column({
 		field: 'updated_at',
 		type: DataType.DATE,
-		allowNull: false,
+		allowNull: true,
 	})
 	declare updatedAt: CreationOptional<Date>
+
+	@BeforeUpdate
+	static setUpdatedAt(instance: User) {
+		instance.updatedAt = new Date();
+	}
 
 	@BeforeCreate
 	@BeforeUpdate

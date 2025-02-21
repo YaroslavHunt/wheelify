@@ -43,7 +43,6 @@ export class PasswordRecoveryService {
 			throw new NotFoundException('User not found. Please make sure you provide a valid email address and try again.')
 		}
 		existingUser.password = data.password
-		existingUser.updatedAt = new Date()
 		await existingUser.save()
 		await this.tokenRepository.destroy({ where: { token, type: TokenType.PASSWORD_RESET } });
 

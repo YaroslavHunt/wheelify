@@ -4,11 +4,14 @@ import User from './model/user.model'
 import Account from '@/modules/auth/models/account.model'
 import { AuthMethod, Role } from '@/libs/common/enums'
 import { Transaction } from 'sequelize'
+import { UpdateUserReqDTO } from '@/modules/user/dto/req/update-user-profile-req.dto'
+import { Sequelize } from 'sequelize-typescript'
 
 @Injectable()
 export class UserService {
 	constructor(
 		@InjectModel(User) private readonly userRepository: typeof User,
+		private readonly sequelize: Sequelize,
 	) {
 	}
 
@@ -37,13 +40,12 @@ export class UserService {
 		avatar?: string,
 		t?: Transaction
 	) {
-
 		return await this.userRepository.create(
 			{
 				username,
 				password,
 				email,
-				avatar: avatar ? avatar : null,
+				avatar: avatar ?? null,
 				role: Role.USER,
 				isVerified,
 				method,
@@ -55,45 +57,25 @@ export class UserService {
 		)
 	}
 
-	// public async updateUser(
-	// 	email: string,
-	// 	dto: UpdateUserReq
-	// ): Promise<UpdateUserRes> {
-	// 	return this.transaction.run(async t => {
-	// 		const target = await this.userRepository.findOne({
-	// 			where: { email },
-	// 			transaction: t
-	// 		})
-	// 		const allowedFields = ['username', 'email']
-	// 		const filteredReq: UpdateUserReq = Object.fromEntries(
-	// 			Object.entries(dto).filter(
-	// 				([key, value]) =>
-	// 					allowedFields.includes(key) && value !== undefined
-	// 			)
-	// 		)
-	// 		await this.userValidService.checkUserDoesNotExist(filteredReq, t)
-	// 		await this.userRepository.update(dto, {
-	// 			where: { email },
-	// 			transaction: t
-	// 		})
-	// 		const updatedUser = await this.userRepository.findOne({
-	// 			where: { email: filteredReq.email ?? email },
-	// 			transaction: t
-	// 		})
-	// 		const changes: string[] = []
-	// 		if (filteredReq.email)
-	// 			changes.push(`email: ${email} → ${filteredReq.email}`)
-	// 		if (filteredReq.username)
-	// 			changes.push(
-	// 				`username: ${target.username} → ${filteredReq.username}`
-	// 			)
-	// 		if (changes.length > 0)
-	// 			this.logger.log(`User updated (${changes.join(', ')})`)
-	// 		const data = toDTO(RegisterUserResDTO, updatedUser)
-	// 		const previousData = toDTO(RegisterUserResDTO, target)
-	// 		return { data, previousData }
-	// 	})
-	// }
+	public async update(id: string, data: UpdateUserReqDTO) {
+		const target = await this.findById(id)
+		const t = await this.sequelize.transaction()
+		try {
+			await target.update(data, { transaction: t })
+			await target.save({ transaction: t })
+			await t.commit()
+			return target
+		} catch (e) {
+			await t.rollback()
+			throw e
+		}
+	}
+
+
+
+
+
+
 	//
 	// public async changePassword(
 	// 	user: JwtPayload,

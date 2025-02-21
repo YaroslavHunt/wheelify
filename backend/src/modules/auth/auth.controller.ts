@@ -24,7 +24,8 @@ import { ProviderService } from '@/modules/auth/providers/provider.service'
 import { ConfigService } from '@nestjs/config'
 import { AppEnv } from '@/config/enums'
 import { toDTO } from '@/database/sequelize/utils/mapper.util'
-import { UserProfileDTO } from '@/modules/user/dto/res/user-profile.dto'
+import User from '@/modules/user/model/user.model'
+import { UserProfileResDTO } from '@/modules/user/dto/res/user-profile-res.dto'
 
 @Controller('auth')
 export class AuthController {
@@ -47,10 +48,13 @@ export class AuthController {
 	@Recaptcha()
 	@Post('login')
 	@HttpCode(HttpStatus.OK)
-	@ApiResponse({ status: HttpStatus.OK, type: UserProfileDTO })
+	@ApiResponse({ status: HttpStatus.OK, type: UserProfileResDTO })
 	public async login(@Req() req: Request, @Body() data: UserLoginReqDTO) {
-		const res = await this.authService.login(req, data)
-		return await toDTO(UserProfileDTO, res)
+		const res = await this.authService.login(req, data);
+		if (!(res instanceof User) && res?.message) {
+			return { requires2FA: true, message: res.message };
+		}
+		return toDTO(UserProfileResDTO, res);
 	}
 
 	@AuthProvider()

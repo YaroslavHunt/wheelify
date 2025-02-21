@@ -14,11 +14,13 @@ import { MailConfirmModule } from '@/modules/auth/mail-confirm/mail-confirm.modu
 import { UserModule } from '@/modules/user/user.module'
 import { MailModule } from '@/libs/mail/mail.module'
 import { StorageService } from '@/libs/storage/storage.service'
-import { UserValidationModule } from '@/modules/user/user-validation/user-validation.module'
+import { UserValidationModule } from '@/modules/user/libs/user-validation/user-validation.module'
+import { TwoFactorAuthModule } from '@/modules/auth/two-factor-auth/two-factor-auth.module'
 
 @Module({
 	imports: [
 		MailModule,
+		TwoFactorAuthModule,
 		UserValidationModule,
 		forwardRef(() => UserModule),
 		ProviderModule.registerAsync({
