@@ -1,17 +1,25 @@
-import { Body, Controller, Delete, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
-import { AdsService } from './ads.service';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateAdsResponse } from './response/create.ads.res';
-import { JwtAuthGuard } from '../../guards/jwt.guard';
-import { AdsDto } from './dto/ads.dto';
-import { JwtPayload } from '../../strategy/types';
-import User from '../user/model/user.model';
+import {
+	Body,
+	Controller,
+	Delete,
+	Patch,
+	Post,
+	Query,
+	Req,
+	UseGuards
+} from '@nestjs/common'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
+
+import User from '../user/model/user.model'
+
+import { AdsService } from './ads.service'
+import { AdsDto } from './dto/ads.dto'
+import { CreateAdsResponse } from './response/create.ads.res'
 
 @ApiTags('Advertisements')
 @Controller('advertisements')
 export class AdsController {
-	constructor(private readonly adsService: AdsService) {
-	}
+	constructor(private readonly adsService: AdsService) {}
 	//
 	// @ApiResponse({ status: 201, type: CreateAdsResponse })
 	// @UseGuards(JwtAuthGuard)

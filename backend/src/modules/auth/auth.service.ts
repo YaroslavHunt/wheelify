@@ -1,59 +1,181 @@
-import { Injectable } from '@nestjs/common';
-import { TokenService } from '../token/token.service';
-import { CreateUserReq } from '../user/dto/req/create.user.req';
-import { UserLoginReq } from '../user/dto/req/user.login.req';
-import { UserRes } from '../user/dto/res/user.res';
-import { UserValidService } from '../user/user.validation.service';
-import { WinstonLoggerService } from '../logger/logger.service';
-import User from '../user/model/user.model';
-import { InjectModel } from '@nestjs/sequelize';
-import { TransactionHelper } from '../../database/sequelize/transaction.helper';
-import * as bcrypt from 'bcrypt';
-import { Role } from '../../common/enums';
-import { AuthResponse } from '../user/dto/res/auth.res';
-import { toDTO } from '../../common/utils/mapper';
+import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common'
+import { InjectModel } from '@nestjs/sequelize'
+import { UserLoginReqDTO } from './dto/req/user-login-req.dto'
+import User from '../user/model/user.model'
+import { UserValidService } from '@/modules/user/libs/user-validation/user-validation.service'
+import { UserService } from '../user/user.service'
+import { RegisterUserReqDTO } from '@/modules/auth/dto/req/register-user-req.dto'
+import { AuthMethod } from '@/libs/common/enums'
+import { Request, Response } from 'express'
+import { Sequelize } from 'sequelize-typescript'
+import { ConfigService } from '@nestjs/config'
+import { SessionEnv } from '@/config/enums'
+import { ProviderService } from '@/modules/auth/providers/provider.service'
+import { DEFAULT_USER_AVATAR } from '@/libs/common/constants'
+import { StorageService } from '@/libs/storage/storage.service'
+import Account from '@/modules/auth/models/account.model'
+import { MailConfirmService } from '@/modules/auth/mail-confirm/mail-confirm.service'
+import { TwoFactorAuthService } from './two-factor-auth/two-factor-auth.service'
 
 @Injectable()
 export class AuthService {
-
-	constructor(
+	public constructor(
 		@InjectModel(User) private readonly userRepository: typeof User,
+		@InjectModel(Account) private readonly accountRepository: typeof Account,
+		private readonly sequelize: Sequelize,
+		private readonly config: ConfigService,
+		private readonly providerService: ProviderService,
+		private readonly storageService: StorageService,
+		private readonly emailConfirmService: MailConfirmService,
+		private readonly userService: UserService,
 		private readonly userValidService: UserValidService,
-		private readonly tokenService: TokenService,
-		private readonly transaction: TransactionHelper,
-		private readonly logger: WinstonLoggerService,
+		private readonly twoFactorAuthService: TwoFactorAuthService,
 	) {
-		this.logger.setLabel(AuthService.name);
 	}
 
-	async registerUser(dto: CreateUserReq): Promise<UserRes> {
-		return this.transaction.run(async (t) => {
-			await this.userValidService.checkUserDoesNotExist(dto, t);
-			dto.password = await bcrypt.hash(dto.password, 12);
-			const user = await this.userRepository.create(
-				{
-					username: dto.username,
-					password: dto.password,
-					email: dto.email,
-					role: Role.USER,
-				},
-				{ transaction: t },
-			);
-			this.logger.log('Successfully create new user');
-			return toDTO(UserRes, user);
-		});
-	}
-
-	async logIn(dto: UserLoginReq): Promise<AuthResponse> {
+	public async register(data: RegisterUserReqDTO){
+		const defaultAvatar = await this.storageService.getFileUrl(DEFAULT_USER_AVATAR) || null
+		const t = await this.sequelize.transaction()
 		try {
-			await this.userValidService.checkUserExists(dto);
-			const user = await this.userRepository.findOne({ where:{ email: dto.email }});
-			await this.userValidService.checkPassword(dto.password, user.password);
-			const res = toDTO(UserRes, user);
-			const token = await this.tokenService.generateJwtToken(res);
-			return { user: res, token };
+			await this.userValidService.checkUserDoesNotExist(data, t)
+			const newUser = await this.userService.create(
+				data.username,
+				data.password,
+				data.email,
+				false,
+				AuthMethod.CREDENTIAL,
+				defaultAvatar,
+				t
+			)
+
+			await this.emailConfirmService.sendVerificationToken(newUser.email)
+			await t.commit()
+			return {
+				message: 'You have successfully registered. ' +
+					'A letter has been sent to your mail. ' +
+					'Check the specified mail and follow the link to it for successful verification'
+			}
 		} catch (e) {
-			throw e;
+			await t.rollback()
+			throw e
 		}
+	}
+
+	public async login(req: Request, data: UserLoginReqDTO) {
+			const user = await this.userService.findByEmail(data.email)
+			await this.userValidService.checkUserExists(data)
+			await this.userValidService.checkPassword(
+				data.password,
+				user.password
+			)
+			if(!user.isVerified) {
+				await this.emailConfirmService.sendVerificationToken(user.email)
+				throw new UnauthorizedException(
+					'Your email has not been verified. ' +
+					'Please check your inbox and follow the instructions to confirm your email address.'
+				)
+			}
+			if(user.isTwoFactorEnabled){
+				if(!data.code) {
+					await this.twoFactorAuthService.sendTwoFactorToken(user.email)
+
+					return {
+						message: 'A 2FA authentication code has been sent to your email. ' +
+							'Please check your inbox and enter the code to proceed.'
+					}
+				}
+				await this.twoFactorAuthService.validate(user.email, data.code)
+			}
+
+			await this.saveSession(req, user)
+			return user
+	}
+
+	public async extractProfileFromCode(
+		req: Request,
+		provider: string,
+		code: string
+	) {
+		const providerInstance = this.providerService.findByService(provider);
+		const profile = await providerInstance.findUserByCode(code);
+
+		const t = await this.sequelize.transaction();
+		try {
+			let user = await this.userRepository.findOne({
+				where: { email: profile.email },
+				transaction: t,
+			});
+
+			let account = await this.accountRepository.findOne({
+				where: { email: profile.email, provider: profile.provider },
+				transaction: t,
+			});
+
+			if (!user) {
+				user = await this.userService.create(
+					profile.name,
+					'',
+					profile.email,
+					true,
+					AuthMethod[profile.provider.toUpperCase()],
+					profile.picture,
+					t
+				);
+			}
+
+			if (!account) {
+				await this.accountRepository.create(
+					{
+						email: profile.email,
+						type: 'oauth',
+						provider: profile.provider,
+						accessToken: profile.access_token,
+						refreshToken: profile.refresh_token,
+						expiresAt: profile.expires_at,
+						userId: user.id
+					},
+					{ transaction: t }
+				);
+			}
+
+			await t.commit();
+			return this.saveSession(req, user);
+		} catch (e) {
+			await t.rollback();
+			throw new InternalServerErrorException('Failed to process OAuth login');
+		}
+	}
+
+
+	public async logout(req: Request, res: Response): Promise<void> {
+		return new Promise((resolve, reject) => {
+			req.session.destroy(err => {
+				if (err) {
+					return reject(
+						new InternalServerErrorException(
+							'Could not complete the session. Maybe problems with the server, ' +
+							'or the session has already been completed'
+						)
+					)
+				}
+				res.clearCookie(this.config.getOrThrow<string>(SessionEnv.NAME))
+				resolve() //TODO for OAuth2
+			})
+		})
+	}
+
+	public async saveSession(req: Request, user: User) {
+		return new Promise((resolve, reject) => {
+			req.session.userId = user.id
+			req.session.save(err => {
+				if (err) {
+					return reject(new InternalServerErrorException(
+						'The session could not be preserved. ' +
+						'Check the session parameters correctly'))
+				}
+			})
+
+			resolve({ user })
+		})
 	}
 }

@@ -14,6 +14,7 @@
     "start:frontend": "cd frontend && npm run start"
   },
   "dependencies": {
-    "concurrently": "^7.2.1"
+    "concurrently": "^7.2.1",
+    "connect-redis": "^8.0.1"
   }
 }

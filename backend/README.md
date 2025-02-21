@@ -2,12 +2,29 @@
 
 The backend of this application is built using **NestJS**, a Node.js framework for building scalable and efficient server-side applications.  
 The backend interacts with a **PostgreSQL** database via **Sequelize ORM** to handle and store data.
+The application uses **Redis**. 
 
 ## Backend Components:
 - **NestJS**: For organizing business logic and API routes.
 - **Sequelize ORM**: For working with the database.
 - **PostgreSQL**: As the database management system.
+- **Redis**: is a powerful,
+  in-memory data structure store that can significantly enhance the performance of your application by reducing database load and speeding up repeated data retrieval.
 
+## Redis Server
+Before using Redis in your application, ensure that the Redis server is running. You can start the Redis server with the following command
+
+**Ubuntu**:
+```
+  sudo service redis-server start
+```
+
+If you want to check the status of the Redis server, use:
+
+```
+sudo service redis-server status
+```
+If the Redis server is not running, you'll need to start it before proceeding with your application.
 
 ## Environment Configuration
 
@@ -71,11 +88,6 @@ Start the backend:
 ```
 
 - [Nest.js Documentation](https://docs.nestjs.com/) - learn about Nest.js features and API.
+- [Redis Documentation](https://redis.io/docs/latest/) - learn about Redis.
 - [Documentation](http://localhost:3001/docs#/) - learn about this backend API and endpoints.
 
-If you want to add an administrator, run the following command:
-bash
-
-```bash
-  npm run seed:admin
-```

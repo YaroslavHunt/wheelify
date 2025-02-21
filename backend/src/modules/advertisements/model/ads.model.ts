@@ -1,12 +1,18 @@
 import {
+	CreationOptional,
+	InferAttributes,
+	InferCreationAttributes,
+	UUIDV4
+} from 'sequelize'
+import {
 	Column,
 	DataType,
 	ForeignKey,
 	Model,
-	Table,
-} from 'sequelize-typescript';
-import User from '../../user/model/user.model';
-import { CreationOptional, InferAttributes, InferCreationAttributes, UUIDV4 } from 'sequelize';
+	Table
+} from 'sequelize-typescript'
+
+import User from '../../user/model/user.model'
 
 @Table({
 	tableName: 'advertisements',
@@ -15,42 +21,45 @@ import { CreationOptional, InferAttributes, InferCreationAttributes, UUIDV4 } fr
 		{ unique: true, fields: ['id'] },
 		{ unique: true, fields: ['user_id'] },
 		{ fields: ['title'] },
-		{ fields: ['description'] },
-	],
+		{ fields: ['description'] }
+	]
 })
-export default class Ads extends Model<InferAttributes<Ads>, InferCreationAttributes<Ads>> {
-	declare createdAt: CreationOptional<Date>;
-	declare updatedAt: CreationOptional<Date>;
+export default class Ads extends Model<
+	InferAttributes<Ads>,
+	InferCreationAttributes<Ads>
+> {
+	declare createdAt: CreationOptional<Date>
+	declare updatedAt: CreationOptional<Date>
 
 	@Column({
 		type: DataType.UUID,
 		defaultValue: UUIDV4,
-		primaryKey: true,
+		primaryKey: true
 	})
-	id: string;
+	id: string
 
 	@Column({
 		type: DataType.STRING(200),
-		allowNull: false,
+		allowNull: false
 	})
-	title: string;
+	title: string
 
 	@Column({
 		type: DataType.STRING,
-		allowNull: false,
+		allowNull: false
 	})
-	description: string;
+	description: string
 
 	@Column({
-		type: DataType.INTEGER,
+		type: DataType.INTEGER
 	})
-	cost: number;
+	cost: number
 
 	@ForeignKey(() => User)
 	@Column({
 		field: 'user_id',
 		type: DataType.UUID,
-		allowNull: false,
+		allowNull: false
 	})
-	user: string;
+	user: string
 }

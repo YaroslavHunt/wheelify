@@ -1,29 +1,43 @@
-import { Module } from '@nestjs/common';
-import { UserModule } from '../modules/user/user.module';
-import { AuthModule } from '../modules/auth/auth.module';
-import { TokenModule } from '../modules/token/token.module';
-import { AdsModule } from '../modules/advertisements/ads.module';
-import { ConfigModule } from '@nestjs/config';
-import configurations from '../config';
-import { DatabaseModule } from '../database/database.module';
-import { LoggerModule } from '../modules/logger/logger.module';
-import { AdminModule } from '../modules/admin/admin.module';
-import { SeqModule } from '../database/sequelize/seq.module';
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+
+import { AdsModule } from '@/modules/advertisements/ads.module'
+import { AuthModule } from '@/modules/auth/auth.module'
+
+import configurations from '../config'
+import { LoggerModule } from '@/libs/logger/logger.module'
+import { AdminModule } from '@/modules/admin/admin.module'
+import { UserModule } from '@/modules/user/user.module'
+import { StorageModule } from '@/libs/storage/storage.module'
+import { DatabaseModule } from '@/database/database.module'
+import { RedisModule } from '@/libs/redis/redis.module'
+import { IS_DEV } from '@/libs/common/utils/is-dev.util'
+import { MailModule } from '@/libs/mail/mail.module'
+import { PasswordRecoveryModule } from '@/modules/auth/password-recovery/password-recovery.module'
+import { MailConfirmModule } from '@/modules/auth/mail-confirm/mail-confirm.module'
+import { TwoFactorAuthModule } from '@/modules/auth/two-factor-auth/two-factor-auth.module'
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
 			isGlobal: true,
 			load: [configurations],
+			ignoreEnvFile: !IS_DEV
 		}),
+		LoggerModule,
 		DatabaseModule,
+		StorageModule,
+		RedisModule,
+		//
 		AuthModule,
-		TokenModule,
-		AdminModule,
+		MailModule,
+		MailConfirmModule,
+		PasswordRecoveryModule,
+		TwoFactorAuthModule,
+		//
 		UserModule,
 		AdsModule,
-		LoggerModule,
-		SeqModule,
-	],
+		AdminModule,
+	]
 })
 export class AppModule {}

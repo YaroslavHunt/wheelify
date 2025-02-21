@@ -1,18 +1,20 @@
-import { Injectable } from '@nestjs/common';
-import { AdsDto } from './dto/ads.dto';
-import { CreateAdsResponse } from './response/create.ads.res';
-import User from '../user/model/user.model';
-import Ads from './model/ads.model';
-import { WinstonLoggerService } from '../logger/logger.service';
-import { InjectModel } from '@nestjs/sequelize';
+import { Injectable } from '@nestjs/common'
+import { InjectModel } from '@nestjs/sequelize'
+
+import { WinstonLoggerService } from '@/libs/logger/logger.service'
+import User from '../user/model/user.model'
+
+import { AdsDto } from './dto/ads.dto'
+import Ads from './model/ads.model'
+import { CreateAdsResponse } from './response/create.ads.res'
 
 @Injectable()
 export class AdsService {
 	constructor(
 		@InjectModel(Ads) private readonly adsRepository: typeof Ads,
-		private readonly logger: WinstonLoggerService,
+		private readonly logger: WinstonLoggerService
 	) {
-		this.logger.setLabel(AdsService.name)
+		// this.logger.setLabel(AdsService.name)
 	}
 
 	// async createAds(user: User, dto: AdsDto): Promise<CreateAdsResponse> {
