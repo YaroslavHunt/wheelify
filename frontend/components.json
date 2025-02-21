@@ -5,8 +5,8 @@
   "tsx": true,
   "tailwind": {
     "config": "tailwind.config.ts",
-    "css": "src/shared/globals.css",
-    "baseColor": "gray",
+    "css": "src/shared/styles/globals.css",
+    "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""
   },
