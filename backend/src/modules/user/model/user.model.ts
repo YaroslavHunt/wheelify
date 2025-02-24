@@ -89,7 +89,7 @@ export default class User extends Model<
 		type:DataType.BOOLEAN,
 		defaultValue: false
 	})
-	isVerified: boolean;
+	isVerified: boolean
 
 	@Column({
 		field: 'is_two_factor_enabled',
