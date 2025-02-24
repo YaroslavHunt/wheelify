@@ -3,6 +3,7 @@
 import { type PropsWithChildren } from 'react'
 import { TanstackQueryProvider } from '@/shared/providers/TanstackQueryProvider'
 import { ThemeProvider } from './ThemeProvider'
+import { ToastProvider } from '@/shared/providers'
 
 export function MainProvider({ children }: PropsWithChildren<unknown>) {
 	return (
@@ -12,7 +13,11 @@ export function MainProvider({ children }: PropsWithChildren<unknown>) {
 				defaultTheme='light'
 				disableTransitionOnChange
 				storageKey='wheelify-theme'
-			>{children}</ThemeProvider>
+			>
+				<
+					ToastProvider />
+				{children}
+			</ThemeProvider>
 		</TanstackQueryProvider>
 	)
 }
