@@ -1,6 +1,8 @@
 import { Button } from '@/shared/components/ui'
 
-export function AuthSocial() {
+export function AuthSocial()
+	const router = useRouter()
+
 	return (
 		<>
 			<div className='grid grid-cols-2'>

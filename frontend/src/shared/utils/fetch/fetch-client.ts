@@ -2,7 +2,7 @@ import { TypeSearchParams, RequestOptions } from '@/shared/utils/fetch/fetch-typ
 import { FetchError } from '@/shared/utils/fetch/fetch-error'
 
 export class FetchClient {
-	private baseUrl: string
+	private readonly baseUrl: string
 	public headers?: Record<string, string>
 	public params?: TypeSearchParams
 	public options?: RequestOptions

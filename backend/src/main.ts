@@ -21,12 +21,13 @@ async function bootstrap() {
 	const domains = config.getOrThrow<string[]>(CorsEnv.DOMAINS)
 	const cookieSecret = config.getOrThrow<string>(CorsEnv.COOKIES_SECRET)
 
-	// Security
+	// CORS
 	app.enableCors({
 		origin: domains,
 		credentials: true,
-		exposedHeaders: ['set-cookie']
-	})
+		exposedHeaders: ['set-cookie'],
+	});
+
 
 	// Pipes
 	app.useGlobalPipes(

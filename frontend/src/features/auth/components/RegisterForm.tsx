@@ -9,10 +9,11 @@ import { useState } from 'react'
 import { useTheme } from 'next-themes'
 import ReCAPTCHA from 'react-google-recaptcha'
 import { toast } from 'sonner'
+import { useRegisterMutation } from '@/features/auth/hooks'
 
 export function RegisterForm() {
 	const { theme } = useTheme()
-	const [recaptchaValue, setRecaptchaValue ] = useState<string|null>(null)
+	const [recaptchaValue, setRecaptchaValue] = useState<string | null>(null)
 
 	const form = useForm<TypeRegisterSchema>({
 		resolver: zodResolver(RegisterSchema),
@@ -24,9 +25,11 @@ export function RegisterForm() {
 		}
 	})
 
+	const { register, isLoadingRegister } = useRegisterMutation()
+
 	const onSubmit = (data: TypeRegisterSchema) => {
-		if(recaptchaValue) {
-			console.log(data)
+		if (recaptchaValue) {
+			register({ values: data, recaptcha: recaptchaValue })
 		} else {
 			toast.error('Please, complete reCAPTCHA')
 		}
@@ -51,7 +54,11 @@ export function RegisterForm() {
 						<FormItem>
 							<FormLabel>Username</FormLabel>
 							<FormControl>
-								<Input placeholder="nickname or name" {...field} />
+								<Input
+									placeholder="nickname or name"
+									disabled={isLoadingRegister}
+									{...field}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>}
@@ -65,6 +72,7 @@ export function RegisterForm() {
 							<FormControl>
 								<Input
 									placeholder="mail@example.com"
+									disabled={isLoadingRegister}
 									type="email"
 									{...field}
 								/>
@@ -80,6 +88,7 @@ export function RegisterForm() {
 							<FormControl>
 								<Input
 									placeholder="********"
+									disabled={isLoadingRegister}
 									type="password"
 									autoComplete="off"
 									{...field}
@@ -96,6 +105,7 @@ export function RegisterForm() {
 							<FormControl>
 								<Input
 									placeholder="********"
+									disabled={isLoadingRegister}
 									type="password"
 									autoComplete="off"
 									{...field}
@@ -103,14 +113,14 @@ export function RegisterForm() {
 							</FormControl>
 						</FormItem>}
 				/>
-				<div className='flex justify-center'>
+				<div className="flex justify-center">
 					<ReCAPTCHA
 						sitekey={process.env.GOOGLE_RECAPTCHA_SITE_KEY as string}
 						onChange={setRecaptchaValue}
 						theme={(theme === 'light') ? 'light' : 'dark'}
 					/>
 				</div>
-				<Button type="submit" className="w-full">
+				<Button type="submit" className="w-full" disabled={isLoadingRegister}>
 					Create account
 				</Button>
 			</form>
