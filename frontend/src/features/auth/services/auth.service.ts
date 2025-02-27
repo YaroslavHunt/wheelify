@@ -16,7 +16,7 @@ class AuthService {
 	}
 
 	public async oauthByProvider(provider: string) {
-		const response = await api.get<{ url: string }>('api/v1/auth/providers')
+		return await api.get<{ url: string }>(`api/v1/auth/oauth/connect/${provider}`)
 	}
 
 	public async logout() {

@@ -8,7 +8,7 @@ interface ResetPasswordTemplateProps {
 }
 
 export function ResetPasswordTemplate({ domain, token }: ResetPasswordTemplateProps) {
-	const resetLink = `${domain}/${process.env.APP_GLOBAL_PREFIX}/auth/new-password?token=${token}` //TODO client
+	const resetLink = `${domain}/auth/new-password?token=${token}` //TODO client
 
 	return (
 		<Tailwind>
