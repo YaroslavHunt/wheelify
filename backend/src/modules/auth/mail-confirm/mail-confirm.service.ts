@@ -1,13 +1,20 @@
-import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common'
-import { v4 as uuidv4 } from 'uuid'
+import {
+	BadRequestException,
+	forwardRef,
+	Inject,
+	Injectable,
+	NotFoundException
+} from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import Token from '@/modules/auth/models/token.model'
-import { TokenType } from '@/libs/common/enums'
 import { Request } from 'express'
-import { ConfirmationDTO } from '@/modules/auth/mail-confirm/dto/confirmation.dto'
+import { v4 as uuidv4 } from 'uuid'
+
+import { TokenType } from '@/common/enums'
 import { MailService } from '@/libs/mail/mail.service'
-import { UserService } from '@/modules/user/user.service'
 import { AuthService } from '@/modules/auth/auth.service'
+import { ConfirmationDTO } from '@/modules/auth/mail-confirm/dto/confirmation.dto'
+import Token from '@/modules/auth/models/token.model'
+import { UserService } from '@/modules/user/user.service'
 
 @Injectable()
 export class MailConfirmService {
@@ -17,30 +24,34 @@ export class MailConfirmService {
 		private readonly userService: UserService,
 		@Inject(forwardRef(() => AuthService))
 		private readonly authService: AuthService
-	) {
-	}
+	) {}
 
 	public async newVerification(req: Request, dto: ConfirmationDTO) {
 		const existingToken = await this.tokenRepository.findOne({
-			where: { token: dto.token , type: TokenType.VERIFICATION }
+			where: { token: dto.token, type: TokenType.VERIFICATION }
 		})
-		if(!existingToken) {
+		if (!existingToken) {
 			throw new NotFoundException(
 				'The token confirmation is not found. Please make sure you have the right token'
 			)
 		}
 		const isExpired = new Date(existingToken.expiresAt) < new Date()
-		if(isExpired) {
+		if (isExpired) {
 			throw new BadRequestException(
 				'Token has expired. Please invite a new token'
 			)
 		}
-		const existingUser = await this.userService.findByEmail(existingToken.email)
-		if(!existingUser) {
-			throw new NotFoundException('User not found. Please make sure you provide a valid email address and try again.')
+		const existingUser = await this.userService.findByEmail(
+			existingToken.email
+		)
+		if (!existingUser) {
+			throw new NotFoundException(
+				'User not found. Please make sure you provide a valid email address and try again.'
+			)
 		}
-		existingUser.isVerified = true;
-		await existingUser.save();
+		existingUser.isVerified = true
+		existingUser.lastLogin = new Date()
+		await existingUser.save()
 		await this.tokenRepository.destroy({
 			where: {
 				id: existingToken.id,
@@ -54,7 +65,10 @@ export class MailConfirmService {
 	public async sendVerificationToken(email: string) {
 		const verificationToken = await this.generateVerificationToken(email)
 
-		await this.mailService.sendConfirmationEmail(verificationToken.email, verificationToken.token)
+		await this.mailService.sendConfirmationEmail(
+			verificationToken.email,
+			verificationToken.token
+		)
 		return true
 	}
 

@@ -1,10 +1,23 @@
-import { CreationOptional, InferAttributes, InferCreationAttributes, UUIDV4 } from 'sequelize'
-import { BeforeCreate, BeforeUpdate, Column, DataType, HasMany, Model, Table } from 'sequelize-typescript'
 import * as bcrypt from 'bcrypt'
+import {
+	CreationOptional,
+	InferAttributes,
+	InferCreationAttributes,
+	UUIDV4
+} from 'sequelize'
+import {
+	BeforeCreate,
+	BeforeUpdate,
+	Column,
+	DataType,
+	HasMany, HasOne,
+	Model,
+	Table
+} from 'sequelize-typescript'
 
-import { AuthMethod, Role } from 'src/libs/common/enums'
-import Ads from '../../advertisements/model/ads.model'
-import Account from '@/modules/auth/models/account.model'
+import { Role, UserStatus } from '@/common/enums'
+import TimeDocument from '@/modules/document/model/time-document.model'
+import Equipment from '@/modules/equipment/model/equipment.model'
 
 @Table({
 	tableName: 'users',
@@ -24,7 +37,7 @@ export default class User extends Model<
 		type: DataType.UUID,
 		defaultValue: UUIDV4,
 		primaryKey: true,
-		unique: true,
+		unique: true
 	})
 	declare id: string
 
@@ -36,18 +49,18 @@ export default class User extends Model<
 	username: string
 
 	@Column({
-		type: DataType.STRING,
+		type: DataType.STRING
 	})
 	firstname?: string
 
 	@Column({
-		type: DataType.STRING,
+		type: DataType.STRING
 	})
 	lastname?: string
 
 	@Column({
 		type: DataType.STRING,
-		allowNull: false,
+		allowNull: false
 	})
 	password: string
 
@@ -61,12 +74,19 @@ export default class User extends Model<
 	@Column({
 		type: DataType.STRING,
 		allowNull: true,
-		unique: true,
+		unique: true
 	})
 	phone?: string
 
 	@Column({
-		type: DataType.STRING,
+		field: 'last_login',
+		type: DataType.DATE,
+		allowNull: true
+	})
+	lastLogin: Date
+
+	@Column({
+		type: DataType.STRING
 	})
 	avatar?: string
 
@@ -78,61 +98,56 @@ export default class User extends Model<
 	role: Role
 
 	@Column({
-		field: 'is_active',
-		type: DataType.BOOLEAN,
-		defaultValue: true
+		type: DataType.ENUM,
+		values: Object.values(UserStatus),
+		defaultValue: UserStatus.HAPPY
 	})
-	isActive: boolean
+	status: UserStatus
 
 	@Column({
 		field: 'is_verified',
-		type:DataType.BOOLEAN,
+		type: DataType.BOOLEAN,
 		defaultValue: false
 	})
 	isVerified: boolean
 
 	@Column({
 		field: 'is_two_factor_enabled',
-		type:DataType.BOOLEAN,
+		type: DataType.BOOLEAN,
 		defaultValue: false
 	})
 	isTwoFactorEnabled: boolean
 
-	@Column({
-		type: DataType.ENUM,
-		values: Object.values(AuthMethod),
-	})
-	method: AuthMethod
-
-	@HasMany(() => Account, {
-		onDelete: 'CASCADE',
-	})
-	accounts: Account[]
-
-	@HasMany(() => Ads, {
+	@HasMany(() => Equipment, {
 		onDelete: 'CASCADE',
 		onUpdate: 'CASCADE'
 	})
-	advertisements: Ads[]
+	equipments?: Equipment[]
+
+	@HasOne(() => TimeDocument, {
+		onDelete: 'CASCADE',
+		onUpdate: 'CASCADE'
+	})
+	document?: TimeDocument
 
 	@Column({
 		field: 'created_at',
 		type: DataType.DATE,
 		allowNull: false,
-		defaultValue: DataType.NOW,
+		defaultValue: DataType.NOW
 	})
 	declare createdAt: CreationOptional<Date>
 
 	@Column({
 		field: 'updated_at',
 		type: DataType.DATE,
-		allowNull: true,
+		allowNull: true
 	})
 	declare updatedAt: CreationOptional<Date>
 
 	@BeforeUpdate
 	static setUpdatedAt(instance: User) {
-		instance.updatedAt = new Date();
+		instance.updatedAt = new Date()
 	}
 
 	@BeforeCreate

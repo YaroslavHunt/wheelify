@@ -1,11 +1,13 @@
 import { forwardRef, Module } from '@nestjs/common'
-import { PasswordRecoveryService } from './password-recovery.service'
-import { PasswordRecoveryController } from './password-recovery.controller'
 import { SequelizeModule } from '@nestjs/sequelize'
+
+import { MailModule } from '@/libs/mail/mail.module'
 import Token from '@/modules/auth/models/token.model'
 import User from '@/modules/user/model/user.model'
 import { UserModule } from '@/modules/user/user.module'
-import { MailModule } from '@/libs/mail/mail.module'
+
+import { PasswordRecoveryController } from './password-recovery.controller'
+import { PasswordRecoveryService } from './password-recovery.service'
 
 @Module({
 	imports: [

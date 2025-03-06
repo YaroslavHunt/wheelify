@@ -1,4 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common'
+
 import User from '@/modules/user/model/user.model'
 
 export const Authorized = createParamDecorator(
@@ -9,4 +10,3 @@ export const Authorized = createParamDecorator(
 		return data ? user[data] : user
 	}
 )
-

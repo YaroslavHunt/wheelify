@@ -1,25 +1,24 @@
 import { forwardRef, Module } from '@nestjs/common'
-import { MailConfirmService } from './mail-confirm.service'
-import { MailConfirmController } from './mail-confirm.controller'
+import { SequelizeModule } from '@nestjs/sequelize'
+
 import { MailModule } from '@/libs/mail/mail.module'
 import { AuthModule } from '@/modules/auth/auth.module'
-import { SequelizeModule } from '@nestjs/sequelize'
 import Token from '@/modules/auth/models/token.model'
 import User from '@/modules/user/model/user.model'
 import { UserModule } from '@/modules/user/user.module'
-import { UserValidationModule } from '@/modules/user/libs/user-validation/user-validation.module'
+
+import { MailConfirmController } from './mail-confirm.controller'
+import { MailConfirmService } from './mail-confirm.service'
 
 @Module({
 	imports: [
 		MailModule,
 		forwardRef(() => AuthModule),
 		SequelizeModule.forFeature([Token, User]),
-		forwardRef(() => UserModule),
-		UserValidationModule
+		forwardRef(() => UserModule)
 	],
 	controllers: [MailConfirmController],
 	providers: [MailConfirmService],
 	exports: [MailConfirmService]
 })
-export class MailConfirmModule {
-}
+export class MailConfirmModule {}

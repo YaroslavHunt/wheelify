@@ -1,5 +1,6 @@
-import { Role } from '@/libs/common/enums'
 import { applyDecorators, UseGuards } from '@nestjs/common'
+
+import { Role } from '@/common/enums'
 import { Roles } from '@/modules/auth/decorators/roles.decorator'
 import { AuthGuard } from '@/modules/auth/guards/auth.guard'
 import { RolesGuard } from '@/modules/auth/guards/roles.guard'
@@ -11,5 +12,5 @@ export function Authorization(...roles: Role[]) {
 			UseGuards(AuthGuard, RolesGuard)
 		)
 	}
-	return  applyDecorators(UseGuards(AuthGuard))
+	return applyDecorators(UseGuards(AuthGuard))
 }

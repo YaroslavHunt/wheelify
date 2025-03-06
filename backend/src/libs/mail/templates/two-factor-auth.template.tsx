@@ -6,10 +6,11 @@ interface TwoFactorAuthTemplateProps {
 	token: string
 }
 
-export function TwoFactorAuthTemplate({ token }: TwoFactorAuthTemplateProps) {
+export function TwoFactorAuthTemplate({ token }: Readonly<TwoFactorAuthTemplateProps>) {
 	return (
 		<Tailwind>
 			<Html>
+				{/* eslint-disable-next-line prettier/prettier */}
 				<Body className="bg-gray-50 text-black font-sans p-8">
 					<div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-lg">
 						<Heading className="text-2xl font-bold text-center text-blue-600 mb-6">
@@ -38,18 +39,10 @@ export function TwoFactorAuthTemplate({ token }: TwoFactorAuthTemplateProps) {
 									</Link>
 								</Text>
 							</div>
-							<div className="mb-4">
-								<Text>
-									This email was sent to you by Wheelify Platform. If you no longer wish to receive emails from us, please{' '}
-									<Link href="/unsubscribe" className="text-blue-500">
-										unsubscribe here.
-									</Link>
-								</Text>
-							</div>
 						</div>
 					</div>
 				</Body>
 			</Html>
 		</Tailwind>
 	)
-} //TODO unsubscribe
+}

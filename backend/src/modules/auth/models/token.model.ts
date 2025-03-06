@@ -1,13 +1,12 @@
 import { InferAttributes, InferCreationAttributes, UUIDV4 } from 'sequelize'
 import { Column, DataType, Model, Table } from 'sequelize-typescript'
-import { TokenType } from '@/libs/common/enums'
+
+import { TokenType } from '@/common/enums'
 
 @Table({
 	tableName: 'tokens',
 	timestamps: false,
-	indexes: [
-		{ unique: true, fields: ['id'] },
-	]
+	indexes: [{ unique: true, fields: ['id'] }]
 })
 export default class Token extends Model<
 	InferAttributes<Token>,
@@ -42,7 +41,7 @@ export default class Token extends Model<
 	type: TokenType
 
 	@Column({
-		field:'expires_at',
+		field: 'expires_at',
 		type: DataType.DATE,
 		allowNull: false
 	})
@@ -52,9 +51,7 @@ export default class Token extends Model<
 		field: 'created_at',
 		type: DataType.DATE,
 		allowNull: false,
-		defaultValue: DataType.NOW,
+		defaultValue: DataType.NOW
 	})
 	declare createdAt: Date
 }
-
-

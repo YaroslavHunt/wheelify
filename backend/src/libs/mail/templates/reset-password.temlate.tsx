@@ -7,12 +7,13 @@ interface ResetPasswordTemplateProps {
 	token: string;
 }
 
-export function ResetPasswordTemplate({ domain, token }: ResetPasswordTemplateProps) {
-	const resetLink = `${domain}/auth/new-password?token=${token}` //TODO client
+export function ResetPasswordTemplate({ domain, token }: Readonly<ResetPasswordTemplateProps>) {
+	const resetLink = `${domain}/auth/new-password?token=${token}`
 
 	return (
 		<Tailwind>
 			<Html>
+				{/* eslint-disable-next-line prettier/prettier */}
 				<Body className="text-black">
 					<Heading>Reset Password</Heading>
 					<Text>

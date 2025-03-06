@@ -1,20 +1,32 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch } from '@nestjs/common'
+import {
+	BadRequestException,
+	Body,
+	Controller,
+	DefaultValuePipe,
+	Delete,
+	Get,
+	HttpCode,
+	HttpStatus,
+	Param,
+	ParseIntPipe,
+	Patch,
+	Query
+} from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { UserService } from './user.service'
-import { Authorized } from '@/modules/auth/decorators/authorized.decorator'
+
+import { Role } from '@/common/enums'
 import { Authorization } from '@/modules/auth/decorators/auth.decorator'
-import { Role } from '@/libs/common/enums'
-import { toDTO } from '@/database/sequelize/utils/mapper.util'
-import { UserProfileResDTO } from './dto/res/user-profile-res.dto'
+import { Authorized } from '@/modules/auth/decorators/authorized.decorator'
 import { UpdateUserReqDTO } from '@/modules/user/dto/req/update-user-profile-req.dto'
-import { UpdateUserDTO, UpdateUserResDTO } from '@/modules/user/dto/res/update-user-res.dto'
+
+import { ChangeUserReqDTO } from './dto/req/change-user-req.dto'
+import { PaginationUsersRes } from './dto/res/pagination-users-res.dto'
+import { UserService } from './user.service'
 
 @ApiTags('Users')
 @Controller('users')
 export class UserController {
-	constructor(private readonly userService: UserService) {
-	}
-
+	constructor(private readonly userService: UserService) {}
 
 	@Authorization()
 	@HttpCode(HttpStatus.OK)
@@ -24,13 +36,12 @@ export class UserController {
 		return await this.userService.findById(id)
 	}
 
-	@Authorization(Role.ADMIN, Role.MODERATOR)
+	@Authorization(Role.ADMIN)
 	@HttpCode(HttpStatus.OK)
 	@ApiResponse({ status: HttpStatus.OK })
 	@Get('by-id/:id')
 	public async findById(@Param('id') id: string) {
-		const user = await this.userService.findById(id)
-		return await toDTO(UserProfileResDTO, user)
+		return this.userService.findById(id)
 	}
 
 	@Authorization()
@@ -39,32 +50,50 @@ export class UserController {
 	@Patch('edit-profile')
 	public async updateProfile(
 		@Authorized('id') id: string,
-		@Body() data: UpdateUserReqDTO): Promise<UpdateUserResDTO> {
+		@Body() data: UpdateUserReqDTO
+	) {
 		const previousUser = await this.userService.findById(id)
-		const updatedUser = await this.userService.update(id, data)
+		const updatedUser = await this.userService.updateUser(id, data)
 
 		return {
-			data: await toDTO(UpdateUserDTO, updatedUser),
-			previousData: await toDTO(UpdateUserDTO, previousUser)
+			data: updatedUser,
+			previousData: previousUser
 		}
 	}
 
-	// @ApiResponse({ status: 202, type: Boolean })
-	// @HttpCode(202)
-	// @Patch('change-password')
-	// changePassword(
-	// 	@Body() dto: ChangePasswordReq,
-	// 	@Req() req: AuthRequest
-	// ): Promise<boolean> {
-	// 	const user = req.user
-	// 	return this.userService.changePassword(user, dto)
-	// }
-	//
-	// @ApiResponse({ status: 202, type: Boolean })
-	// @HttpCode(202)
-	// @Patch('deactivate')
-	// deactivateUser(@Req() req: AuthRequest): Promise<boolean> {
-	// 	const user = req.user
-	// 	return this.userService.deactivateUser(user.email)
-	// }
+	@Authorization(Role.ADMIN)
+	@HttpCode(HttpStatus.OK)
+	@ApiResponse({ status: HttpStatus.OK })
+	@Patch('change-profile/:id')
+	public async changeUserProfileById(
+		@Body() data: ChangeUserReqDTO,
+		@Param('id') id: string
+	) {
+		return this.userService.updateUser(id, data)
+	}
+
+	@Authorization(Role.ADMIN)
+	@HttpCode(HttpStatus.OK)
+	@ApiResponse({ status: HttpStatus.OK, type: PaginationUsersRes })
+	@Get('users-list')
+	public async getUsersList(
+		@Query('search') search?: string,
+		@Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
+		@Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit?: number
+	): Promise<PaginationUsersRes> {
+		if (page <= 0 || limit <= 0) {
+			throw new BadRequestException(
+				'Page and limit must be numbers greater than 0'
+			)
+		}
+		return this.userService.getUsersList({ search, page, limit })
+	}
+
+	@Authorization(Role.ADMIN)
+	@HttpCode(HttpStatus.OK)
+	@ApiResponse({ status: 200, type: Boolean })
+	@Delete('delete-user/:id')
+	public async deleteUser(@Param('id') id: string) {
+		return this.userService.deleteUser(id)
+	}
 }

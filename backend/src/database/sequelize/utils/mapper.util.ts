@@ -6,6 +6,9 @@ import { ClassConstructor, plainToInstance } from 'class-transformer'
  * @param plain - object (entity)
  * @returns Object in the desired format
  */
-export async function toDTO<T, V>(cls: ClassConstructor<T>, plain: V): Promise<T> {
+export async function toDTO<T, V>(
+	cls: ClassConstructor<T>,
+	plain: V
+): Promise<T> {
 	return plainToInstance(cls, plain, { excludeExtraneousValues: true })
 }

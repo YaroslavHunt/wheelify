@@ -1,5 +1,6 @@
-import { StorageService } from '@/libs/storage/storage.service'
 import { Module } from '@nestjs/common'
+
+import { StorageService } from '@/libs/storage/storage.service'
 
 @Module({
 	providers: [StorageService],
